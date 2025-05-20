@@ -5,7 +5,7 @@ on:
     - cron: '0 0 * * *' # Run daily at midnight UTC
   push:
     branches:
-      - main # Also trigger on push to main for testing
+      - main # Trigger on push to main for testing
   workflow_dispatch: # Allow manual trigger
 
 jobs:
@@ -33,7 +33,8 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          logout: true
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
