@@ -3,7 +3,7 @@ ARG PHP_VERSION=8.4
 ARG VARIANT=cli
 
 # Base stage: Common setup for all variants
-FROM php:${PHP_VERSION}-${VARIANT}${VARIANT == "alpine-fpm" && "-alpine" || ""} AS base
+FROM php:${PHP_VERSION}-${VARIANT} AS base
 ARG VARIANT
 
 # Hardcode user and uid
@@ -11,7 +11,7 @@ ENV user=laravel
 ENV uid=1000
 
 # Install system dependencies and PHP extensions
-RUN if [ "${VARIANT}" = "alpine" ] || [ "${VARIANT}" = "alpine-fpm" ]; then \
+RUN if [ "${VARIANT}" = "alpine" ] || [ "${VARIANT}" = "fpm-alpine" ]; then \
         apk add --no-cache \
             libxml2-dev \
             oniguruma-dev \
@@ -32,7 +32,7 @@ RUN if [ "${VARIANT}" = "alpine" ] || [ "${VARIANT}" = "alpine-fpm" ]; then \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Create system user
-RUN if [ "${VARIANT}" = "fpm" ] || [ "${VARIANT}" = "alpine-fpm" ]; then \
+RUN if [ "${VARIANT}" = "fpm" ] || [ "${VARIANT}" = "fpm-alpine" ]; then \
         useradd -G www-data -u ${uid} -d /home/${user} ${user}; \
     else \
         useradd -u ${uid} -d /home/${user} ${user}; \
