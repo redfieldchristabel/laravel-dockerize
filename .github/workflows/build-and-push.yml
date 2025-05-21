@@ -42,27 +42,23 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}/laravel
           tags: |
-            # ─── CLI (latest) group ─────────────────────────────────────────────────────
-            # all 8.4.7-cli-bookworm, 8.4-cli-bookworm, …, cli, 8.4.7, 8.4, 8, latest
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-cli-bookworm',enable=${{ matrix.variant == 'cli' }}
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-cli-bullseye',enable=${{ matrix.variant == 'cli' }}
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-cli-alpine3.21',enable=${{ matrix.variant == 'cli' }}
+            # CLI (latest) group
+            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-cli-bookworm',semver.pattern='^v?\\d+\\.\\d+\\.\\d+$',enable=${{ matrix.variant == 'cli' }}
+            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-cli-bullseye',semver.pattern='^v?\\d+\\.\\d+\\.\\d+$',enable=${{ matrix.variant == 'cli' }}
+            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-cli-alpine3.21',semver.pattern='^v?\\d+\\.\\d+\\.\\d+$',enable=${{ matrix.variant == 'cli' }}
             type=raw,value=cli,enable=${{ matrix.variant == 'cli' }}
             type=raw,value=latest,enable=${{ matrix.variant == 'cli' }}
 
-            # ─── FPM group ──────────────────────────────────────────────────────────────
-            # all 8.4.7-fpm-bookworm, 8.4-fpm-bookworm, …, fpm
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-fpm-bookworm',enable=${{ matrix.variant == 'fpm' }}
+            # FPM group
+            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-fpm-bookworm',semver.pattern='^v?\\d+\\.\\d+\\.\\d+$',enable=${{ matrix.variant == 'fpm' }}
             type=raw,value=fpm,enable=${{ matrix.variant == 'fpm' }}
 
-            # ─── ALPINE CLI group ───────────────────────────────────────────────────────
-            # all 8.4.7-cli-alpine3.21, 8.4-cli-alpine3.21, …, alpine
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-cli-alpine3.21',enable=${{ matrix.variant == 'fpm-alpine' || matrix.variant == 'cli-alpine' }}
+            # ALPINE CLI group
+            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-cli-alpine3.21',semver.pattern='^v?\\d+\\.\\d+\\.\\d+$',enable=${{ matrix.variant == 'fpm-alpine' || matrix.variant == 'cli-alpine' }}
             type=raw,value=alpine,enable=${{ matrix.variant == 'fpm-alpine' || matrix.variant == 'cli-alpine' }}
 
-            # ─── FPM-ALPINE group ────────────────────────────────────────────────────────
-            # all 8.4.7-fpm-alpine3.21, 8.4-fpm-alpine3.21, …, fpm-alpine
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-fpm-alpine3.21',enable=${{ matrix.variant == 'fpm-alpine' }}
+            # FPM-ALPINE group
+            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-fpm-alpine3.21',semver.pattern='^v?\\d+\\.\\d+\\.\\d+$',enable=${{ matrix.variant == 'fpm-alpine' }}
             type=raw,value=fpm-alpine,enable=${{ matrix.variant == 'fpm-alpine' }}
 
       - name: Build and push Docker image
