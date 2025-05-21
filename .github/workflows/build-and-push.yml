@@ -8,6 +8,9 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  LATEST_PHP_VERSION: "8.1"
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -16,12 +19,17 @@ jobs:
       packages: write
     strategy:
       matrix:
-        php_version: ["8.3"]
+        php_version: ["8.1"]
         variant: ["cli"]
       fail-fast: false
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Compute latest PHP version and major version
+        run: |
+          # Hardcoded php_version list; update when matrix changes (e.g., add 8.4)
+          echo "MAJOR_VERSION=$(echo ${{ matrix.php_version }} | cut -d'.' -f1)" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -43,17 +51,17 @@ jobs:
             # Common tags for all variants
             type=raw,value=${{ matrix.php_version }}.0-${{ matrix.variant }}
             type=raw,value=${{ matrix.php_version }}-${{ matrix.variant }}
-            type=raw,value=${{ matrix.php_version }}-major-${{ matrix.variant }}
+            type=raw,value=${{ env.MAJOR_VERSION }}-${{ matrix.variant }},enable=${{ matrix.php_version == env.LATEST_PHP_VERSION }}
             type=raw,value=${{ matrix.variant }}
             # CLI-specific tags
             type=raw,value=${{ matrix.php_version }}.0,enable=${{ matrix.variant == 'cli' }}
             type=raw,value=${{ matrix.php_version }},enable=${{ matrix.variant == 'cli' }}
-            type=raw,value=${{ matrix.php_version }}-major,enable=${{ matrix.variant == 'cli' }}
-            type=raw,value=latest,enable=${{ matrix.variant == 'cli' && matrix.php_version == '8.3' }}
+            type=raw,value=${{ env.MAJOR_VERSION }},enable=${{ matrix.variant == 'cli' && matrix.php_version == env.LATEST_PHP_VERSION }}
+            type=raw,value=latest,enable=${{ matrix.variant == 'cli' && matrix.php_version == env.LATEST_PHP_VERSION }}
             # CLI Alpine-specific tags
             type=raw,value=${{ matrix.php_version }}.0-alpine,enable=${{ matrix.variant == 'cli-alpine' }}
             type=raw,value=${{ matrix.php_version }}-alpine,enable=${{ matrix.variant == 'cli-alpine' }}
-            type=raw,value=${{ matrix.php_version }}-major-alpine,enable=${{ matrix.variant == 'cli-alpine' }}
+            type=raw,value=${{ env.MAJOR_VERSION }}-alpine,enable=${{ matrix.variant == 'cli-alpine' && matrix.php_version == env.LATEST_PHP_VERSION }}
             type=raw,value=alpine,enable=${{ matrix.variant == 'cli-alpine' }}
 
       - name: Log generated tags
@@ -96,12 +104,17 @@ jobs:
       packages: write
     strategy:
       matrix:
-        php_version: ["8.3"]
+        php_version: ["8.1"]
         variant: ["cli"]
       fail-fast: false
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Compute latest PHP version and major version
+        run: |
+          echo "LATEST_PHP_VERSION=$(echo '8.1\n8.2\n8.3' | sort -V | tail -n1)" >> $GITHUB_ENV
+          echo "MAJOR_VERSION=$(echo ${{ matrix.php_version }} | cut -d'.' -f1)" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -122,7 +135,7 @@ jobs:
           tags: |
             type=raw,value=${{ matrix.php_version }}.0-${{ matrix.variant }}-filament
             type=raw,value=${{ matrix.php_version }}-${{ matrix.variant }}-filament
-            type=raw,value=${{ matrix.php_version }}-major-${{ matrix.variant }}-filament
+            type=raw,value=${{ env.MAJOR_VERSION }}-${{ matrix.variant }}-filament,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION }}
             type=raw,value=${{ matrix.variant }}-filament
 
       - name: Log generated tags
