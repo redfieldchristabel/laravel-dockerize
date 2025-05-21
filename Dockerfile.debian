@@ -30,9 +30,6 @@ RUN getent group www-data || groupadd -r www-data; \
 # Set working directory
 WORKDIR /var/www
 
-# Copy codebase (assuming Laravel project root)
-COPY . /var/www
-
 # Change ownership
 RUN chown -R ${user}:www-data /var/www
 

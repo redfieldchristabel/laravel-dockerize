@@ -3,7 +3,7 @@ ARG PHP_VERSION=8.3
 ARG VARIANT=fpm-alpine
 
 # Base stage: Start from the normal Laravel Alpine-based image
-FROM ghcr.io/redfieldchristabel/laravel-dockerize/laravel:${PHP_VERSION}-${VARIANT} AS base
+FROM ghcr.io/redfieldchristabel/laravel:${PHP_VERSION}-${VARIANT} AS base
 ARG VARIANT
 
 USER root
@@ -23,7 +23,7 @@ RUN apk add --no-cache \
 FROM base AS fpm
 COPY docker/php/docker-entrypoint-fpm.sh /usr/local/bin/docker-php-entrypoint
 RUN chmod +x /usr/local/bin/docker-php-entrypoint
-USER laravel
+USER $user
 EXPOSE 9000
 ENTRYPOINT ["docker-php-entrypoint"]
 
@@ -31,5 +31,5 @@ ENTRYPOINT ["docker-php-entrypoint"]
 FROM base AS cli
 COPY docker/php/docker-entrypoint-cli.sh /usr/local/bin/docker-php-entrypoint
 RUN chmod +x /usr/local/bin/docker-php-entrypoint
-USER laravel
+USER $user
 ENTRYPOINT ["docker-php-entrypoint"]
