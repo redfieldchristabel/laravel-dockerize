@@ -40,7 +40,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}/laravel
+          images: ghcr.io/laravel
           tags: |
             # CLI tags
             type=semver,pattern={{raw:(\d+)\.(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-cli,enable=${{ matrix.variant == 'cli' }}
