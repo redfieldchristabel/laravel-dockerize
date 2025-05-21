@@ -78,7 +78,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ${{ matrix.variant == 'cli' || matrix.variant == 'fpm' && 'Dockerfile.debian' || 'Dockerfile.alpine' }}
+          file: ${{ contains(fromJson('["cli", "fpm"]'), matrix.variant) && 'Dockerfile.debian' || 'Dockerfile.alpine' }}
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
             VARIANT=${{ matrix.variant }}
