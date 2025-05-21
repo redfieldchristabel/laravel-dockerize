@@ -16,7 +16,7 @@ RUN if [ "${VARIANT}" = "alpine" ]; then \
             libxml2-dev \
             oniguruma-dev \
         && docker-php-ext-install pdo pdo_mysql mbstring bcmath xml \
-        && docker-php-ext-enable pdo pdo_mysql mbstring bcmath xml \
+        && docker-phpext-enable pdo pdo_mysql mbstring bcmath xml \
         && apk del --no-cache libxml2-dev oniguruma-dev \
         && rm -rf /var/cache/apk/*; \
     else \
@@ -49,25 +49,20 @@ COPY . /var/www
 # Change ownership
 RUN chown -R ${user}:${user} /var/www
 
-ENTRYPOINT ["docker-php-entrypoint"]
-
+# Switch to non-root user
+USER root
 
 # FPM target
 FROM base AS fpm
 COPY docker/php/docker-entrypoint-fpm.sh /usr/local/bin/docker-php-entrypoint
 RUN chmod +x /usr/local/bin/docker-php-entrypoint
-
-# Switch to non-root user
 USER ${user}
-
 EXPOSE 9000
-
+ENTRYPOINT ["docker-php-entrypoint"]
 
 # CLI target (used for cli and alpine)
 FROM base AS cli
 COPY docker/php/docker-entrypoint-cli.sh /usr/local/bin/docker-php-entrypoint
-
-# Switch to non-root user
-USER ${user}
-
 RUN chmod +x /usr/local/bin/docker-php-entrypoint
+USER ${user}
+ENTRYPOINT ["docker-php-entrypoint"]
