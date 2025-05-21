@@ -32,10 +32,10 @@ RUN if [ "${VARIANT}" = "alpine" ] || [ "${VARIANT}" = "fpm-alpine" ]; then \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Create system user
-RUN if [ "${VARIANT}" = "fpm" ] || [ "${VARIANT}" = "fpm-alpine" ]; then \
-        useradd -G www-data -u ${uid} -d /home/${user} ${user}; \
+RUN if [ "${VARIANT}" = "alpine" ] || [ "${VARIANT}" = "fpm-alpine" ]; then \
+        adduser -G www-data -u ${uid} -h /home/${user} -D ${user}; \
     else \
-        useradd -u ${uid} -d /home/${user} ${user}; \
+        useradd -G www-data -u ${uid} -d /home/${user} ${user}; \
     fi \
     && mkdir -p /home/${user}/.composer \
     && chown -R ${user}:${user} /home/${user}
