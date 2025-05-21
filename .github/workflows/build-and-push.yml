@@ -2,11 +2,11 @@ name: Build and Push Laravel Images to GHCR
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Run daily at midnight UTC
+    - cron: "0 0 * * *" # Run daily at midnight UTC
   push:
     branches:
-      - main # Trigger on push to main for testing
-  workflow_dispatch: # Allow manual trigger
+      - main
+  workflow_dispatch:
 
 jobs:
   build-and-push:
@@ -17,8 +17,8 @@ jobs:
 
     strategy:
       matrix:
-        php_version: ['8.3']
-        variant: ['fpm-alpine']
+        php_version: ["8.3"]
+        variant: ["cli", "fpm", "fpm-alpine"]
       fail-fast: false
 
     steps:
@@ -42,19 +42,37 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}/laravel
           tags: |
-            type=raw,value=${{ matrix.php_version }}-${{ matrix.variant }}
-            type=raw,value=${{ matrix.php_version }},enable=${{ matrix.variant == 'cli' }}
-            type=raw,value=${{ matrix.variant }},enable=${{ matrix.php_version == '8.4' }}
-            type=raw,value=latest,enable=${{ matrix.php_version == '8.4' && matrix.variant == 'cli' }}
+            # ─── CLI (latest) group ─────────────────────────────────────────────────────
+            # all 8.4.7-cli-bookworm, 8.4-cli-bookworm, …, cli, 8.4.7, 8.4, 8, latest
+            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-cli-bookworm',enable=${{ matrix.variant == 'cli' }}
+            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-cli-bullseye',enable=${{ matrix.variant == 'cli' }}
+            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-cli-alpine3.21',enable=${{ matrix.variant == 'cli' }}
+            type=raw,value=cli,enable=${{ matrix.variant == 'cli' }}
+            type=raw,value=latest,enable=${{ matrix.variant == 'cli' }}
+
+            # ─── FPM group ──────────────────────────────────────────────────────────────
+            # all 8.4.7-fpm-bookworm, 8.4-fpm-bookworm, …, fpm
+            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-fpm-bookworm',enable=${{ matrix.variant == 'fpm' }}
+            type=raw,value=fpm,enable=${{ matrix.variant == 'fpm' }}
+
+            # ─── ALPINE CLI group ───────────────────────────────────────────────────────
+            # all 8.4.7-cli-alpine3.21, 8.4-cli-alpine3.21, …, alpine
+            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-cli-alpine3.21',enable=${{ matrix.variant == 'fpm-alpine' || matrix.variant == 'cli-alpine' }}
+            type=raw,value=alpine,enable=${{ matrix.variant == 'fpm-alpine' || matrix.variant == 'cli-alpine' }}
+
+            # ─── FPM-ALPINE group ────────────────────────────────────────────────────────
+            # all 8.4.7-fpm-alpine3.21, 8.4-fpm-alpine3.21, …, fpm-alpine
+            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-fpm-alpine3.21',enable=${{ matrix.variant == 'fpm-alpine' }}
+            type=raw,value=fpm-alpine,enable=${{ matrix.variant == 'fpm-alpine' }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ${{ matrix.variant == 'alpine' || matrix.variant == 'fpm-alpine' && 'Dockerfile.alpine' || 'Dockerfile.debian' }}
+          file: ${{ matrix.variant == 'cli' || matrix.variant == 'fpm-alpine' && 'Dockerfile.alpine' || 'Dockerfile.debian' }}
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
-            VARIANT=${{ matrix.variant == 'alpine' && 'cli' || matrix.variant == 'fpm-alpine' && 'fpm' || matrix.variant }}
+            VARIANT=${{ matrix.variant }}
           target: ${{ matrix.variant == 'fpm' || matrix.variant == 'fpm-alpine' && 'fpm' || 'cli' }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
