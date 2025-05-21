@@ -38,7 +38,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}/laravel
+          images: ghcr.io/redfieldchristabel/laravel
           tags: |
             # CLI tags
             type=semver,pattern={{raw:(\d+)\.(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-cli,enable=${{ matrix.variant == 'cli' }}
@@ -89,7 +89,7 @@ jobs:
 
       - name: Verify pushed image
         run: |
-          docker pull ghcr.io/${{ github.repository }}/laravel:${{ matrix.php_version }}-${{ matrix.variant }}
+          docker pull ghcr.io/redfieldc/laravel:${{ matrix.php_version }}-${{ matrix.variant }}
           echo "Successfully pulled ghcr.io/${{ github.repository }}/laravel:${{ matrix.php_version }}-${{ matrix.variant }}"
 
   build-and-push-filament:
@@ -122,7 +122,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}/laravel
+          images: ghcr.io/redfieldchristabel/laravel
           tags: |
             # Filament tags for each variant
             type=semver,pattern={{raw:(\d+)\.(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-${{ matrix.variant }}-filament,enable=true
@@ -147,5 +147,5 @@ jobs:
 
       - name: Verify pushed Filament image
         run: |
-          docker pull ghcr.io/${{ github.repository }}/laravel:${{ matrix.php_version }}-${{ matrix.variant }}-filament
+          docker pull ghcr.io/redfieldchristabel/laravel:${{ matrix.php_version }}-${{ matrix.variant }}-filament
           echo "Successfully pulled ghcr.io/${{ github.repository }}/laravel:${{ matrix.php_version }}-${{ matrix.variant }}-filament"
