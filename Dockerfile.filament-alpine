@@ -13,11 +13,13 @@ RUN apk add --no-cache \
     libzip-dev \
     freetype-dev \
     libjpeg-turbo-dev \
+    icu-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install intl zip gd \
     && docker-php-ext-enable intl zip gd \
     && apk del --no-cache freetype-dev libjpeg-turbo-dev \
     && rm -rf /var/cache/apk/*
+
 
 # FPM target
 FROM base AS fpm
