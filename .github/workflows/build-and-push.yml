@@ -72,6 +72,10 @@ jobs:
             type=semver,pattern={{raw:(\d+)}},semver.version=${{ matrix.php_version }},suffix=-fpm-alpine,enable=${{ matrix.variant == 'fpm-alpine' }}
             type=raw,value=fpm-alpine,enable=${{ matrix.variant == 'fpm-alpine' }}
 
+      - name: Log generated tags
+        run: |
+          echo "Generated tags: ${{ steps.meta.outputs.tags }}"
+          echo "Tags JSON: ${{ steps.meta.outputs.json }}"
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
