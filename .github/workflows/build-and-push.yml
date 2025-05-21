@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  LATEST_PHP_VERSION: "8.1"
+  LATEST_PHP_VERSION: "8.4"
 
 jobs:
   build-and-push:
@@ -19,8 +19,8 @@ jobs:
       packages: write
     strategy:
       matrix:
-        php_version: ["8.1"]
-        variant: ["cli"]
+        php_version: ["8.1", "8.2", "8.3", "8.4"]
+        variant: ["cli", "fpm", "cli-alpine", "fpm-alpine"]
       fail-fast: false
     steps:
       - name: Checkout repository
@@ -104,8 +104,8 @@ jobs:
       packages: write
     strategy:
       matrix:
-        php_version: ["8.1"]
-        variant: ["cli"]
+        php_version: ["8.1", "8.2", "8.3", "8.4"]
+        variant: ["cli", "fpm", "cli-alpine", "fpm-alpine"]
       fail-fast: false
     steps:
       - name: Checkout repository
