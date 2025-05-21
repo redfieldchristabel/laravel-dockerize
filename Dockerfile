@@ -1,17 +1,16 @@
-# Define build arguments for PHP version and variant
+# Define build arguments
 ARG PHP_VERSION=8.4
 ARG VARIANT=cli
-ARG BASE_IMAGE=php:${PHP_VERSION}-${VARIANT}
 
-# Use the specified base image (defaults to php:8.4-cli for 'latest')
-FROM ${BASE_IMAGE}
+# Base stage: Common setup for all variants
+FROM php:${PHP_VERSION}-${VARIANT} AS base
+ARG VARIANT
 
-# Define arguments for user and UID with fallbacks
-ARG user=laravel
-ARG uid=1000
+# Hardcode user and uid
+ENV user=laravel
+ENV uid=1000
 
 # Install system dependencies and PHP extensions
-# Alpine uses apk, Debian uses apt-get
 RUN if [ "${VARIANT}" = "alpine" ]; then \
         apk add --no-cache \
             libxml2-dev \
@@ -30,8 +29,7 @@ RUN if [ "${VARIANT}" = "alpine" ]; then \
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Create system user to run Composer and Artisan commands
-# For FPM, add user to www-data group; for CLI/Alpine, no group
+# Create system user
 RUN if [ "${VARIANT}" = "fpm" ]; then \
         useradd -G www-data -u ${uid} -d /home/${user} ${user}; \
     else \
@@ -40,25 +38,28 @@ RUN if [ "${VARIANT}" = "fpm" ]; then \
     && mkdir -p /home/${user}/.composer \
     && chown -R ${user}:${user} /home/${user}
 
-# Copy and configure custom entrypoint
-COPY docker/php/docker-entrypoint.sh /usr/local/bin/docker-php-entrypoint
-RUN chmod +x /usr/local/bin/docker-php-entrypoint
-
 # Set working directory
 WORKDIR /var/www
 
-# Change ownership of working directory
+# Copy codebase (assuming Laravel project root)
+COPY . /var/www
+
+# Change ownership
 RUN chown -R ${user}:${user} /var/www
 
 # Switch to non-root user
 USER ${user}
 
-# Expose port based on variant (8000 for CLI/Alpine, 9000 for FPM)
-ARG PORT=0000
-RUN if [ "${VARIANT}" = "fpm" ]; then \
-        export PORT=9000; \
-    fi
-EXPOSE ${PORT}
-
-# Use custom entrypoint
 ENTRYPOINT ["docker-php-entrypoint"]
+
+
+# FPM target
+FROM base AS fpm
+COPY docker/php/docker-entrypoint-fpm.sh /usr/local/bin/docker-php-entrypoint
+RUN chmod +x /usr/local/bin/docker-php-entrypoint
+EXPOSE 9000
+
+# CLI target (used for cli and alpine)
+FROM base AS cli
+COPY docker/php/docker-entrypoint-cli.sh /usr/local/bin/docker-php-entrypoint
+RUN chmod +x /usr/local/bin/docker-php-entrypoint

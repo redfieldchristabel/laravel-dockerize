@@ -1,4 +1,4 @@
-name: Build and Push PHP Images to GHCR
+name: Build and Push Laravel Images to GHCR
 
 on:
   schedule:
@@ -17,7 +17,7 @@ jobs:
 
     strategy:
       matrix:
-        php_version: ['8.1', '8.2', '8.3', '8.4']
+        php_version: ['8.2', '8.3', '8.4']
         variant: ['cli', 'fpm', 'alpine']
       fail-fast: false
 
@@ -36,6 +36,15 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           logout: true
 
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/laravel
+          tags: |
+            type=raw,value=${{ matrix.php_version }}-${{ matrix.variant }}
+            type=raw,value=latest,enable=${{ matrix.php_version == '8.4' && matrix.variant == 'cli' }}
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -45,13 +54,12 @@ jobs:
             PHP_VERSION=${{ matrix.php_version }}
             VARIANT=${{ matrix.variant }}
           push: true
-          tags: |
-            ghcr.io/${{ github.repository }}/php:${{ matrix.php_version }}-${{ matrix.variant }}
-            ${{ matrix.php_version == '8.4' && matrix.variant == 'cli' && format('ghcr.io/{0}/php:latest', github.repository) || '' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Verify pushed image
         run: |
-          docker pull ghcr.io/${{ github.repository }}/php:${{ matrix.php_version }}-${{ matrix.variant }}
-          echo "Successfully pulled ghcr.io/${{ github.repository }}/php:${{ matrix.php_version }}-${{ matrix.variant }}"
+          docker pull ghcr.io/${{ github.repository }}/laravel:${{ matrix.php_version }}-${{ matrix.variant }}
+          echo "Successfully pulled ghcr.io/${{ github.repository }}/laravel:${{ matrix.php_version }}-${{ matrix.variant }}"
