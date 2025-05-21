@@ -89,7 +89,7 @@ jobs:
 
       - name: Verify pushed image
         run: |
-          docker pull ghcr.io/redfieldc/laravel:${{ matrix.php_version }}-${{ matrix.variant }}
+          docker pull ghcr.io/redfieldchristabel/laravel:${{ matrix.php_version }}-${{ matrix.variant }}
           echo "Successfully pulled ghcr.io/${{ github.repository }}/laravel:${{ matrix.php_version }}-${{ matrix.variant }}"
 
   build-and-push-filament:
