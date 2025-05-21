@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         php_version: ["8.3"]
-        variant: ["cli", "fpm", "fpm-alpine"]
+        variant: ["cli"]
       fail-fast: false
 
     steps:
@@ -54,8 +54,8 @@ jobs:
             type=raw,value=fpm,enable=${{ matrix.variant == 'fpm' }}
 
             # ALPINE CLI group
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-cli-alpine3.21',semver.pattern='^v?\\d+\\.\\d+\\.\\d+$',enable=${{ matrix.variant == 'fpm-alpine' || matrix.variant == 'cli-alpine' }}
-            type=raw,value=alpine,enable=${{ matrix.variant == 'fpm-alpine' || matrix.variant == 'cli-alpine' }}
+            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-cli-alpine3.21',semver.pattern='^v?\\d+\\.\\d+\\.\\d+$',enable=${{ matrix.variant == 'cli' || matrix.variant == 'fpm-alpine' }}
+            type=raw,value=alpine,enable=${{ matrix.variant == 'cli' || matrix.variant == 'fpm-alpine' }}
 
             # FPM-ALPINE group
             type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-fpm-alpine3.21',semver.pattern='^v?\\d+\\.\\d+\\.\\d+$',enable=${{ matrix.variant == 'fpm-alpine' }}
