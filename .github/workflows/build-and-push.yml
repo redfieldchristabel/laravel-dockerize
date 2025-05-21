@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         php_version: ['8.3']
-        variant: ['fpm-alphine']
+        variant: ['fpm-alpine']
       fail-fast: false
 
     steps:
