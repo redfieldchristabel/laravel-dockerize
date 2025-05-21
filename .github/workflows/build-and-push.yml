@@ -42,34 +42,67 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}/laravel
           tags: |
-            # CLI group
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Major }}',enable=${{ matrix.variant == 'cli' }}
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Major }}-cli',enable=${{ matrix.variant == 'cli' }}
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}',enable=${{ matrix.variant == 'cli' }}
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-cli',enable=${{ matrix.variant == 'cli' }}
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-cli-bookworm',enable=${{ matrix.variant == 'cli' }}
-            type=raw,value=latest,enable=${{ matrix.variant == 'cli' }}
+            # CLI (Bookworm) tags
+            type=semver,pattern={{raw:(\d+)\.(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-cli-bookworm,enable=${{ matrix.variant == 'cli' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-cli-bookworm,enable=${{ matrix.variant == 'cli' }}
+            type=semver,pattern={{raw:(\d+)}},semver.version=${{ matrix.php_version }},suffix=-cli-bookworm,enable=${{ matrix.variant == 'cli' }}
+            type=raw,value=cli-bookworm,enable=${{ matrix.variant == 'cli' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-bookworm,enable=${{ matrix.variant == 'cli' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-bookworm,enable=${{ matrix.variant == 'cli' }}
+            type=semver,pattern={{raw:(\d+)}},semver.version=${{ matrix.php_version }},suffix=-bookworm,enable=${{ matrix.variant == 'cli' }}
+            type=raw,value=bookworm,enable=${{ matrix.variant == 'cli' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-cli,enable=${{ matrix.variant == 'cli' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-cli,enable=${{ matrix variant == 'cli' }}
+            type=semver,pattern={{raw:(\d+)}},semver.version=${{ matrix.php_version }},suffix=-cli,enable=${{ matrix.variant == 'cli' }}
+            type=raw,value=cli,enable=${{ matrix.variant == 'cli' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},enable=${{ matrix.variant == 'cli' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},enable=${{ matrix.variant == 'cli' }}
+            type=semver,pattern={{raw:(\d+)}},semver.version=${{ matrix.php_version }},enable=${{ matrix.variant == 'cli' }}
+            type=raw,value=latest,enable=${{ matrix.variant == 'cli' && matrix.php_version == '8.3' }}
 
-            # FPM group
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Major }}-fpm',enable=${{ matrix.variant == 'fpm' }}
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-fpm',enable=${{ matrix.variant == 'fpm' }}
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-fpm-bookworm',enable=${{ matrix.variant == 'fpm' }}
+            # FPM (Bookworm) tags
+            type=semver,pattern={{raw:(\d+)\.(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-fpm-bookworm,enable=${{ matrix.variant == 'fpm' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-fpm-bookworm,enable=${{ matrix.variant == 'fpm' }}
+            type=semver,pattern={{raw:(\d+)}},semver.version=${{ matrix.php_version }},suffix=-fpm-bookworm,enable=${{ matrix.variant == 'fpm' }}
+            type=raw,value=fpm-bookworm,enable=${{ matrix.variant == 'fpm' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-fpm,enable=${{ matrix.variant == 'fpm' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-fpm,enable=${{ matrix.variant == 'fpm' }}
+            type=semver,pattern={{raw:(\d+)}},semver.version=${{ matrix.php_version }},suffix=-fpm,enable=${{ matrix.variant == 'fpm' }}
+            type=raw,value=fpm,enable=${{ matrix.variant == 'fpm' }}
 
-            # ALPINE CLI group
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Major }}-alpine',enable=${{ matrix.variant == 'cli' || matrix.variant == 'fpm-alpine' }}
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-cli-alpine',enable=${{ matrix.variant == 'cli' }}
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-cli-alpine3.21',enable=${{ matrix.variant == 'cli' }}
+            # CLI Alpine tags
+            type=semver,pattern={{raw:(\d+)\.(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-cli-alpine3.21,enable=${{ matrix.variant == 'cli-alpine' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-cli-alpine3.21,enable=${{ matrix.variant == 'cli-alpine' }}
+            type=semver,pattern={{raw:(\d+)}},semver.version=${{ matrix.php_version }},suffix=-cli-alpine3.21,enable=${{ matrix.variant == 'cli-alpine' }}
+            type=raw,value=cli-alpine3.21,enable=${{ matrix.variant == 'cli-alpine' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-alpine3.21,enable=${{ matrix.variant == 'cli-alpine' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-alpine3.21,enable=${{ matrix.variant == 'cli-alpine' }}
+            type=semver,pattern={{raw:(\d+)}},semver.version=${{ matrix.php_version }},suffix=-alpine3.21,enable=${{ matrix.variant == 'cli-alpine' }}
+            type=raw,value=alpine3.21,enable=${{ matrix.variant == 'cli-alpine' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-cli-alpine,enable=${{ matrix.variant == 'cli-alpine' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-cli-alpine,enable=${{ matrix.variant == 'cli-alpine' }}
+            type=semver,pattern={{raw:(\d+)}},semver.version=${{ matrix.php_version }},suffix=-cli-alpine,enable=${{ matrix.variant == 'cli-alpine' }}
+            type=raw,value=cli-alpine,enable=${{ matrix.variant == 'cli-alpine' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-alpine,enable=${{ matrix.variant == 'cli-alpine' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-alpine,enable=${{ matrix.variant == 'cli-alpine' }}
+            type=semver,pattern={{raw:(\d+)}},semver.version=${{ matrix.php_version }},suffix=-alpine,enable=${{ matrix.variant == 'cli-alpine' }}
+            type=raw,value=alpine,enable=${{ matrix.variant == 'cli-alpine' }}
 
-            # FPM-ALPINE group
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Major }}-fpm-alpine',enable=${{ matrix.variant == 'fpm-alpine' }}
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-fpm-alpine',enable=${{ matrix.variant == 'fpm-alpine' }}
-            type=semver,semver.version=${{ matrix.php_version }},semver.template='{{ .Version }}-fpm-alpine3.21',enable=${{ matrix.variant == 'fpm-alpine' }}
+            # FPM Alpine tags
+            type=semver,pattern={{raw:(\d+)\.(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-fpm-alpine3.21,enable=${{ matrix.variant == 'fpm-alpine' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-fpm-alpine3.21,enable=${{ matrix.variant == 'fpm-alpine' }}
+            type=semver,pattern={{raw:(\d+)}},semver.version=${{ matrix.php_version }},suffix=-fpm-alpine3.21,enable=${{ matrix.variant == 'fpm-alpine' }}
+            type=raw,value=fpm-alpine3.21,enable=${{ matrix.variant == 'fpm-alpine' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-fpm-alpine,enable=${{ matrix.variant == 'fpm-alpine' }}
+            type=semver,pattern={{raw:(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-fpm-alpine,enable=${{ matrix.variant == 'fpm-alpine' }}
+            type=semver,pattern={{raw:(\d+)}},semver.version=${{ matrix.php_version }},suffix=-fpm-alpine,enable=${{ matrix.variant == 'fpm-alpine' }}
+            type=raw,value=fpm-alpine,enable=${{ matrix.variant == 'fpm-alpine' }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ${{ matrix.variant == 'cli' || matrix.variant == 'fpm-alpine' && 'Dockerfile.alpine' || 'Dockerfile.debian' }}
+          file: ${{ matrix.variant == 'cli' || matrix.variant == 'fpm' && 'Dockerfile.debian' || 'Dockerfile.alpine' }}
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
             VARIANT=${{ matrix.variant }}
