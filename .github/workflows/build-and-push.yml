@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         php_version: ['8.3']
-        variant: ['fpm']
+        variant: ['alpine-fpm']
       fail-fast: false
 
     steps:
@@ -43,6 +43,8 @@ jobs:
           images: ghcr.io/${{ github.repository }}/laravel
           tags: |
             type=raw,value=${{ matrix.php_version }}-${{ matrix.variant }}
+            type=raw,value=${{ matrix.php_version }},enable=${{ matrix.variant == 'cli' }}
+            type=raw,value=${{ matrix.variant }},enable=${{ matrix.php_version == '8.4' }}
             type=raw,value=latest,enable=${{ matrix.php_version == '8.4' && matrix.variant == 'cli' }}
 
       - name: Build and push Docker image
@@ -53,6 +55,7 @@ jobs:
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
             VARIANT=${{ matrix.variant }}
+          target: ${{ matrix.variant == 'fpm' || matrix.variant == 'alpine-fpm' && 'fpm' || 'cli' }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
