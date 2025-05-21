@@ -49,9 +49,6 @@ COPY . /var/www
 # Change ownership
 RUN chown -R ${user}:${user} /var/www
 
-# Switch to non-root user
-USER ${user}
-
 ENTRYPOINT ["docker-php-entrypoint"]
 
 
@@ -59,9 +56,18 @@ ENTRYPOINT ["docker-php-entrypoint"]
 FROM base AS fpm
 COPY docker/php/docker-entrypoint-fpm.sh /usr/local/bin/docker-php-entrypoint
 RUN chmod +x /usr/local/bin/docker-php-entrypoint
+
+# Switch to non-root user
+USER ${user}
+
 EXPOSE 9000
+
 
 # CLI target (used for cli and alpine)
 FROM base AS cli
 COPY docker/php/docker-entrypoint-cli.sh /usr/local/bin/docker-php-entrypoint
+
+# Switch to non-root user
+USER ${user}
+
 RUN chmod +x /usr/local/bin/docker-php-entrypoint
