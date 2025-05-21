@@ -31,14 +31,16 @@ RUN if [ "${VARIANT}" = "alpine" ] || [ "${VARIANT}" = "fpm-alpine" ]; then \
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Create system user
+# Create system user and group
 RUN if [ "${VARIANT}" = "alpine" ] || [ "${VARIANT}" = "fpm-alpine" ]; then \
-        adduser -G www-data -u ${uid} -h /home/${user} -D ${user}; \
+        addgroup -S www-data && \
+        adduser -S -G www-data -u ${uid} -h /home/${user} ${user}; \
     else \
-        useradd -G www-data -u ${uid} -d /home/${user} ${user}; \
+        groupadd -r www-data && \
+        useradd -r -G www-data -u ${uid} -d /home/${user} ${user}; \
     fi \
     && mkdir -p /home/${user}/.composer \
-    && chown -R ${user}:${user} /home/${user}
+    && chown -R ${user}:www-data /home/${user}
 
 # Set working directory
 WORKDIR /var/www
@@ -47,7 +49,7 @@ WORKDIR /var/www
 COPY . /var/www
 
 # Change ownership
-RUN chown -R ${user}:${user} /var/www
+RUN chown -R ${user}:www-data /var/www
 
 # FPM target
 FROM base AS fpm
