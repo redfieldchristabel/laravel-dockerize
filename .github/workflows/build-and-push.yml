@@ -55,7 +55,7 @@ jobs:
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
             VARIANT=${{ matrix.variant }}
-          target: ${{ matrix.variant == 'fpm' || matrix.variant == 'alpine-fpm' && 'fpm' || 'cli' }}
+          target: ${{ matrix.variant == 'fpm' || matrix.variant == 'fpm-alpine' && 'fpm' || 'cli' }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
