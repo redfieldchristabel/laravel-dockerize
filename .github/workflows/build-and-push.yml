@@ -17,8 +17,8 @@ jobs:
 
     strategy:
       matrix:
-        php_version: ['8.3']
-        variant: ['fpm-alpine']
+        php_version: ['8.2', '8.3', '8.4']
+        variant: ['cli', 'fpm', 'alpine', 'fpm-alpine']
       fail-fast: false
 
     steps:
@@ -51,10 +51,10 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./Dockerfile
+          file: ${{ matrix.variant == 'alpine' || matrix.variant == 'fpm-alpine' && 'Dockerfile.alpine' || 'Dockerfile.debian' }}
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
-            VARIANT=${{ matrix.variant }}
+            VARIANT=${{ matrix.variant == 'alpine' && 'cli' || matrix.variant == 'fpm-alpine' && 'fpm' || matrix.variant }}
           target: ${{ matrix.variant == 'fpm' || matrix.variant == 'fpm-alpine' && 'fpm' || 'cli' }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
