@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         php_version: ["8.3"]
-        variant: ["cli"]
+        variant: ["cli", "fpm" ]
       fail-fast: false
 
     steps:
