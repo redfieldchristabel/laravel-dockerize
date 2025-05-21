@@ -14,13 +14,11 @@ jobs:
     permissions:
       contents: read
       packages: write
-
     strategy:
       matrix:
         php_version: ["8.3"]
-        variant: ["cli", "fpm" ]
+        variant: ["cli"]
       fail-fast: false
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -40,7 +38,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/redfieldchristabel/laravel
+          images: ghcr.io/${{ github.repository }}/laravel
           tags: |
             # CLI tags
             type=semver,pattern={{raw:(\d+)\.(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-cli,enable=${{ matrix.variant == 'cli' }}
@@ -93,3 +91,61 @@ jobs:
         run: |
           docker pull ghcr.io/${{ github.repository }}/laravel:${{ matrix.php_version }}-${{ matrix.variant }}
           echo "Successfully pulled ghcr.io/${{ github.repository }}/laravel:${{ matrix.php_version }}-${{ matrix.variant }}"
+
+  build-and-push-filament:
+    runs-on: ubuntu-latest
+    needs: build-and-push # Wait for normal Laravel images to be built
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        php_version: ["8.3"]
+        variant: ["cli"]
+      fail-fast: false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          logout: true
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/laravel
+          tags: |
+            # Filament tags for each variant
+            type=semver,pattern={{raw:(\d+)\.(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-${{ matrix.variant }}-filament,enable=true
+            type=semver,pattern={{raw:(\d+)\.(\d+)}},semver.version=${{ matrix.php_version }},suffix=-${{ matrix.variant }}-filament,enable=true
+            type=semver,pattern={{raw:(\d+)}},semver.version=${{ matrix.php_version }},suffix=-${{ matrix.variant }}-filament,enable=true
+            type=raw,value=${{ matrix.variant }}-filament,enable=true
+
+      - name: Build and push Filament Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ contains(fromJson('["cli", "fpm"]'), matrix.variant) && 'Dockerfile.filament-debian' || 'Dockerfile.filament-alpine' }}
+          build-args: |
+            PHP_VERSION=${{ matrix.php_version }}
+            VARIANT=${{ matrix.variant }}
+          target: ${{ contains(fromJson('["fpm", "fpm-alpine"]'), matrix.variant) && 'fpm' || 'cli' }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Verify pushed Filament image
+        run: |
+          docker pull ghcr.io/${{ github.repository }}/laravel:${{ matrix.php_version }}-${{ matrix.variant }}-filament
+          echo "Successfully pulled ghcr.io/${{ github.repository }}/laravel:${{ matrix.php_version }}-${{ matrix.variant }}-filament"
