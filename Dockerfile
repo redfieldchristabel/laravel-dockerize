@@ -14,13 +14,15 @@ ENV uid=1000
 RUN if [ "${VARIANT}" = "alpine" ]; then \
         apk add --no-cache \
             libxml2-dev \
+            oniguruma-dev \
         && docker-php-ext-install pdo pdo_mysql mbstring bcmath xml \
         && docker-php-ext-enable pdo pdo_mysql mbstring bcmath xml \
-        && apk del --no-cache libxml2-dev \
+        && apk del --no-cache libxml2-dev oniguruma-dev \
         && rm -rf /var/cache/apk/*; \
     else \
         apt-get update && apt-get install -y \
             libxml2-dev \
+            libonig-dev \
         && docker-php-ext-install pdo pdo_mysql mbstring bcmath xml \
         && docker-php-ext-enable pdo pdo_mysql mbstring bcmath xml \
         && apt-get clean && rm -rf /var/lib/apt/lists/*; \
