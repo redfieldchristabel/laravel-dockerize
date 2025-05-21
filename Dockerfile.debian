@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Create system user and group
-RUN groupadd -r www-data && \
+RUN getent group www-data || groupadd -r www-data; \
     useradd -r -G www-data -u ${uid} -d /home/${user} ${user} && \
     mkdir -p /home/${user}/.composer && \
     chown -R ${user}:www-data /home/${user}
