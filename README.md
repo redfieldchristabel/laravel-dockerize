@@ -55,7 +55,7 @@ Each image includes a default entrypoint to simplify usage:
 - `cli` **variants**: `/usr/local/bin/docker-entrypoint-cli.sh` runs `php` with your command (e.g., `php artisan queue:work`).
 - `fpm` **variants**: `/usr/local/bin/docker-entrypoint-fpm.sh` starts PHP-FPM.
 
-These entrypoints handle environment setup (e.g., permissions, PHP configuration) and are suitable for most Laravel applications. You typically don’t need a custom entrypoint unless you have specific initialization requirements.
+These entrypoints handle environment setup (e.g., permissions, PHP configuration) and run `composer install` automatically on first startup. This ensures dependencies are installed without manual intervention. In development, the `/var/www/vendor` directory is mounted, so subsequent updates via `composer update` are fast. In production, a more precise vendor mount is used (see Production Deployment). Most Laravel applications don’t need a custom entrypoint.
 
 ## Getting Started
 
@@ -63,7 +63,7 @@ The images are available at `ghcr.io/redfieldchristabel/laravel`. Pull them usin
 
 ### Development Environment with Docker Compose
 
-For local development, use the following `docker-compose.yml` example to set up a Laravel environment with volume mounts for your codebase, allowing real-time code changes. This setup includes common services (`app`, `nginx`, `mysql`, `redis`) and optional tools (`mailpit`, `phpmyadmin`).
+For local development, use the following `docker-compose.yml` example to set up a Laravel environment with volume mounts for your codebase, allowing real-time code changes. This setup includes core services (`app`, `nginx`, `mysql`, `redis`), a queue worker, a scheduler, and optional tools (`mailpit`, `phpmyadmin`). Environment variables are loaded from your Laravel `.env` file.
 
 ```yaml
 version: '3.8'
@@ -71,16 +71,41 @@ version: '3.8'
 services:
   app:
     image: ghcr.io/redfieldchristabel/laravel:8.3-fpm
-    working_dir: /var/www
+    # working_dir: /var/www # Default, no need to specify
     volumes:
       - .:/var/www # Mount host codebase for live edits
       - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini # Custom PHP settings
     depends_on:
       - mysql
       - redis
-    environment:
-      - DB_HOST=mysql
-      - REDIS_HOST=redis
+    env_file:
+      - .env
+
+  queue:
+    image: ghcr.io/redfieldchristabel/laravel:8.3-cli
+    command: ["php", "artisan", "queue:work", "--queue=high,default"]
+    volumes:
+      - .:/var/www
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    depends_on:
+      - app
+      - mysql
+      - redis
+    env_file:
+      - .env
+
+  scheduler:
+    image: ghcr.io/redfieldchristabel/laravel:8.3-cli
+    command: ["php", "artisan", "schedule:work"]
+    volumes:
+      - .:/var/www
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    depends_on:
+      - app
+      - mysql
+      - redis
+    env_file:
+      - .env
 
   nginx:
     image: nginx:alpine
@@ -95,13 +120,10 @@ services:
 
   mysql:
     image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: "root"
-      MYSQL_DATABASE: "laravel"
-      MYSQL_USER: "laravel"
-      MYSQL_PASSWORD: "laravel"
     volumes:
       - mysql-data:/var/lib/mysql
+    env_file:
+      - .env
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -145,10 +167,11 @@ volumes:
 **Usage**:
 
 1. Save the above as `docker-compose.yml` in your Laravel project root.
-2. Create a `docker/php/php.ini` file for custom PHP settings (e.g., `memory_limit = 256M`).
-3. Create a `docker/nginx/nginx.conf` file and `docker/nginx/include/fpm-handler.conf` (examples below).
-4. Run `docker-compose up -d` to start the services.
-5. Access your app at `http://localhost` (Nginx) and phpMyAdmin at `http://localhost:8081`.
+2. Create a `.env` file with Laravel settings (e.g., `DB_HOST=mysql`, `REDIS_HOST=redis`, `DB_DATABASE=laravel`).
+3. Create a `docker/php/php.ini` file for custom PHP settings (e.g., `memory_limit = 256M`).
+4. Create a `docker/nginx/nginx.conf` file and `docker/nginx/include/fpm-handler.conf` (examples below).
+5. Run `docker-compose up -d` to start the services.
+6. Access your app at `http://localhost` (Nginx) and phpMyAdmin at `http://localhost:8081`.
 
 **Example** `docker/nginx/nginx.conf`:
 
@@ -208,10 +231,10 @@ fastcgi_param PATH_INFO $fastcgi_path_info;
 
 **Notes**:
 
-- The `app` service uses `8.3-fpm` for a production-like setup with Nginx. For simpler development, you can switch to `8.3-cli` with `command: php artisan serve --host 0.0.0.0 --port 8000` and expose port `8000`.
-- Volume mounts (`.:/var/www`) sync your host codebase with the container for live edits.
-- Adjust environment variables (e.g., `DB_HOST`, `REDIS_HOST`) in your `.env` file to match service names.
-- Add services like `queue` (e.g., `image: ghcr.io/redfieldchristabel/laravel:8.3-cli`, `command: php artisan queue:work`) or `soketi` (as shown) as needed.
+- The `app` service uses `8.3-fpm` for a production-like setup with Nginx. For simpler development, switch to `8.3-cli` with `command: php artisan serve --host 0.0.0.0 --port 8000` and expose port `8000`.
+- The `queue` and `scheduler` services use `8.3-cli` for background tasks.
+- Volume mounts (`.:/var/www`) sync your host codebase, including `/var/www/vendor`, for live edits and fast `composer update` in development.
+- Use `.env` for Laravel settings (e.g., `DB_HOST=mysql`, `DB_CONNECTION=mysql`, `DB_USERNAME=laravel`).
 
 ### Customizing the Images
 
@@ -219,7 +242,7 @@ You may need to install additional PHP extensions or modify PHP settings for you
 
 #### Installing Additional Extensions
 
-To install extensions like `imagick` or `pgsql`, create a `Dockerfile` in your project root:
+To install extensions like `imagick` or `pgsql`, create a `Dockerfile` in your project root. The default entrypoint runs `composer install`, so you don’t need to include it in the Dockerfile. In development, the `/var/www/vendor` mount ensures updates are fast. In production, a precise vendor mount is used (see Production Deployment).
 
 **Example** `Dockerfile` **(Alpine-based)**:
 
@@ -228,7 +251,8 @@ FROM ghcr.io/redfieldchristabel/laravel:8.3-cli-alpine
 
 RUN apk add --no-cache imagemagick-dev && \
     pecl install imagick && \
-    docker-php-ext-enable imagick
+    docker-php-ext-enable imagick && \
+    rm -rf /var/cache/apk/*
 ```
 
 **Example** `Dockerfile` **(Debian-based)**:
@@ -237,7 +261,8 @@ RUN apk add --no-cache imagemagick-dev && \
 FROM ghcr.io/redfieldchristabel/laravel:8.3-cli
 
 RUN apt-get update && apt-get install -y libpq-dev && \
-    docker-php-ext-install pgsql
+    docker-php-ext-install pgsql && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 ```
 
 **Usage**:
@@ -273,14 +298,14 @@ To customize `php.ini` (e.g., increase `memory_limit`):
      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
    ```
 
-**Note**: Avoid modifying the image’s default entrypoint unless necessary, as `docker-entrypoint-cli.sh` and `docker-entrypoint-fpm.sh` handle Laravel’s environment setup (e.g., permissions, FPM startup).
+**Note**: Avoid modifying the image’s default entrypoint unless necessary, as `docker-entrypoint-cli.sh` and `docker-entrypoint-fpm.sh` handle Laravel’s environment setup (e.g., permissions, FPM startup, `composer install`).
 
 ### Production Deployment
 
 *This section will be updated with a production* `docker-compose.yml` *example and best practices for deploying Laravel applications using these images. For now, consider the following:*
 
 - Use `fpm` or `fpm-alpine` variants for production with a web server like Nginx.
-- Copy your application code into the image using a `Dockerfile` for immutable builds.
+- Copy your application code into the image using a `Dockerfile` for immutable builds, including only `/var/www/vendor` for dependencies.
 - Optimize images by removing development tools and minimizing layers.
 - Stay tuned for a complete production example.
 
