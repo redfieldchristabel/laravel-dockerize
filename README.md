@@ -17,7 +17,6 @@ These images come with the *minimum* essential PHP extensions required for a fre
 These images are built on top of the official PHP images available on Docker Hub. They follow the same standard PHP image tagging conventions, making it easy to switch to these optimized versions.
 
 ## Supported Versions and Variants
-
 We support major and minor PHP versions (two octets), such as `8.2`, `8.3`, and `8.4`. Patch versions (e.g., `8.2.3`) are not explicitly tagged for simpler maintenance and to ensure you benefit from the latest security patches and bug fixes through daily builds without introducing breaking changes tied to specific patch versions.
 
 The following variants are available for each supported PHP version:
@@ -47,16 +46,9 @@ These images are available on the GitHub Package Container Registry at `ghcr.io/
 dockerfile
 FROM ghcr.io/redfieldchristabel/laravel:8.3-fpm-alpine
 
-# Copy your Laravel application
-COPY . /var/www/html
+# Copy your Laravel application for production setup, in deve we prefre u use the mounting in docker-compose.yaml
+COPY . /var/www/
 
-# Install application dependencies (if not in the image)
-# RUN composer install --no-dev --optimize-autoloader
-
-# Expose the FPM port
-EXPOSE 9000
-
-CMD ["php-fpm"]
 ```
 **Example `docker-compose.yml`:**
 ```
@@ -67,8 +59,7 @@ services:
   app:
     image: ghcr.io/redfieldchristabel/laravel:8.3-cli
     volumes:
-      - .:/var/www/html
-    working_dir: /var/www/html
+      - .:/var/www/
     command: php artisan serve --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
