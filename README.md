@@ -1,3 +1,5 @@
+[![Build and Push Laravel Images to GHCR](https://github.com/redfieldchristabel/laravel-dockerize/actions/workflows/build-and-push.yml/badge.svg)](https://github.com/redfieldchristabel/laravel-dockerize/actions/workflows/build-and-push.yml)
+
 # Laravel-Optimized PHP Images
 
 This repository provides pre-built PHP container images optimized for Laravel development, hosted on the GitHub Container Registry (GHCR). These images streamline your Laravel project setup by including the essential PHP extensions required for Laravel, reducing build times and simplifying your development and CI/CD workflows.
