@@ -74,6 +74,5 @@ services:
       - "8000:8000"
     # other configurations
 ```
-Remember to replace `your-github-username` with your actual GitHub username or organization name where the package is hosted.
 
 By leveraging these pre-configured images, you can streamline your Laravel development workflow and focus more on building your application.
