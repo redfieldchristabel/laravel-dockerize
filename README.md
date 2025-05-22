@@ -45,7 +45,7 @@ To use these images, replace the standard official PHP image tag in your `Docker
 **Example `Dockerfile`:**
 ```
 dockerfile
-FROM ghcr.io/your-github-username/laravel-php:8.3-fpm-alpine
+FROM ghcr.io/redfieldchristabel/laravel:8.3-fpm-alpine
 
 # Copy your Laravel application
 COPY . /var/www/html
@@ -65,7 +65,7 @@ version: '3.8'
 
 services:
   app:
-    image: ghcr.io/your-github-username/laravel-php:8.3-cli
+    image: ghcr.io/redfieldchristabel/laravel:8.3-cli
     volumes:
       - .:/var/www/html
     working_dir: /var/www/html
