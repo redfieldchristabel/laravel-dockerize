@@ -356,6 +356,7 @@ services:
     image: nginx:alpine
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./public:/var/www/public # Mount public directory for static files
       - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
@@ -406,6 +407,8 @@ services:
     depends_on:
       - mysql
       - redis
+    networks:
+      - default
     env_file:
       - .env.production
     healthcheck:
@@ -424,6 +427,8 @@ services:
       - app
       - mysql
       - redis
+    networks:
+      - default
     env_file:
       - .env.production
 
@@ -437,6 +442,8 @@ services:
       - app
       - mysql
       - redis
+    networks:
+      - default
     env_file:
       - .env.production
 
@@ -448,29 +455,16 @@ services:
       - ./docker/nginx/include:/etc/nginx/include
     depends_on:
       - app
-
-  kong:
-    image: kong:latest
-    environment:
-      KONG_DATABASE: "off"
-      KONG_PROXY_ACCESS_LOG: /dev/stdout
-      KONG_ADMIN_ACCESS_LOG: /dev/stdout
-      KONG_PROXY_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
-    ports:
-      - "80:8000"
-      - "443:8443"
-      - "8001:8001"
-    volumes:
-      - ./docker/kong/kong.yml:/usr/local/kong/declarative/kong.yml:ro
-    depends_on:
-      - nginx
+    networks:
+      - default
+      - kong
 
   mysql:
     image: mysql:8.0
     volumes:
       - mysql-data:/var/lib/mysql
+    networks:
+      - default
     env_file:
       - .env.production
     healthcheck:
@@ -483,15 +477,26 @@ services:
     image: redis:alpine
     volumes:
       - redis-data:/data
+    networks:
+      - default
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
       retries: 3
       timeout: 10s
+    
 
 volumes:
-  mysql-data:
-  redis-data:
+  vendor:
+  storage:
+  public:
+  published:
+  redis:
+
+networks:
+  default:
+  kong:
+    external: true
 ```
 
 **Example** `docker/kong/kong.yml`:
