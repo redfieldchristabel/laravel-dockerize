@@ -7,9 +7,7 @@ This repository provides pre-built PHP container images optimized for Laravel de
 Traditional Docker setups for Laravel often require manual installation of numerous PHP extensions within your Dockerfile. This process can be time-consuming and adds overhead to builds, particularly in CI/CD environments.
 
 These images come with the essential PHP extensions required by most Laravel applications pre-installed. This means you can use these images directly in your `Dockerfile` or `docker-compose.yml` without the need for extensive `apt-get install` or `pecl install` commands, leading to:
-These images come with the *minimum* essential PHP extensions required for a fresh Laravel installation to run. This means you can use these images directly in your `Dockerfile` or `docker-compose.yml` to get a basic Laravel application running with fewer manual extension installations compared to using official PHP images. However, depending on your project's specific dependencies, you may still need to install additional extensions. Using these base images will still significantly reduce the initial setup and build times.
-
-- **Faster Initial Setup and Accelerated CI/CD Pipelines:** Get your local development environment up and running and reduce build times for your testing and deployment workflows.
+These images come with the *minimum* essential PHP extensions required for a fresh Laravel installation to run. This means you can use these images directly in your `Dockerfile` or `docker-compose.yml` to get a basic Laravel application running with fewer manual extension installations compared to using official PHP images. However, depending on your project's specific dependencies, you may still need to install additional extensions. Using these base images will still significantly reduce the initial setup and build times. - **Faster Initial Setup and Accelerated CI/CD Pipelines:** Get your local development environment up and running and reduce build times for your testing and deployment workflows.
 
 ## Based on Official PHP Images
 
@@ -23,6 +21,7 @@ The following variants are available for each supported PHP version:
 - `cli`: Command Line Interface PHP with a Debian base. Useful for running Artisan commands, scripts, and cron jobs.
 - `fpm`: PHP-FPM with a Debian base. Ideal for web servers like Nginx or Apache.
 - `cli-alpine`: Command Line Interface PHP with an Alpine Linux base. CLI variant with a smaller image size.
+- `fpm-alpine`: PHP-FPM with an Alpine Linux base. FPM variant with a smaller image size.
 ## Filament-Tailored Images
 
 For projects utilizing the Filament PHP framework, we also offer specialized images optimized for running `php artisan filament` commands. These images are built with Filament-specific dependencies and configurations.
@@ -36,13 +35,9 @@ These images ensure a smooth and efficient experience when working with Filament
 
 ## How to Use
 To use these images, replace the standard official PHP image tag in your `Dockerfile` or `docker-compose.yml` with the desired tag from this registry.
-The images are available on the GitHub Package Container Registry at `ghcr.io/redfieldchristabel/laravel`.
+The images are available on the GitHub Package Container Registry at `ghcr.io/myproject/laravel`.
 
 ### Using in a Production Dockerfile
-
-For production environments, it's recommended to build your application image on top of the base image. This allows you to copy your application code and install production-specific dependencies that are not included in the base image (like Filament itself).
-
-
 
 For production environments, it's recommended to build your application image on top of the base image. This allows you to copy your application code and install production-specific dependencies.
 
