@@ -7,6 +7,7 @@ This repository provides pre-built PHP container images optimized for Laravel de
 Traditional Docker setups for Laravel often require manual installation of numerous PHP extensions within your Dockerfile. This process can be time-consuming and adds overhead to builds, particularly in CI/CD environments.
 
 These images come with the essential PHP extensions required by most Laravel applications pre-installed. This means you can use these images directly in your `Dockerfile` or `docker-compose.yml` without the need for extensive `apt-get install` or `pecl install` commands, leading to:
+These images come with the *minimum* essential PHP extensions required for a fresh Laravel installation. This means you can use these images directly in your `Dockerfile` or `docker-compose.yml` to get a basic Laravel application running without the need for extensive `apt-get install` or `pecl install` commands. However, depending on your project's specific dependencies, you may still need to install additional extensions. Using these base images will still significantly reduce the number of extensions you need to install manually.
 
 - **Faster Initial Setup:** Get your local development environment up and running quicker.
 - **Accelerated CI/CD Pipelines:** Reduced build times for your testing and deployment workflows.
