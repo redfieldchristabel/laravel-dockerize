@@ -1,68 +1,291 @@
-# GitHub Package Container Registry - Laravel Optimized PHP Images
+# Laravel-Optimized PHP Images
 
-This repository provides pre-built PHP container images optimized for Laravel development, aiming to significantly accelerate your development workflow, especially during initial project setup and within Continuous Integration/Continuous Deployment (CI/CD) pipelines.
+This repository provides pre-built PHP container images optimized for Laravel development, hosted on the GitHub Container Registry (GHCR). These images streamline your Laravel project setup by including the essential PHP extensions required for Laravel, reducing build times and simplifying your development and CI/CD workflows.
 
 ## Why Use These Images?
 
-Traditional Docker setups for Laravel often require manual installation of numerous PHP extensions within your Dockerfile. This process can be time-consuming and adds overhead to builds, particularly in CI/CD environments.
+Official PHP images from Docker Hub require manual installation of PHP extensions in your `Dockerfile` or `docker-compose.yml`, which can slow down development and CI/CD pipelines. These images come pre-configured with the minimum PHP extensions needed for a fresh Laravel application (based on Laravel 11 requirements), allowing you to:
 
-These images come with the essential PHP extensions required by most Laravel applications pre-installed. This means you can use these images directly in your `Dockerfile` or `docker-compose.yml` without the need for extensive `apt-get install` or `pecl install` commands, leading to:
-These images come with the *minimum* essential PHP extensions required for a fresh Laravel installation to run. This means you can use these images directly in your `Dockerfile` or `docker-compose.yml` to get a basic Laravel application running with fewer manual extension installations compared to using official PHP images. However, depending on your project's specific dependencies, you may still need to install additional extensions. Using these base images will still significantly reduce the initial setup and build times. - **Faster Initial Setup and Accelerated CI/CD Pipelines:** Get your local development environment up and running and reduce build times for your testing and deployment workflows.
+- **Accelerate Development**: Get your local environment running quickly with minimal setup.
+- **Optimize CI/CD**: Reduce build times by avoiding repetitive extension installations.
+- **Simplify Configuration**: Use pre-installed extensions and sensible defaults tailored for Laravel.
 
-## Based on Official PHP Images
+While these images cover Laravel’s core requirements, you may need to install additional extensions for specific project dependencies (e.g., `imagick`, `pgsql`). This README provides guidance on customizing the images using a lightweight Dockerfile.
 
-These images are built on top of the official PHP images available on Docker Hub. They follow the same standard PHP image tagging conventions, making it easy to switch to these optimized versions.
+## Image Features
 
-## Supported Versions and Variants
-We support major and minor PHP versions (two octets), such as `8`, `8.2`, `8.3`, and `8.4`. Patch versions (e.g., `8.2.3`) are not explicitly tagged for simpler maintenance and to ensure you benefit from the latest security patches and bug fixes through daily builds without introducing breaking changes tied to specific patch versions.
+### Based on Official PHP Images
 
-The following variants are available for each supported PHP version:
+These images are built on top of official PHP images from Docker Hub, ensuring compatibility and reliability. They follow standard PHP tagging conventions for easy integration.
 
-- `cli`: Command Line Interface PHP with a Debian base. Useful for running Artisan commands, scripts, and cron jobs.
-- `fpm`: PHP-FPM with a Debian base. Ideal for web servers like Nginx or Apache.
-- `cli-alpine`: Command Line Interface PHP with an Alpine Linux base. CLI variant with a smaller image size.
-- `fpm-alpine`: PHP-FPM with an Alpine Linux base. FPM variant with a smaller image size.
-## Filament-Tailored Images
+### Supported Versions and Variants
 
-For projects utilizing the Filament PHP framework, we also offer specialized images optimized for running `php artisan filament` commands. These images are built with Filament-specific dependencies and configurations.
+We support PHP versions `8.1`, `8.2`, `8.3`, and `8.4`. Tags use major and minor versions (e.g., `8.3`, not `8.3.1`) to provide the latest security patches and bug fixes via daily builds, avoiding breaking changes from specific patch versions. Major version tags (e.g., `8`) point to the latest minor version (e.g., `8.3` as of now).
 
-To use a Filament-tailored image, simply append `-filament` to the standard image tag. For example:
+Available variants for each PHP version:
 
-- `8.3-cli-filament`
-- `8.4-fpm-alpine-filament`
+- `cli`: Command Line Interface PHP (Debian base), ideal for Artisan commands, scripts, or cron jobs.
+- `fpm`: PHP-FPM (Debian base), designed for web servers like Nginx or Apache.
+- `cli-alpine`: CLI PHP (Alpine Linux base), smaller image size for lightweight environments.
+- `fpm-alpine`: PHP-FPM (Alpine Linux base), smaller image size for web servers.
 
-These images ensure a smooth and efficient experience when working with Filament commands within your Dockerized environment.
+### Filament-Optimized Images
 
-## How to Use
-To use these images, replace the standard official PHP image tag in your `Dockerfile` or `docker-compose.yml` with the desired tag from this registry.
-The images are available on the GitHub Package Container Registry at `ghcr.io/myproject/laravel`.
+For projects using the Filament PHP framework, we offer images tailored for `php artisan filament` commands. These include Filament-specific dependencies and configurations. Use the `-filament` suffix, e.g.:
 
-### Using in a Production Dockerfile
+- `ghcr.io/redfieldchristabel/laravel:8.3-cli-filament`
+- `ghcr.io/redfieldchristabel/laravel:8.3-fpm-alpine-filament`
 
-For production environments, it's recommended to build your application image on top of the base image. This allows you to copy your application code and install production-specific dependencies.
+### Pre-Installed PHP Extensions
 
-```
-dockerfile
-FROM ghcr.io/redfieldchristabel/laravel:8.3-fpm-alpine
+The images include the minimum extensions required by Laravel 11, plus common extras for flexibility:
 
-# Copy your Laravel application for production setup, in deve we prefre u use the mounting in docker-compose.yaml
-COPY . /var/www/
+- **Required**: `bcmath`, `ctype`, `fileinfo`, `json`, `mbstring`, `openssl`, `pdo`, `tokenizer`, `xml`
+- **Common**: `pdo_mysql` (MySQL), `redis` (caching/queues), `curl`, `zip`, `gd` (image processing), `intl` (localization)
 
-```
-**Example `docker-compose.yml`:**
-```
-yaml
+### Exposed Ports
+
+- `fpm` **variants**: Expose port 9000 for PHP-FPM, compatible with web servers like Nginx.
+- `cli` **variants**: Do not expose ports, as they’re meant for command-line tasks (e.g., `php artisan`).
+
+### Default Entrypoint
+
+Each image includes a default entrypoint to simplify usage:
+
+- `cli` **variants**: `/usr/local/bin/docker-entrypoint-cli.sh` runs `php` with your command (e.g., `php artisan queue:work`).
+- `fpm` **variants**: `/usr/local/bin/docker-entrypoint-fpm.sh` starts PHP-FPM.
+
+These entrypoints handle environment setup (e.g., permissions, PHP configuration) and are suitable for most Laravel applications. You typically don’t need a custom entrypoint unless you have specific initialization requirements.
+
+## Getting Started
+
+The images are available at `ghcr.io/redfieldchristabel/laravel`. Pull them using Docker or reference them in your `Dockerfile` or `docker-compose.yml`.
+
+### Development Environment with Docker Compose
+
+For local development, use the following `docker-compose.yml` example to set up a Laravel environment with volume mounts for your codebase, allowing real-time code changes. This setup includes common services (`app`, `nginx`, `mysql`, `redis`) and optional tools (`mailpit`, `phpmyadmin`).
+
+```yaml
 version: '3.8'
 
 services:
   app:
-    image: ghcr.io/redfieldchristabel/laravel:8.3-cli
+    image: ghcr.io/redfieldchristabel/laravel:8.3-fpm
+    working_dir: /var/www
     volumes:
-      - .:/var/www/
-    command: php artisan serve --host 0.0.0.0 --port 8000
+      - .:/var/www # Mount host codebase for live edits
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini # Custom PHP settings
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      - DB_HOST=mysql
+      - REDIS_HOST=redis
+
+  nginx:
+    image: nginx:alpine
     ports:
-      - "8000:8000"
-    # other configurations
+      - "80:80"
+    volumes:
+      - .:/var/www # Mount codebase for static files
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf # Custom Nginx config
+      - ./docker/nginx/include:/etc/nginx/include # Include files
+    depends_on:
+      - app
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "laravel"
+      MYSQL_USER: "laravel"
+      MYSQL_PASSWORD: "laravel"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 3
+      timeout: 5s
+
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 3
+      timeout: 5s
+
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025" # Web UI
+      - "1025:1025" # SMTP
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql
+    depends_on:
+      - mysql
+
+volumes:
+  mysql-data:
+  redis-data:
 ```
 
-By leveraging these pre-configured images, you can streamline your Laravel development workflow and focus more on building your application.
+**Usage**:
+
+1. Save the above as `docker-compose.yml` in your Laravel project root.
+2. Create a `docker/php/php.ini` file for custom PHP settings (e.g., `memory_limit = 256M`).
+3. Create a `docker/nginx/nginx.conf` file and `docker/nginx/include/fpm-handler.conf` (examples below).
+4. Run `docker-compose up -d` to start the services.
+5. Access your app at `http://localhost` (Nginx) and phpMyAdmin at `http://localhost:8081`.
+
+**Example** `docker/nginx/nginx.conf`:
+
+```nginx
+server {
+    listen 80 default_server;
+    server_name localhost;
+    client_max_body_size 120M;
+
+    access_log /dev/stderr;
+    error_log /dev/stderr;
+
+    root /var/www/public;
+    index index.php;
+
+    # Remove trailing slash
+    location ~ ^(.+)/$ {
+        return 301 $1$is_args$args;
+    }
+
+    # Serve static files
+    location ~* \.(css|js|gif|jpeg|jpg|png|webp|woff2|woff|ico)$ {
+        root /var/www/public;
+        add_header X-Serve-Type 'static';
+    }
+
+    # Soketi WebSocket
+    location /app {
+        proxy_pass http://soketi:6001;
+        proxy_read_timeout 60;
+        proxy_connect_timeout 60;
+        proxy_redirect off;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    location / {
+        include include/fpm-handler.conf;
+    }
+}
+```
+
+**Example** `docker/nginx/include/fpm-handler.conf`:
+
+```nginx
+add_header X-Serve-Type 'php';
+add_header X-Serve-Uri '$uri';
+fastcgi_pass app:9000;
+fastcgi_index index.php;
+include fastcgi_params;
+fastcgi_param SCRIPT_FILENAME $document_root/index.php;
+fastcgi_param PATH_INFO $fastcgi_path_info;
+```
+
+**Notes**:
+
+- The `app` service uses `8.3-fpm` for a production-like setup with Nginx. For simpler development, you can switch to `8.3-cli` with `command: php artisan serve --host 0.0.0.0 --port 8000` and expose port `8000`.
+- Volume mounts (`.:/var/www`) sync your host codebase with the container for live edits.
+- Adjust environment variables (e.g., `DB_HOST`, `REDIS_HOST`) in your `.env` file to match service names.
+- Add services like `queue` (e.g., `image: ghcr.io/redfieldchristabel/laravel:8.3-cli`, `command: php artisan queue:work`) or `soketi` (as shown) as needed.
+
+### Customizing the Images
+
+You may need to install additional PHP extensions or modify PHP settings for your project. Use a lightweight Dockerfile to extend the base image, or adjust settings via volume mounts.
+
+#### Installing Additional Extensions
+
+To install extensions like `imagick` or `pgsql`, create a `Dockerfile` in your project root:
+
+**Example** `Dockerfile` **(Alpine-based)**:
+
+```dockerfile
+FROM ghcr.io/redfieldchristabel/laravel:8.3-cli-alpine
+
+RUN apk add --no-cache imagemagick-dev && \
+    pecl install imagick && \
+    docker-php-ext-enable imagick
+```
+
+**Example** `Dockerfile` **(Debian-based)**:
+
+```dockerfile
+FROM ghcr.io/redfieldchristabel/laravel:8.3-cli
+
+RUN apt-get update && apt-get install -y libpq-dev && \
+    docker-php-ext-install pgsql
+```
+
+**Usage**:
+
+1. Save the `Dockerfile` in your project root.
+2. Update `docker-compose.yml` to build the image:
+
+   ```yaml
+   services:
+     app:
+       build:
+         context: .
+         dockerfile: Dockerfile
+       volumes:
+         - .:/var/www
+   ```
+3. Run `docker-compose up -d --build`.
+
+#### Modifying PHP Settings
+
+To customize `php.ini` (e.g., increase `memory_limit`):
+
+1. Create a `docker/php/php.ini` file:
+
+   ```ini
+   memory_limit = 256M
+   upload_max_filesize = 64M
+   ```
+2. Mount it in `docker-compose.yml`:
+
+   ```yaml
+   volumes:
+     - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+   ```
+
+**Note**: Avoid modifying the image’s default entrypoint unless necessary, as `docker-entrypoint-cli.sh` and `docker-entrypoint-fpm.sh` handle Laravel’s environment setup (e.g., permissions, FPM startup).
+
+### Production Deployment
+
+*This section will be updated with a production* `docker-compose.yml` *example and best practices for deploying Laravel applications using these images. For now, consider the following:*
+
+- Use `fpm` or `fpm-alpine` variants for production with a web server like Nginx.
+- Copy your application code into the image using a `Dockerfile` for immutable builds.
+- Optimize images by removing development tools and minimizing layers.
+- Stay tuned for a complete production example.
+
+## Support and Contributions
+
+For issues or feature requests, create a GitHub issue in the `redfieldchristabel/laravel-dockerize` repository. Contributions are welcome via pull requests.
+
+Happy developing with Laravel!
