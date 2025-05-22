@@ -38,10 +38,11 @@ For projects using the Filament PHP framework, we offer images tailored for `php
 
 ### Pre-Installed PHP Extensions
 
-The images include the minimum extensions required by Laravel 11, plus common extras for flexibility:
+The images include the minimum extensions required by Laravel 11:
 
-- **Required**: `bcmath`, `ctype`, `fileinfo`, `json`, `mbstring`, `openssl`, `pdo`, `tokenizer`, `xml`
-- **Common**: `pdo_mysql` (MySQL), `redis` (caching/queues), `curl`, `zip`, `gd` (image processing), `intl` (localization)
+- **Required**: `bcmath`, `ctype`, `fileinfo`, `json`, `mbstring`, `openssl`, `pdo`, `pdo_mysql`, `tokenizer`, `xml`
+
+Additional extensions (e.g., `gd`, `imagick`, `redis`) are not included but can be added via a custom Dockerfile (see Customizing the Images).
 
 ### Exposed Ports
 
@@ -55,7 +56,7 @@ Each image includes a default entrypoint to simplify usage:
 - `cli` **variants**: `/usr/local/bin/docker-entrypoint-cli.sh` runs `php` with your command (e.g., `php artisan queue:work`).
 - `fpm` **variants**: `/usr/local/bin/docker-entrypoint-fpm.sh` starts PHP-FPM.
 
-These entrypoints handle environment setup (e.g., permissions, PHP configuration) and run `composer install` automatically on first startup. This ensures dependencies are installed without manual intervention. In development, the `/var/www/vendor` directory is mounted, so subsequent updates via `composer update` are fast. In production, a more precise vendor mount is used (see Production Deployment). Most Laravel applications don’t need a custom entrypoint.
+These entrypoints handle environment setup (e.g., permissions, PHP configuration) and run `composer install` automatically on first startup. This ensures dependencies are installed without manual intervention. In development, the `/var/www/vendor` directory is mounted, so subsequent updates via `composer update` are fast. In production, only `/var/www/vendor` is mounted to optimize security (see Production Deployment). Most Laravel applications don’t need a custom entrypoint.
 
 ## Getting Started
 
@@ -63,7 +64,7 @@ The images are available at `ghcr.io/redfieldchristabel/laravel`. Pull them usin
 
 ### Development Environment with Docker Compose
 
-For local development, use the following `docker-compose.yml` example to set up a Laravel environment with volume mounts for your codebase, allowing real-time code changes. This setup includes core services (`app`, `nginx`, `mysql`, `redis`), a queue worker, a scheduler, and optional tools (`mailpit`, `phpmyadmin`). Environment variables are loaded from your Laravel `.env` file.
+For local development, use the following `docker-compose.yml` to set up a Laravel environment with volume mounts for your codebase, allowing real-time code changes. This setup includes core services (`app`, `nginx`, `mysql`, `redis`), a queue worker, a scheduler, and optional tools (`mailpit`, `phpmyadmin`). Environment variables are loaded from your Laravel `.env` file.
 
 ```yaml
 version: '3.8'
@@ -71,7 +72,6 @@ version: '3.8'
 services:
   app:
     image: ghcr.io/redfieldchristabel/laravel:8.3-fpm
-    # working_dir: /var/www # Default, no need to specify
     volumes:
       - .:/var/www # Mount host codebase for live edits
       - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini # Custom PHP settings
@@ -242,7 +242,7 @@ You may need to install additional PHP extensions or modify PHP settings for you
 
 #### Installing Additional Extensions
 
-To install extensions like `imagick` or `pgsql`, create a `Dockerfile` in your project root. The default entrypoint runs `composer install`, so you don’t need to include it in the Dockerfile. In development, the `/var/www/vendor` mount ensures updates are fast. In production, a precise vendor mount is used (see Production Deployment).
+To install extensions like `imagick` or `pgsql`, create a `Dockerfile` in your project root. The default entrypoint runs `composer install`, so you don’t need to include it in the Dockerfile. In development, the `/var/www/vendor` mount ensures updates are fast. In production, only `/var/www/vendor` is mounted to optimize security (see Production Deployment).
 
 **Example** `Dockerfile` **(Alpine-based)**:
 
@@ -302,12 +302,226 @@ To customize `php.ini` (e.g., increase `memory_limit`):
 
 ### Production Deployment
 
-*This section will be updated with a production* `docker-compose.yml` *example and best practices for deploying Laravel applications using these images. For now, consider the following:*
+For production, use the `fpm` or `fpm-alpine` variants with Nginx, and mount only the `/var/www/vendor` directory to include dependencies while keeping the container secure. Below are two `docker-compose.yml` examples: one for a standard setup and another using a Kong API Gateway for advanced routing and security.
 
-- Use `fpm` or `fpm-alpine` variants for production with a web server like Nginx.
-- Copy your application code into the image using a `Dockerfile` for immutable builds, including only `/var/www/vendor` for dependencies.
-- Optimize images by removing development tools and minimizing layers.
-- Stay tuned for a complete production example.
+#### Production Docker Compose (Standard)
+
+```yaml
+version: '3.8'
+
+services:
+  app:
+    image: ghcr.io/redfieldchristabel/laravel:8.3-fpm
+    volumes:
+      - ./vendor:/var/www/vendor # Mount only vendor for dependencies
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    depends_on:
+      - mysql
+      - redis
+    env_file:
+      - .env.production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000"]
+      interval: 30s
+      retries: 3
+      timeout: 10s
+
+  queue:
+    image: ghcr.io/redfieldchristabel/laravel:8.3-cli
+    command: ["php", "artisan", "queue:work", "--queue=high,default"]
+    volumes:
+      - ./vendor:/var/www/vendor
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    depends_on:
+      - app
+      - mysql
+      - redis
+    env_file:
+      - .env.production
+
+  scheduler:
+    image: ghcr.io/redfieldchristabel/laravel:8.3-cli
+    command: ["php", "artisan", "schedule:work"]
+    volumes:
+      - ./vendor:/var/www/vendor
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    depends_on:
+      - app
+      - mysql
+      - redis
+    env_file:
+      - .env.production
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./public:/var/www/public # Mount public directory for static files
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/include:/etc/nginx/include
+    depends_on:
+      - app
+
+  mysql:
+    image: mysql:8.0
+    volumes:
+      - mysql-data:/var/lib/mysql
+    env_file:
+      - .env.production
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      retries: 3
+      timeout: 10s
+
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      retries: 3
+      timeout: 10s
+
+volumes:
+  mysql-data:
+  redis-data:
+```
+
+#### Production Docker Compose (with Kong API Gateway)
+
+This example places the application behind a Kong API Gateway for routing, authentication, and rate-limiting, with Nginx as the backend server.
+
+```yaml
+version: '3.8'
+
+services:
+  app:
+    image: ghcr.io/redfieldchristabel/laravel:8.3-fpm
+    volumes:
+      - ./vendor:/var/www/vendor
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    depends_on:
+      - mysql
+      - redis
+    env_file:
+      - .env.production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000"]
+      interval: 30s
+      retries: 3
+      timeout: 10s
+
+  queue:
+    image: ghcr.io/redfieldchristabel/laravel:8.3-cli
+    command: ["php", "artisan", "queue:work", "--queue=high,default"]
+    volumes:
+      - ./vendor:/var/www/vendor
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    depends_on:
+      - app
+      - mysql
+      - redis
+    env_file:
+      - .env.production
+
+  scheduler:
+    image: ghcr.io/redfieldchristabel/laravel:8.3-cli
+    command: ["php", "artisan", "schedule:work"]
+    volumes:
+      - ./vendor:/var/www/vendor
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    depends_on:
+      - app
+      - mysql
+      - redis
+    env_file:
+      - .env.production
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./public:/var/www/public
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/include:/etc/nginx/include
+    depends_on:
+      - app
+
+  kong:
+    image: kong:latest
+    environment:
+      KONG_DATABASE: "off"
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+    ports:
+      - "80:8000"
+      - "443:8443"
+      - "8001:8001"
+    volumes:
+      - ./docker/kong/kong.yml:/usr/local/kong/declarative/kong.yml:ro
+    depends_on:
+      - nginx
+
+  mysql:
+    image: mysql:8.0
+    volumes:
+      - mysql-data:/var/lib/mysql
+    env_file:
+      - .env.production
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      retries: 3
+      timeout: 10s
+
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      retries: 3
+      timeout: 10s
+
+volumes:
+  mysql-data:
+  redis-data:
+```
+
+**Example** `docker/kong/kong.yml`:
+
+```yaml
+_format_version: "3.0"
+services:
+  - name: laravel-app
+    url: http://nginx:80
+    routes:
+      - name: laravel-route
+        paths:
+          - /
+```
+
+**Production Usage**:
+
+1. Run `composer install --no-dev --optimize-autoloader` locally to generate the `vendor` directory.
+2. Copy `vendor`, `public`, `docker/`, and `.env.production` to the production server.
+3. For Kong, create `docker/kong/kong.yml` to define routes.
+4. Use `docker-compose.yml` (standard or Kong) and run `docker-compose up -d`.
+5. Access the app at `http://<server-ip>` (standard) or via Kong’s proxy port.
+
+**Notes**:
+
+- The standard setup exposes Nginx directly on port 80.
+- The Kong setup uses Kong as an API gateway, proxying requests to Nginx. Configure Kong routes in `kong.yml` for authentication or rate-limiting.
+- Use `.env.production` for settings (e.g., `APP_ENV=production`, `DB_HOST=mysql`).
+- Mount only `/var/www/vendor` and `/var/www/public` to minimize attack surface.
+- Add healthchecks to ensure service reliability.
 
 ## Support and Contributions
 
