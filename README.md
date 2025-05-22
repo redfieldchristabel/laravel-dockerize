@@ -23,12 +23,10 @@ We support major and minor PHP versions (two octets), such as `8.2`, `8.3`, and 
 
 The following variants are available for each supported PHP version:
 
-- `fpm`: PHP-FPM with a Debian base. Ideal for web servers like Nginx or Apache.
-- `alpine`: PHP with an Alpine Linux base. Smaller image size, good for resource-constrained environments.
-- `fpm-alpine`: PHP-FPM with an Alpine Linux base. Combines the benefits of FPM and Alpine.
 - `cli`: Command Line Interface PHP with a Debian base. Useful for running Artisan commands, scripts, and cron jobs.
+- `fpm`: PHP-FPM with a Debian base. Ideal for web servers like Nginx or Apache.
+- `fpm-alpine`: PHP-FPM with an Alpine Linux base. Combines the benefits of FPM and Alpine.
 - `cli-alpine`: Command Line Interface PHP with an Alpine Linux base. CLI variant with a smaller image size.
-
 ## Filament-Tailored Images
 
 For projects utilizing the Filament PHP framework, we also offer specialized images optimized for running `php artisan filament` commands. These images are built with Filament-specific dependencies and configurations.
