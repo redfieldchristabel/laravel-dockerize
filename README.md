@@ -14,7 +14,7 @@ Say goodbye to the hassle of manual PHP extension installs that slow down your `
 - **Laravel-Friendly Defaults** 🐘: Optimized for Laravel 11, with support for Filament projects.
 - **Filament-Ready Images** 🎨: Jumpstart Filament projects with dedicated images (see [Filament-Optimized Images](#filament-optimized-images-)).
 
-Need extras like `imagick` or `pgsql`? Our customization guides make it a breeze! 🛠️
+Need extras like `imagick` or `pgsql`? [Our customization guides](#customizing-the-images-) make it a breeze! 🛠️
 
 ## Image Features ✨
 
