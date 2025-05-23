@@ -22,7 +22,7 @@ Our images are based on official PHP images from Docker Hub, ensuring rock-solid
 
 ### Supported Versions and Variants 📦
 
-We support PHP versions **8.1, 8.2, 8.3, and 8.4** (yep, we’re up to date! 🎉). Tags use major and minor versions (e.g., `8.3`, not `8.3.1`) to deliver the latest security patches and bug fixes via daily builds, avoiding breaking changes. Major version tags (e.g., `8`) point to the latest minor version (currently `8.3`).
+We support PHP versions **8.1, 8.2, 8.3, and 8.4** (yep, we’re up to date! 🎉). Tags use major and minor versions (e.g., `8.3`, not `8.3.1`) to deliver the latest security patches and bug fixes via daily builds, avoiding breaking changes. Major version tags (e.g., `8`) point to the latest minor version (currently `8.4`).
 
 Available variants for each PHP version:
 - **cli** 🖥️: Command Line Interface PHP (Debian base), perfect for Artisan commands, scripts, or cron jobs.
