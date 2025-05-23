@@ -2,25 +2,25 @@
 
 # Laravel-Optimized PHP Images 🎉
 
-Welcome to the **Laravel-Optimized PHP Images** repository! 🚀 These pre-built PHP container images, hosted on the GitHub Container Registry (GHCR), are crafted to supercharge your Laravel development. Pre-loaded with Laravel 11’s essential PHP extensions and running as a non-root `laravel` user by default, they offer a secure, fast, and simple way to kickstart your projects. Get your Laravel apps up and running in no time! 😄
+Welcome to the **Laravel-Optimized PHP Images** repository! 🚀 These pre-built PHP container images, hosted on the GitHub Container Registry (GHCR), are crafted to supercharge your Laravel development. Pre-loaded with Laravel 11’s essential [PHP extensions](#pre-installed-php-extensions-) and running as a [non-root `laravel` user](#non-root-laravel-user-by-default-) by default, they offer a secure, fast, and simple way to kickstart your projects. In [production](#production-deployment-), the codebase is copied into the image for blazing-fast performance and isolation. Get your Laravel apps up and running in no time! 😄
 
 ## Why Choose These Images? 🌟
 
 Say goodbye to the hassle of manual PHP extension installs that slow down your `Dockerfile` or `docker-compose.yml`. Our images are tailored for Laravel developers, delivering:
 
-- **Top-Notch Security** 🔒: Run as the non-root `laravel` user by default, minimizing risks in development and production.
-- **Lightning-Fast Setup** ⚡: Spin up local environments or CI/CD pipelines with pre-installed extensions.
+- **Top-Notch Security** 🔒: Run as the [non-root `laravel` user](#non-root-laravel-user-by-default-) by default, minimizing risks in development and [production](#production-deployment-).
+- **Lightning-Fast Setup** ⚡: Spin up local environments or CI/CD pipelines with [pre-installed extensions](#pre-installed-php-extensions-).
 - **Streamlined Workflows** 🛠️: Skip repetitive setup to focus on coding, not configuring.
 - **Laravel-Friendly Defaults** 🐘: Optimized for Laravel 11, with support for Filament projects.
 - **Filament-Ready Images** 🎨: Jumpstart Filament projects with dedicated images (see [Filament-Optimized Images](#filament-optimized-images-)).
 
-Need extras like `imagick` or `pgsql`? [Our customization guides](#customizing-the-images-) make it a breeze! 🛠️
+Need extras like `imagick` or `pgsql`? Our [customization guides](#customizing-the-images-) make it a breeze! 🛠️
 
 ## Image Features ✨
 
 ### Non-Root `laravel` User by Default 🔒
 
-Security is our priority! All images run as the non-root `laravel` user out of the box, following Docker and Laravel best practices. This reduces the attack surface, making your apps safer in both development and production. No root privileges needed for everyday tasks, ensuring peace of mind! 😊
+Security is our priority! All images run as the non-root `laravel` user out of the box, following Docker and Laravel best practices. This reduces the attack surface, making your apps safer in both development and [production](#production-deployment-). No root privileges needed for everyday tasks, ensuring peace of mind! 😊
 
 ### Built on Official PHP Images 🐳
 
@@ -61,7 +61,7 @@ These images include the minimum extensions required by Laravel 11:
 - `tokenizer`
 - `xml`
 
-Want more, like `gd`, `imagick`, or `redis`? Add them easily with a custom Dockerfile (see Customizing the Images).
+Want more, like `gd`, `imagick`, or `redis`? Add them easily with a custom Dockerfile (see [Customizing the Images](#customizing-the-images-)).
 
 ### Exposed Ports 🌍
 
@@ -74,7 +74,7 @@ Each image includes a smart default entrypoint, `/usr/local/bin/docker-entrypoin
 - **cli variants** 🖥️: Runs `php` with your command (e.g., `php artisan queue:work`).
 - **fpm variants** 🌐: Starts PHP-FPM.
 
-These entrypoints handle setup (permissions, PHP config) and run `composer install` on first startup, ensuring dependencies are ready. In development, the `/var/www/vendor` mount speeds up `composer update`. In production, only `/var/www/vendor` is mounted for security (see Production Deployment). Most Laravel apps don’t need a custom entrypoint! 😊
+These entrypoints handle setup (permissions, PHP config) and run `composer install` on first startup, ensuring dependencies are ready. In development, the `./:/var/www` mount syncs the entire codebase for real-time code changes and faster `composer update`. In [production](#production-deployment-), only `./vendor:/var/www/vendor` is mounted, allowing the `app`, `queue`, and `scheduler` services to share dependencies securely. Most Laravel apps don’t need a custom entrypoint! 😊
 
 ### Docker Best Practices 🐳
 
@@ -254,9 +254,9 @@ fastcgi_param PATH_INFO $fastcgi_path_info;
 
 **Notes**:
 
-- Use `8.3-fpm` for `app` to mimic production with Nginx. For quick dev, swap to `8.3-cli` with `command: php artisan serve --host 0.0.0.0 --port 8000` and expose port `8000`.
-- `queue` and `scheduler` use `8.3-cli` in dedicated containers, following Docker’s one-process-per-container rule.
-- The `.:/var/www` mount syncs your codebase, including `/var/www/vendor`, for fast `composer update` in dev.
+- Use `8.3-fpm` for `app` to mimic [production](#production-deployment-) with Nginx. For quick dev, swap to `8.3-cli` with `command: php artisan serve --host 0.0.0.0 --port 8000` and expose port `8000`.
+- `queue` and `scheduler` use `8.3-cli` in dedicated containers, following [Docker best practices](#docker-best-practices-).
+- The `.:/var/www` mount syncs your codebase for fast `composer update` in dev.
 - Set `.env` for Laravel (e.g., `DB_HOST=mysql`, `DB_CONNECTION=mysql`, `DB_USERNAME=laravel`).
 
 ### Customizing the Images 🔧
@@ -265,7 +265,7 @@ Need extra PHP extensions or PHP tweaks? Extend the base image with a lightweigh
 
 #### Installing Additional Extensions
 
-To add extensions like `imagick` or `pgsql`, create a `Dockerfile`. The default entrypoint runs `composer install`, so skip it in the Dockerfile. Since images run as the non-root `laravel` user, switch to `root` for installations and revert to `$user` afterward. Development mounts `/var/www/vendor` for fast updates, while production mounts only `/var/www/vendor` (see Production Deployment).
+To add extensions like `imagick` or `pgsql`, create a `Dockerfile`. The default entrypoint runs `composer install`, so skip it in the Dockerfile. Since images run as the [non-root `laravel` user](#non-root-laravel-user-by-default-), switch to `root` for installations and revert to `$user` afterward. Development mounts `./:/var/www` for fast updates, while [production](#production-deployment-) mounts only `./vendor:/var/www/vendor`.
 
 **Example** `Dockerfile` **(Alpine-based)**:
 
@@ -329,7 +329,7 @@ To tweak `php.ini` (e.g., boost `memory_limit`):
 
 ### Production Deployment 🏭
 
-For production, use `fpm` or `fpm-alpine` with Nginx, mounting only `/var/www/vendor` for dependencies to keep containers secure. The non-root `laravel` user ensures safe execution. We provide two `docker-compose.yml` examples: a standard setup and one with Kong API Gateway for advanced routing and security. Each service (app, queue, scheduler) runs in its own container with logs unified to stdout, per Docker best practices.
+For [production](#production-deployment-), use `fpm` or `fpm-alpine` with Nginx, copying the codebase into the image for speed and mounting only `./vendor:/var/www/vendor` for dependencies to keep containers secure. The [non-root `laravel` user](#non-root-laravel-user-by-default-) ensures safe execution. We provide two `docker-compose.yml` examples: a standard setup and one with Kong API Gateway for advanced routing and security. Each service (app, queue, scheduler) runs in its own container with logs unified to stdout, per [Docker best practices](#docker-best-practices-).
 
 #### Production Docker Compose (Standard)
 
@@ -556,8 +556,8 @@ services:
 - **Standard Setup**: Exposes Nginx on port 80/443 for direct access.
 - **Kong Setup**: Uses Kong as an API gateway, proxying to Nginx. Configure `kong.yml` for authentication or rate-limiting.
 - Use `.env.production` for settings (e.g., `APP_ENV=production`, `DB_HOST=mysql`).
-- Mount only `/var/www/vendor` and `/var/www/public` for security.
-- The non-root `laravel` user ensures safe execution, with healthchecks for reliability and logs unified to stdout.
+- Mount only `./vendor:/var/www/vendor` and `./public:/var/www/public` for security, with the codebase copied into the image for speed.
+- The [non-root `laravel` user](#non-root-laravel-user-by-default-) ensures safe execution, with healthchecks for reliability and logs unified to stdout.
 
 ## Support and Contributions 🤝
 
