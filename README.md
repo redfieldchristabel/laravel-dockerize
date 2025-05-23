@@ -2,37 +2,37 @@
 
 # Laravel-Optimized PHP Images 🎉
 
-Welcome to the **Laravel-Optimized PHP Images** repository! 🚀 These pre-built PHP container images, hosted on the GitHub Container Registry (GHCR), are crafted to supercharge your Laravel development. With essential PHP extensions pre-installed for Laravel 11, they slash setup time and streamline your development and CI/CD workflows. Let’s get your Laravel projects up and running faster! 😄
+Welcome to the **Laravel-Optimized PHP Images** repository! 🚀 These pre-built PHP container images, hosted on the GitHub Container Registry (GHCR), are designed to turbocharge your Laravel development. Packed with essential PHP extensions for Laravel 11, they cut setup time and streamline your development and CI/CD workflows. Let’s get your Laravel projects soaring! 😄
 
 ## Why Choose These Images? 🌟
 
-Official PHP images from Docker Hub often require manual extension installations, slowing down your `Dockerfile` or `docker-compose.yml` setup. Our images come ready-to-go with Laravel’s core PHP extensions, offering:
+Official PHP images from Docker Hub require manual extension installations, bogging down your `Dockerfile` or `docker-compose.yml`. Our images are pre-loaded with Laravel’s core PHP extensions, delivering:
 
-- **Lightning-Fast Setup** ⚡: Spin up your local environment or CI/CD pipeline in no time.
+- **Lightning-Fast Setup** ⚡: Launch your local environment or CI/CD pipeline in a snap.
 - **Streamlined CI/CD** 🛠️: Skip repetitive extension installs to save build time.
-- **Laravel-Friendly Defaults** 🐘: Pre-configured for Laravel’s needs, so you can focus on coding.
+- **Laravel-Friendly Defaults** 🐘: Tailored for Laravel, so you can focus on coding.
 
-Need extra extensions like `imagick` or `pgsql`? No worries! We’ve got simple customization guides below. 🛠️
+Need extras like `imagick` or `pgsql`? We’ve got easy customization guides below! 🛠️
 
 ## Image Features ✨
 
 ### Built on Official PHP Images 🐳
 
-Our images are based on official PHP images from Docker Hub, ensuring rock-solid compatibility and reliability. They follow standard PHP tagging conventions for seamless integration.
+Our images are built on official PHP images from Docker Hub, ensuring rock-solid compatibility and reliability. They follow standard PHP tagging conventions for seamless integration.
 
 ### Supported Versions and Variants 📦
 
-We support PHP versions **8.1, 8.2, 8.3, and 8.4** (yep, we’re up to date! 🎉). Tags use major and minor versions (e.g., `8.3`, not `8.3.1`) to deliver the latest security patches and bug fixes via daily builds, avoiding breaking changes. Major version tags (e.g., `8`) point to the latest minor version (currently `8.4`).
+We support PHP versions **8.1, 8.2, 8.3, and 8.4** (fully up to date! 🎉). Tags use major and minor versions (e.g., `8.3`, not `8.3.1`) to provide the latest security patches and bug fixes via daily builds, avoiding breaking changes. Major version tags (e.g., `8`) point to the latest minor version (currently `8.4`).
 
 Available variants for each PHP version:
-- **cli** 🖥️: Command Line Interface PHP (Debian base), perfect for Artisan commands, scripts, or cron jobs.
-- **fpm** 🌐: PHP-FPM (Debian base), ideal for web servers like Nginx or Apache.
+- **cli** 🖥️: Command Line Interface PHP (Debian base), ideal for Artisan commands, scripts, or cron jobs.
+- **fpm** 🌐: PHP-FPM (Debian base), perfect for web servers like Nginx or Apache.
 - **cli-alpine** 🏔️: CLI PHP (Alpine Linux base), lightweight for smaller images.
 - **fpm-alpine** 🏔️: PHP-FPM (Alpine Linux base), compact for web servers.
 
 ### Filament-Optimized Images 🎨
 
-Building with the Filament PHP framework? We’ve got you covered with tailored images for `php artisan filament` commands, packed with Filament-specific dependencies. Just add the `-filament` suffix, e.g.:
+Using the Filament PHP framework? Our tailored images for `php artisan filament` commands include Filament-specific dependencies. Just add the `-filament` suffix, e.g.:
 - `ghcr.io/redfieldchristabel/laravel:8.3-cli-filament`
 - `ghcr.io/redfieldchristabel/laravel:8.3-fpm-alpine-filament`
 
@@ -41,34 +41,34 @@ Building with the Filament PHP framework? We’ve got you covered with tailored 
 These images include the **minimum extensions required by Laravel 11**:
 - **Required**: `bcmath`, `ctype`, `fileinfo`, `json`, `mbstring`, `openssl`, `pdo`, `pdo_mysql`, `tokenizer`, `xml`
 
-Want more extensions like `gd`, `imagick`, or `redis`? Add them easily with a custom Dockerfile (see Customizing the Images).
+Need more, like `gd`, `imagick`, or `redis`? Add them with a custom Dockerfile (see Customizing the Images).
 
 ### Exposed Ports 🌍
 
 - **fpm variants** 🌐: Expose port 9000 for PHP-FPM, ready for Nginx or Apache.
-- **cli variants** 🖥️: No ports exposed, designed for command-line tasks like `php artisan`.
+- **cli variants** 🖥️: No ports exposed, built for command-line tasks like `php artisan`.
 
 ### Default Entrypoint 🚪
 
-Each image comes with a smart default entrypoint:
+Each image includes a smart default entrypoint:
 - **cli variants** 🖥️: `/usr/local/bin/docker-entrypoint-cli.sh` runs `php` with your command (e.g., `php artisan queue:work`).
 - **fpm variants** 🌐: `/usr/local/bin/docker-entrypoint-fpm.sh` starts PHP-FPM.
 
-These entrypoints handle setup (permissions, PHP config) and run `composer install` on first startup, so dependencies are ready without extra steps. In development, the `/var/www/vendor` mount keeps `composer update` fast. In production, only `/var/www/vendor` is mounted for security (see Production Deployment). Most Laravel apps don’t need a custom entrypoint! 😊
+These entrypoints handle setup (permissions, PHP config) and run `composer install` on first startup, ensuring dependencies are ready. In development, the `/var/www/vendor` mount speeds up `composer update`. In production, only `/var/www/vendor` is mounted for security (see Production Deployment). For safety, all images run as the non-root `laravel` user by default, following best practices for Laravel and PHP-FPM. Most apps don’t need a custom entrypoint! 😊
 
 ### Docker Best Practices 🐳
 
-We follow Docker best practices to keep things clean and efficient:
-- **One Process Per Container** ✅: Each container runs a single process (e.g., PHP-FPM, queue worker, scheduler), with separate containers for `app`, `queue`, and `scheduler` for optimal isolation and scalability.
-- **Unified Logging** 📜: Laravel and PHP-FPM logs are redirected to Docker’s stdout, making log management a breeze with `docker logs`.
+We adhere to Docker best practices for clean, efficient containers:
+- **One Process Per Container** ✅: Each container runs a single process (e.g., PHP-FPM, queue worker, scheduler), with dedicated containers for `app`, `queue`, and `scheduler` for optimal isolation and scalability.
+- **Unified Logging** 📜: Laravel and PHP-FPM logs are redirected to Docker’s stdout, making log management easy with `docker logs`.
 
 ## Getting Started 🎬
 
-Pull our images from `ghcr.io/redfieldchristabel/laravel` and use them in your `Dockerfile` or `docker-compose.yml`. Let’s dive in! 🚀
+Pull images from `ghcr.io/redfieldchristabel/laravel` and use them in your `Dockerfile` or `docker-compose.yml`. Let’s dive in! 🚀
 
 ### Development Environment with Docker Compose 🛠️
 
-Set up a Laravel dev environment with this `docker-compose.yml`, featuring volume mounts for real-time code changes. It includes core services (`app`, `nginx`, `mysql`, `redis`), a queue worker, a scheduler, and handy tools (`mailpit`, `phpmyadmin`). Environment variables load from your Laravel `.env` file.
+Set up a Laravel dev environment with this `docker-compose.yml`, featuring volume mounts for real-time code changes. It includes core services (`app`, `nginx`, `mysql`, `redis`), a queue worker, a scheduler, and tools (`mailpit`, `phpmyadmin`). Environment variables load from your Laravel `.env` file.
 
 ```yaml
 version: '3.8'
@@ -245,17 +245,19 @@ Need extra PHP extensions or PHP tweaks? Extend the base image with a lightweigh
 
 #### Installing Additional Extensions
 
-To add extensions like `imagick` or `pgsql`, create a `Dockerfile`. The default entrypoint runs `composer install`, so skip it in the Dockerfile. Development mounts `/var/www/vendor` for fast updates, while production mounts only `/var/www/vendor` (see Production Deployment).
+To add extensions like `imagick` or `pgsql`, create a `Dockerfile`. The default entrypoint runs `composer install`, so skip it in the Dockerfile. Development mounts `/var/www/vendor` for fast updates, while production mounts only `/var/www/vendor` (see Production Deployment). Since images run as the non-root `laravel` user, switch to `root` for installations and revert to `$user` afterward.
 
 **Example** `Dockerfile` **(Alpine-based)**:
 
 ```dockerfile
 FROM ghcr.io/redfieldchristabel/laravel:8.3-cli-alpine
 
+USER root
 RUN apk add --no-cache imagemagick-dev && \
     pecl install imagick && \
     docker-php-ext-enable imagick && \
     rm -rf /var/cache/apk/*
+USER $user
 ```
 
 **Example** `Dockerfile` **(Debian-based)**:
@@ -263,9 +265,11 @@ RUN apk add --no-cache imagemagick-dev && \
 ```dockerfile
 FROM ghcr.io/redfieldchristabel/laravel:8.3-cli
 
+USER root
 RUN apt-get update && apt-get install -y libpq-dev && \
     docker-php-ext-install pgsql && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
+USER $user
 ```
 
 **Usage**:
@@ -301,7 +305,7 @@ To tweak `php.ini` (e.g., boost `memory_limit`):
      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
    ```
 
-**Note**: Stick with the default entrypoint (`docker-entrypoint-cli.sh`, `docker-entrypoint-fpm.sh`) unless you have unique needs. They handle setup, `composer install`, and log redirection to stdout for easy monitoring! 📜
+**Note**: Stick with the default entrypoint (`docker-entrypoint-cli.sh`, `docker-entrypoint-fpm.sh`) unless necessary. They handle setup, `composer install`, and log redirection to stdout for easy monitoring! 📜
 
 ### Production Deployment 🏭
 
@@ -533,7 +537,7 @@ services:
 - **Kong Setup**: Uses Kong as an API gateway, proxying to Nginx. Configure `kong.yml` for authentication or rate-limiting.
 - Use `.env.production` for settings (e.g., `APP_ENV=production`, `DB_HOST=mysql`).
 - Mount only `/var/www/vendor` and `/var/www/public` for security.
-- Healthchecks ensure service reliability, with logs unified to stdout.
+- Healthchecks ensure reliability, with logs unified to stdout.
 
 ## Support and Contributions 🤝
 
