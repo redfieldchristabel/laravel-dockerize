@@ -12,6 +12,7 @@ Say goodbye to the hassle of manual PHP extension installs that slow down your `
 - **Lightning-Fast Setup** ⚡: Spin up local environments or CI/CD pipelines with pre-installed extensions.
 - **Streamlined Workflows** 🛠️: Skip repetitive setup to focus on coding, not configuring.
 - **Laravel-Friendly Defaults** 🐘: Optimized for Laravel 11, with support for Filament projects.
+- **Filament-Ready Images** 🎨: Jumpstart Filament projects with dedicated images (see [Filament-Optimized Images](#filament-optimized-images-)).
 
 Need extras like `imagick` or `pgsql`? Our customization guides make it a breeze! 🛠️
 
@@ -27,7 +28,12 @@ Based on official PHP images from Docker Hub, our images guarantee compatibility
 
 ### Supported Versions and Variants 📦
 
-We support PHP versions **8.1, 8.2, 8.3, and 8.4** (fully up to date! 🎉). Tags use major and minor versions (e.g., `8.3`, not `8.3.1`) for the latest security patches and bug fixes via daily builds, avoiding breaking changes. Major version tags (e.g., `8`) point to the latest minor version (currently `8.4`).
+We support PHP versions **8.1, 8.2, 8.3, and 8.4** (fully up to date! 🎉). Our tagging pattern combines PHP’s major/minor versioning (e.g., `8.3`) with a custom format for flexibility:
+- **General Tag**: `laravel:<version>` (e.g., `ghcr.io/redfieldchristabel/laravel:8.3`) uses the `fpm` variant by default.
+- **Variant-Specific Tag**: `<version>-<variant>` (e.g., `ghcr.io/redfieldchristabel/laravel:8.3-cli`, `ghcr.io/redfieldchristabel/laravel:8.3-fpm-alpine`).
+- **Filament Tag**: `<version>-<variant>-filament` (e.g., `ghcr.io/redfieldchristabel/laravel:8.3-cli-filament`).
+
+Tags use major and minor versions (e.g., `8.3`, not `8.3.1`) for the latest security patches and bug fixes via daily builds, avoiding breaking changes. Major version tags (e.g., `8`) point to the latest minor version (currently `8.4`).
 
 Available variants for each PHP version:
 - **cli** 🖥️: Command Line Interface PHP (Debian base), ideal for Artisan commands, scripts, or cron jobs.
@@ -43,8 +49,17 @@ Building with Filament? Our tailored images for `php artisan filament` commands 
 
 ### Pre-Installed PHP Extensions 🔧
 
-These images include the **minimum extensions required by Laravel 11**:
-- **Required**: `bcmath`, `ctype`, `fileinfo`, `json`, `mbstring`, `openssl`, `pdo`, `pdo_mysql`, `tokenizer`, `xml`
+These images include the minimum extensions required by Laravel 11:
+- `bcmath`
+- `ctype`
+- `fileinfo`
+- `json`
+- `mbstring`
+- `openssl`
+- `pdo`
+- `pdo_mysql`
+- `tokenizer`
+- `xml`
 
 Want more, like `gd`, `imagick`, or `redis`? Add them easily with a custom Dockerfile (see Customizing the Images).
 
@@ -55,16 +70,16 @@ Want more, like `gd`, `imagick`, or `redis`? Add them easily with a custom Docke
 
 ### Default Entrypoint 🚪
 
-Each image includes a smart default entrypoint:
-- **cli variants** 🖥️: `/usr/local/bin/docker-entrypoint-cli.sh` runs `php` with your command (e.g., `php artisan queue:work`).
-- **fpm variants** 🌐: `/usr/local/bin/docker-entrypoint-fpm.sh` starts PHP-FPM.
+Each image includes a smart default entrypoint, `/usr/local/bin/docker-entrypoint.sh`, tailored to the variant:
+- **cli variants** 🖥️: Runs `php` with your command (e.g., `php artisan queue:work`).
+- **fpm variants** 🌐: Starts PHP-FPM.
 
 These entrypoints handle setup (permissions, PHP config) and run `composer install` on first startup, ensuring dependencies are ready. In development, the `/var/www/vendor` mount speeds up `composer update`. In production, only `/var/www/vendor` is mounted for security (see Production Deployment). Most Laravel apps don’t need a custom entrypoint! 😊
 
 ### Docker Best Practices 🐳
 
 We follow Docker best practices for clean, efficient containers:
-- **One Process Per Container** ✅: Each container runs a single process (e.g., PHP-FPM, queue worker, scheduler), with dedicated containers for `app`, `queue`, and `scheduler` for optimal isolation and scalability.
+- **One Process Per Container** ✅: Each container runs a single process (e.g., PHP-FPM, queue worker, scheduler), with dedicated containers for `app`, `queue`, and `scheduler` for optimal isolation and scalability. Unlike other solutions, we don’t bundle web servers like Nginx, Nginx Unit, or Apache in the same container as PHP. This separation enhances modularity, simplifies scaling, and aligns with Docker’s philosophy of single-responsibility containers.
 - **Unified Logging** 📜: Laravel and PHP-FPM logs are redirected to Docker’s stdout, simplifying log management with `docker logs`.
 
 ## Getting Started 🎬
@@ -310,7 +325,7 @@ To tweak `php.ini` (e.g., boost `memory_limit`):
      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
    ```
 
-**Note**: Stick with the default entrypoint (`docker-entrypoint-cli.sh`, `docker-entrypoint-fpm.sh`) unless necessary. They handle setup, `composer install`, and log redirection to stdout for easy monitoring! 📜
+**Note**: Stick with the default entrypoint (`docker-entrypoint.sh`) unless necessary. It handles setup, `composer install`, and log redirection to stdout for easy monitoring! 📜
 
 ### Production Deployment 🏭
 
