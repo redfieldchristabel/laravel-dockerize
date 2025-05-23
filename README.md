@@ -1,4 +1,5 @@
-[![Build and Push Laravel Images to GHCR](https://github.com/redfieldchristabel/laravel-dockerize/actions/workflows/build-and-push.yml/badge.svg)](https://github.com/redfieldchristabel/laravel-dockerize/actions/workflows/build-and-push.yml)
+[![Build and Push Laravel Installer Image to GHCR](https://github.com/redfieldchristabel/laravel-dockerize/actions/workflows/build-and-push-installer.yml/badge.svg)](https://github.com/redfieldchristabel/laravel-dockerize/actions/workflows/build-and-push-installer.yml)
+[![Build and Push Laravel Images to GHCR](https://github.com/redfieldchristabel/laravel-dockerize/actions/workflows/build-and-push-laravel.yml/badge.svg)](https://github.com/redfieldchristabel/laravel-dockerize/actions/workflows/build-and-push-laravel.yml)
 
 # Laravel-Optimized PHP Images 🎉
 
