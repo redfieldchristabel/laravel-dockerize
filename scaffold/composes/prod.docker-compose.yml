@@ -12,9 +12,8 @@ services:
       - public:/var/www/public/storage
     env_file:
       - .env
-    networks:
-      - default
 
+  # Change the version to mysql or database you wanna use
   mysql:
     image: "mysql/mysql-server:8.0"
     restart: always
@@ -44,9 +43,6 @@ services:
       # - published:/var/www/public/vendor:ro
     environment:
       - DISABLE_IPV6=true
-    networks:
-      - default
-      - kong
 
   redis:
     image: "redis:alpine"
@@ -54,8 +50,6 @@ services:
     restart: always
     volumes:
       - "redis:/data"
-    networks:
-      - default
     healthcheck:
       test:
         - CMD
@@ -64,45 +58,39 @@ services:
       retries: 3
       timeout: 5s
 
-  queue:
-    image: <your-container-registry>/cli:prod
-    restart: unless-stopped
-    depends_on:
-      - redis
-      - app
-      - mysql
-    command:
-      ["php", "artisan", "queue:work", "--queue=high,default", "--tries=3"]
-    env_file:
-      - .env
-    volumes:
-      - vendor:/var/www/vendor
-      - storage:/var/www/storage
-    networks:
-      - default
+  # queue:
+  #   image: <your-container-registry>/cli:prod
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - redis
+  #     - app
+  #     - mysql
+  #   command:
+  #     ["php", "artisan", "queue:work", "--queue=high,default", "--tries=3"]
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - vendor:/var/www/vendor
+  #     - storage:/var/www/storage
 
-  scheduler:
-    image: <your-container-registry>/cli:prod
-    restart: unless-stopped
-    depends_on:
-      - redis
-      - app
-      - mysql
-    command: ["php", "artisan", "schedule:work"]
-    env_file:
-      - .env
-    volumes:
-      - vendor:/var/www/vendor
-      - storage:/var/www/storage
-    networks:
-      - default
+  # scheduler:
+  #   image: <your-container-registry>/cli:prod
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - redis
+  #     - app
+  #     - mysql
+  #   command: ["php", "artisan", "schedule:work"]
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - vendor:/var/www/vendor
+  #     - storage:/var/www/storage
 
   soketi:
     image: quay.io/soketi/soketi:latest
     hostname: soketi
     restart: unless-stopped
-    networks:
-      - default
     environment:
       - SOKETI_DEBUG=true
       - SOKETI_METRICS_SERVER_PORT=9601
@@ -116,8 +104,3 @@ volumes:
   public:
   published:
   redis:
-
-networks:
-  default:
-  kong:
-    external: true
