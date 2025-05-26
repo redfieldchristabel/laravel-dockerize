@@ -66,17 +66,44 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/redfieldchristabel/larav
 **What the Script Does**:
 - **Creates Docker Files**: Generates `docker-compose.yml` (development), `build.docker-compose.yml`, `prod.docker-compose.yml`, and Dockerfiles for PHP, Nginx, and Vite.
 - **Configures Nginx and PHP**: Adds `docker/nginx/conf/app.conf`, `docker/nginx/include/fpm-handler.conf`, and `docker/php/file.ini` for seamless integration.
-- **Sets Up Tools**: Downloads helper scripts (`art`, `cmpsr`, `pint`, `nd`, `iart`) for Artisan, Composer, and more.
+- **Sets Up Tools**: Downloads helper scripts (`art`, `cmpsr`, `pint`, `nd`, `iart`) for Artisan, Composer, Node, and more.
 - **Vite Compatibility**: Modifies `vite.config.js` to set `server.host` to `"0.0.0.0"` (required for Docker), updating existing `server` blocks or adding a new one.
 - **Environment Setup**: Copies `.env.example` to `.env` if `.env` is missing.
 - **Requirements**: Needs `curl` and `docker` installed. Must be run in a Laravel project directory.
+
+**Using Helper Scripts**:
+The script generates the following helper scripts in your project root to simplify running commands in Docker containers:
+- **`art`**: Run Artisan commands in the `app` container (uses `laravel:8.3-cli`).
+  ```bash
+  ./art migrate
+  ./art queue:work --queue=high,default
+  ```
+- **`cmpsr`**: Run Composer commands in the `app` container.
+  ```bash
+  ./cmpsr install
+  ./cmpsr require laravel/ui
+  ```
+- **`pint`**: Run Laravel Pint (code style fixer) in the `app` container.
+  ```bash
+  ./pint
+  ./pint --test
+  ```
+- **`nd`**: Run Node.js or npm commands in the `vite` container (for Vite-based projects).
+  ```bash
+  ./nd npm install
+  ./nd npm run dev
+  ```
+- **`iart`**: A shortcut for the `php artisan` command, primarily used when you are already inside the container shell (e.g., via `docker exec` or Portainer CLI).
+  ```bash
+  ./iart tinker
+  ```
 
 **Example Output**:
 After running, you’ll have:
 - `docker-compose.yml`: Development setup with `app`, `nginx`, `mysql`, `redis`, and more.
 - `prod.docker-compose.yml`: Production setup with minimal mounts (`vendor`, `public`).
 - `vite.config.js`: Updated with `server: { host: "0.0.0.0" }` for Vite in Docker.
-- Helper scripts in the project root for easy Artisan/Composer commands.
+- Helper scripts (`art`, `cmpsr`, `pint`, `nd`, `iart`) in the project root for easy Artisan/Composer/Node commands.
 
 **Notes**:
 - Run this script after creating your Laravel app (e.g., via `laravel:installer`).
