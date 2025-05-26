@@ -57,10 +57,18 @@ fi
 if [ -f "vite.config.js" ]; then
     echo -e "${GREEN}Checking vite.config.js for server host configuration...${NC}"
     if grep -q "server:" vite.config.js; then
-        sed -i '/server: {/,/}/ s/host: "[^"]*"/host: "0.0.0.0"/' vite.config.js
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' '/server: {/,/}/ s/host: "[^"]*"/host: "0.0.0.0"/' vite.config.js
+        else
+            sed -i '/server: {/,/}/ s/host: "[^"]*"/host: "0.0.0.0"/' vite.config.js
+        fi
         echo -e "${GREEN}Updated server.host to 0.0.0.0 in vite.config.js${NC}"
     else
-        sed -i "/^});/i \ \ \ \ server: {\n\ \ \ \ \ \ \ \ host: \"0.0.0.0\"\n\ \ \ \ }," vite.config.js
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "/^});/i \ \ \ \ server: {\n\ \ \ \ \ \ \ \ host: \"0.0.0.0\"\n\ \ \ \ }," vite.config.js
+        else
+            sed -i "/^});/i \ \ \ \ server: {\n\ \ \ \ \ \ \ \ host: \"0.0.0.0\"\n\ \ \ \ }," vite.config.js
+        fi
         echo -e "${GREEN}Added server.host: 0.0.0.0 to vite.config.js${NC}"
     fi
 else

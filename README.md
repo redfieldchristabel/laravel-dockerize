@@ -24,7 +24,7 @@ Pull images from `ghcr.io/redfieldchristabel/laravel` and jump in! Start by [cre
 
 ### Creating a New Laravel App 🏗️
 
-Kick off your project with our `laravel:installer` image! This lightweight image (PHP 8.3, ~120-150 MB) includes the latest Laravel CLI and scaffolds Laravel 10, 11, or 12 apps with just Docker—no local PHP or Composer needed. Perfect for Linux, Mac, or PC!
+Kick off your project with our `laravel:installer` image! This lightweight image (PHP 8.3, ~120-150 MB) includes the latest Laravel CLI and scaffolds Laravel 10, 11, or 12 apps with just Docker—no local PHP or Composer needed. Perfect for Linux, Mac, or Windows (with WSL2)!
 
 **Example**:
 ```bash
@@ -48,7 +48,7 @@ This creates a Laravel 12 app (latest) in `./example-app/`. The image runs `lara
 
 After scaffolding, use our [PHP-based images](#running-your-laravel-app-) (e.g., `laravel:8.3-fpm`) to run your app or [scaffold a Docker environment](#scaffolding-a-docker-environment-for-existing-projects-).
 
-### Scaffolding a Docker Environment for Existing Projects (Optional) 🛠️
+### Scaffolding a Docker Environment for Existing Projects 🛠️
 
 For existing Laravel projects, you can use our optional bash script to set up a complete Docker environment for development and production. This script, designed to run after your Laravel project is created, generates all necessary Docker files, including `docker-compose.yml` for development and production, Nginx configurations, and PHP settings. It also ensures Vite is Docker-ready by setting `server.host` to `"0.0.0.0"` in `vite.config.js`.
 
@@ -57,6 +57,11 @@ Run the script in your Laravel project directory (must contain `artisan` and `ap
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/redfieldchristabel/laravel-dockerize/main/scaffold/setup.sh)"
 ```
+
+**Platform Notes**:
+- **Linux**: Run the script directly in your terminal.
+- **Mac**: Run the script directly in Terminal or iTerm2.
+- **Windows**: Run the script in WSL2 (Windows Subsystem for Linux 2). Install WSL2 with `wsl --install` and enable Docker Desktop’s WSL2 integration. Git Bash is not recommended due to potential compatibility issues.
 
 **What the Script Does**:
 - **Creates Docker Files**: Generates `docker-compose.yml` (development), `build.docker-compose.yml`, `prod.docker-compose.yml`, and Dockerfiles for PHP, Nginx, and Vite.
