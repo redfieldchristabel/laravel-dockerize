@@ -1,0 +1,31 @@
+services:
+  app:
+    build:
+      args:
+        appVersion: ${TAG_NAME}
+      context: ./
+      dockerfile: Dockerfile
+      target: prod
+      tags:
+        - 103.159.8.84:5050/saifullah.azza/rumc-admission/app:${EXTRA_TAG:-latest}
+    image: 103.159.8.84:5050/saifullah.azza/rumc-admission/app:${TAG_NAME}
+
+  cli:
+    build:
+      args:
+        appVersion: ${TAG_NAME}
+      context: ./
+      dockerfile: cli.Dockerfile
+      target: prod
+      tags:
+        - 103.159.8.84:5050/saifullah.azza/rumc-admission/cli:${EXTRA_TAG:-latest}
+    image: 103.159.8.84:5050/saifullah.azza/rumc-admission/cli:${TAG_NAME}
+
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx.Dockerfile
+      target: prod
+      tags:
+        - 103.159.8.84:5050/saifullah.azza/rumc-admission/nginx:${EXTRA_TAG:-latest}
+    image: 103.159.8.84:5050/saifullah.azza/rumc-admission/nginx:${TAG_NAME}

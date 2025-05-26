@@ -1,0 +1,149 @@
+services:
+  app:
+    image: 103.159.8.84:5050/saifullah.azza/rumc-admission/app:staging
+    hostname: rumc.app
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    volumes:
+      # bind storage public to public
+      - vendor:/var/www/vendor
+      - storage:/var/www/storage
+      - public:/var/www/public/storage
+      # - published:/var/www/public/vendor
+    env_file:
+      - .env
+    networks:
+      - default
+
+  mysql:
+    image: "mysql/mysql-server:8.0"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "admin143"
+      MYSQL_DATABASE: "${DB_DATABASE}"
+      MYSQL_USER: "${DB_USERNAME}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+    volumes:
+      - ./mysql:/var/lib/mysql
+    healthcheck:
+      test:
+        - CMD
+        - mysqladmin
+        - ping
+        - "-p${DB_PASSWORD}"
+      retries: 3
+      timeout: 5s
+
+  nginx:
+    image: 103.159.8.84:5050/saifullah.azza/rumc-admission/nginx:staging
+    restart: unless-stopped
+    depends_on:
+      - app
+    volumes:
+      - public:/var/www/public/storage:ro
+      # - published:/var/www/public/vendor:ro
+    environment:
+      - DISABLE_IPV6=true
+    networks:
+      - default
+      - kong
+
+  redis:
+    image: "redis:alpine"
+    hostname: redis
+    restart: always
+    volumes:
+      - "redis:/data"
+    networks:
+      - default
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      retries: 3
+      timeout: 5s
+
+  queue:
+    image: 103.159.8.84:5050/saifullah.azza/rumc-admission/cli:staging
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - app
+      - mysql
+    command:
+      ["php", "artisan", "queue:work", "--queue=high,default", "--tries=3"]
+    env_file:
+      - .env
+    volumes:
+      - vendor:/var/www/vendor
+      - storage:/var/www/storage
+    networks:
+      - default
+
+  scheduler:
+    image: 103.159.8.84:5050/saifullah.azza/rumc-admission/cli:staging
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - app
+      - mysql
+    command: ["php", "artisan", "schedule:work"]
+    env_file:
+      - .env
+    volumes:
+      - vendor:/var/www/vendor
+      - storage:/var/www/storage
+    networks:
+      - default
+
+  carbone:
+    image: carbone/carbone-ee:full
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - CARBONE_EE_STUDIO=true
+      - BASE_PATH=/carbone-studio
+    volumes:
+      - ./template:/app/template
+      - ./render:/app/render
+
+  # node:
+  #   image: node:18
+  #   restart: unless-stopped
+  #   working_dir: /app
+  #   volumes:
+  #     - laravel:/app
+  #     - public:/app/public
+  #   command: ["sleep", "infinity"]
+  #   env_file:
+  #     - .env
+  #   networks:
+  #     - default
+
+  soketi:
+    image: quay.io/soketi/soketi:latest
+    hostname: soketi
+    restart: unless-stopped
+    networks:
+      - default
+    environment:
+      - SOKETI_DEBUG=true
+      - SOKETI_METRICS_SERVER_PORT=9601
+      - SOKETI_DEFAULT_APP_ID=${PUSHER_APP_ID}
+      - SOKETI_DEFAULT_APP_KEY=${PUSHER_APP_KEY}
+      - SOKETI_DEFAULT_APP_SECRET=${PUSHER_APP_SECRET}
+
+volumes:
+  vendor:
+  storage:
+  public:
+  published:
+  redis:
+
+networks:
+  default:
+  kong:
+    external: true
