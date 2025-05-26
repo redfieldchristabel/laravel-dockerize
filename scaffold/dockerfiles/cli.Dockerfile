@@ -1,12 +1,5 @@
 FROM ghcr.io/redfieldchristabel/laravel:8.4-cli-filament AS dev
 
-# Arguments defined in docker-compose.yml
-ARG appVersion
-
-# php env
-ENV PHP_MEMORY_LIMIT=1024M
-
-
 # # configure gd
 # RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 
@@ -16,12 +9,12 @@ ENV PHP_MEMORY_LIMIT=1024M
 # target prod
 FROM dev AS prod
 
-ENV APP_VERSION=$appVersion
-
 USER root
 
 # copy codebase
 COPY . /var/www
+
+COPY ./docker/php/file.ini /usr/local/etc/php/conf.d/file.ini
 
 RUN mkdir -p /var/www/vendor
 

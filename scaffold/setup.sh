@@ -43,7 +43,7 @@ curl -fsSL "$BASE_URL/dockerfiles/cli.Dockerfile" -o cli.Dockerfile
 curl -fsSL "$BASE_URL/dockerfiles/nginx.Dockerfile" -o nginx.Dockerfile
 curl -fsSL "$BASE_URL/dockerfiles/vite.Dockerfile" -o vite.Dockerfile
 
-curl -fsSL "$BASE_URL/php/php.ini" -o docker/php/php.ini
+curl -fsSL "$BASE_URL/php/file.ini" -o docker/php/file.ini
 curl -fsSL "$BASE_URL/nginx/conf/app.conf" -o docker/nginx/conf/app.conf
 curl -fsSL "$BASE_URL/nginx/include/fpm-handler.conf" -o docker/nginx/include/fpm-handler.conf
 
