@@ -52,3 +52,19 @@ if [ ! -f ".env" ]; then
     cp .env.example .env
     echo -e "${GREEN}Created .env from .env.example${NC}"
 fi
+
+# Update vite.config.js to set server.host to 0.0.0.0
+if [ -f "vite.config.js" ]; then
+    echo -e "${GREEN}Checking vite.config.js for server host configuration...${NC}"
+    if grep -q "server:" vite.config.js; then
+        sed -i '/server: {/,/}/ s/host: "[^"]*"/host: "0.0.0.0"/' vite.config.js
+        echo -e "${GREEN}Updated server.host to 0.0.0.0 in vite.config.js${NC}"
+    else
+        sed -i "/^});/i \ \ \ \ server: {\n\ \ \ \ \ \ \ \ host: \"0.0.0.0\"\n\ \ \ \ }," vite.config.js
+        echo -e "${GREEN}Added server.host: 0.0.0.0 to vite.config.js${NC}"
+    fi
+else
+    echo -e "${RED}vite.config.js not found. Skipping server host configuration.${NC}"
+fi
+
+echo -e "${GREEN}Laravel Docker scaffold initialized successfully!${NC}"
