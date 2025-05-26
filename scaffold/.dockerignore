@@ -1,0 +1,32 @@
+# Laravel
+vendor
+tests
+public/hot
+
+# Docker
+mysql
+certbot
+redis
+Dockerfile
+*.Dockerfile
+docker-compose.yml
+*.docker-compose.yml
+
+# IDE
+.idea
+.vscode
+
+# git
+.git
+.gitignore
+
+# env
+.env
+
+# node_modules
+node_modules
+
+# tool
+art
+cmpsr
+certbot_renew.sh
