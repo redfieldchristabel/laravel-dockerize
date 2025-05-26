@@ -3,7 +3,7 @@ name: Build and Push Laravel Installer Image to GHCR
 on:
   push:
     branches:
-      - mainx
+      - main
     paths:
       - 'installer.Dockerfile'
       - '.github/workflows/build-and-push-installer.yml'
