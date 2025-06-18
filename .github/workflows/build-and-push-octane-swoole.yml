@@ -24,7 +24,7 @@ jobs:
     strategy:
       matrix:
         php_version: ["8.1"]
-        variant: ["cli"]
+        variant: [""]
         # php_version: ["8.1", "8.2", "8.3", "8.4"]
         # variant: ["alpine", "debian"]
       fail-fast: false
