@@ -10,8 +10,8 @@ USER root
 
 # Install system dependencies for Swoole
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    # libpcre2-dev \
-    # libssl-dev \
+    pcre2-dev \
+    brotli-dev \
     && apt-get install -y --no-install-recommends \
     build-essential \
     autoconf \
