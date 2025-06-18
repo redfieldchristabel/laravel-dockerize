@@ -2,7 +2,7 @@
 FROM php:8.3-cli-alpine
 
 # Metadata
-LABEL maintainer="redfieldchristabel <your-email@example.com>"
+LABEL maintainer="redfieldchristabel redfieldchristabel@gmail.com"
 LABEL description="Laravel CLI installer for scaffolding Laravel 10, 11, and 12 apps"
 
 # Set working directory

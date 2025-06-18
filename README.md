@@ -1,34 +1,36 @@
 [![Build and Push Laravel Images to GHCR](https://github.com/redfieldchristabel/laravel-dockerize/actions/workflows/build-and-push-laravel.yml/badge.svg)](https://github.com/redfieldchristabel/laravel-dockerize/actions/workflows/build-and-push-laravel.yml)
 [![Build and Push Laravel Installer Image to GHCR](https://github.com/redfieldchristabel/laravel-dockerize/actions/workflows/build-and-push-installer.yml/badge.svg)](https://github.com/redfieldchristabel/laravel-dockerize/actions/workflows/build-and-push-installer.yml)
+[![Build and Push Octane-Swoole Images](https://github.com/redfieldchristabel/laravel-dockerize/actions/workflows/build-and-push-octane-swoole.yml/badge.svg)](https://github.com/redfieldchristabel/laravel-dockerize/actions/workflows/build-and-push-octane-swoole.yml)
 
 # Laravel-Optimized PHP Images 🎉
 
-Welcome to the **Laravel-Optimized PHP Images** repository! 🚀 These pre-built Docker images, hosted on the GitHub Container Registry (GHCR), are your fast track to Laravel awesomeness. Whether you’re scaffolding a new app with our [Laravel installer](#creating-a-new-laravel-app-) (no local PHP needed!) or running Laravel 10, 11, or 12 with our [PHP-optimized images](#running-your-laravel-app-), we’ve got you covered. Packed with essential [PHP extensions](#pre-installed-php-extensions-), running as a [non-root `laravel` user](#non-root-laravel-user-by-default-), and optimized for [production](#production-deployment-), these images make development secure, fast, and fun. Let’s build something amazing! 😄
+Welcome to the **Laravel-Optimized PHP Images** repository! 🚀 These pre-built Docker images, hosted on the GitHub Container Registry (GHCR), are your fast track to Laravel awesomeness. Whether you’re scaffolding a new app with our [Laravel installer](#creating-a-new-laravel-app-%EF%B8%8F) (no local PHP needed!) or running Laravel 10, 11, or 12 with our [PHP-optimized images](#running-your-laravel-app), we’ve got you covered. Packed with essential [PHP extensions](#pre-installed-php-extensions), running as a [non-root `laravel` user](#non-root-laravel-user-by-default), and optimized for [production](#production-deployment), these images make development secure, fast, and fun. Let’s build something amazing! 😄
 
 ## Why Choose These Images? 🌟
 
 Forget wrestling with PHP setups or complex Docker configs. Our images are tailor-made for Laravel developers, offering:
 
-- **Zero-Setup Scaffolding** 🏗️: Create Laravel 10, 11, or 12 apps with just Docker using our [installer image](#creating-a-new-laravel-app-)—no PHP or Composer required locally.
-- **Top-Notch Security** 🔒: Run as the [non-root `laravel` user](#non-root-laravel-user-by-default-) for safer development and [production](#production-deployment-).
-- **Blazing-Fast Setup** ⚡: Pre-installed [PHP extensions](#pre-installed-php-extensions-) for instant local and CI/CD environments.
+- **Zero-Setup Scaffolding** 🏗️: Create Laravel 10, 11, or 12 apps with just Docker using our [installer image](#creating-a-new-laravel-app)—no PHP or Composer required locally.
+- **Top-Notch Security** 🔒: Run as the [non-root `laravel` user](#non-root-laravel-user-by-default) for safer development and [production](#production-deployment).
+- **Blazing-Fast Setup** ⚡: Pre-installed [PHP extensions](#pre-installed-php-extensions) for instant local and CI/CD environments.
 - **Streamlined Workflows** 🛠️: Focus on coding, not configuring, with Laravel-friendly defaults.
-- **Filament Support** 🎨: Dedicated images for Filament projects (see [Filament-Optimized Images](#filament-optimized-images-)).
-- **Flexible Deployment** 🌍: Copy code into images for [production](#production-deployment-) speed, with minimal mounts for security.
+- **Filament Support** 🎨: Dedicated images for Filament projects (see [Filament-Optimized Images](#filament-optimized-images)).
+- **Laravel Octane Support** 🚀: High-performance images with Swoole for Octane (see [Octane-Optimized Images](#octane-optimized-images)).
+- **Flexible Deployment** 🌍: Copy code into images for [production](#production-deployment) speed, with minimal mounts for security.
 
-Need `imagick`, `pgsql`, or custom tweaks? Our [customization guides](#customizing-the-images-) make it a breeze! 🛠️
+Need `imagick`, `pgsql`, or custom tweaks? Our [customization guides](#customizing-the-images) make it a breeze! 🛠️
 
 ## Getting Started 🎬
 
-Pull images from `ghcr.io/redfieldchristabel/laravel` and jump in! Start by [creating a new app](#creating-a-new-laravel-app-) or [scaffolding a Docker environment](#scaffolding-a-docker-environment-for-existing-projects-) for an existing project, then [run your app](#running-your-laravel-app-). Let’s go! 🚀
+Pull images from `ghcr.io/redfieldchristabel/laravel` and jump in! Start by [creating a new app](#creating-a-new-laravel-app) or [scaffolding a Docker environment](#scaffolding-a-docker-environment-for-existing-projects) for an existing project, then [run your app](#running-your-laravel-app). Let’s go! 🚀
 
 ### Creating a New Laravel App 🏗️
 
-Kick off your project with our `laravel:installer` image! This lightweight image (PHP 8.3, ~120-150 MB) includes the latest Laravel CLI and scaffolds Laravel 10, 11, or 12 apps with just Docker—no local PHP or Composer needed. Perfect for Linux, Mac, or Windows (with WSL2)!
+Kick off your project with our `laravel:installer` image! This lightweight image (~120-150 MB) includes the latest Laravel CLI and scaffolds Laravel 10, 11, or 12 apps with just Docker—no local PHP or Composer needed. Perfect for Linux, Mac, or Windows (with WSL2)!
 
 **Example**:
 ```bash
-docker run -v $(pwd):/app ghcr.io/redfieldchristabel/laravel:installer new example-app
+docker run -it -v $(pwd):/app ghcr.io/redfieldchristabel/laravel:installer new example-app
 ```
 This creates a Laravel 12 app (latest) in `./example-app/`. The image runs `laravel` directly, so you just add `new example-app`.
 
@@ -41,12 +43,11 @@ This creates a Laravel 12 app (latest) in `./example-app/`. The image runs `lara
 - Example: `docker run -v $(pwd):/app ghcr.io/redfieldchristabel/laravel:installer new example-app --breeze --version=11`
 
 **Notes**:
-- Uses PHP 8.3, compatible with Laravel 10 (PHP 8.0+), 11 (PHP 8.2+), and 12 (likely 8.2+).
 - Saves output to a volume (e.g., `./:/app`), accessible locally.
-- Runs as a [non-root `laravel` user](#non-root-laravel-user-by-default-) for security.
+- Runs as a [non-root `laravel` user](#non-root-laravel-user-by-default) for security.
 - No PHP extensions installed, keeping it lean for scaffolding.
 
-After scaffolding, use our [PHP-based images](#running-your-laravel-app-) (e.g., `laravel:8.3-fpm`) to run your app or [scaffold a Docker environment](#scaffolding-a-docker-environment-for-existing-projects-).
+After scaffolding, use our [PHP-based images](#running-your-laravel-app) (e.g., `laravel:8.3-fpm`) to run your app or [scaffold a Docker environment](#scaffolding-a-docker-environment-for-existing-projects).
 
 ### Scaffolding a Docker Environment for Existing Projects 🛠️
 
@@ -107,16 +108,16 @@ After running, you’ll have:
 
 **Notes**:
 - Run this script after creating your Laravel app (e.g., via `laravel:installer`).
-- The generated `docker-compose.yml` matches the [Development Environment](#development-environment-with-docker-compose-) section.
-- Production files align with the [Production Deployment](#production-deployment-) section.
+- The generated `docker-compose.yml` matches the [Development Environment](#development-environment-with-docker-compose) section.
+- Production files align with the [Production Deployment](#production-deployment) section.
 - The script uses images from `ghcr.io/redfieldchristabel/laravel` (e.g., `laravel:8.3-fpm`).
 - If `vite.config.js` is missing, the script skips Vite configuration.
 
-Proceed to [Running Your Laravel App](#running-your-laravel-app-) to start your Dockerized environment with `docker-compose up -d`.
+Proceed to [Running Your Laravel App](#running-your-laravel-app) to start your Dockerized environment with `docker-compose up -d`.
 
 ### Running Your Laravel App 🐘
 
-Our PHP-based images are pre-loaded with Laravel’s essential [extensions](#pre-installed-php-extensions-) and optimized for Laravel 10, 11, and 12. Use them for development, CI/CD, or [production](#production-deployment-).
+Our PHP-based images are pre-loaded with Laravel’s essential [extensions](#pre-installed-php-extensions) and optimized for Laravel 10, 11, and 12. Use them for development, CI/CD, or [production](#production-deployment).
 
 **Supported PHP Versions**:
 - **8.1, 8.2, 8.3, 8.4** (latest patches via daily builds).
@@ -128,15 +129,16 @@ Our PHP-based images are pre-loaded with Laravel’s essential [extensions](#pre
 - **cli-alpine** 🏔️: CLI PHP (Alpine), lightweight.
 - **fpm-alpine** 🏔️: PHP-FPM (Alpine), compact.
 - **filament** 🎨: CLI/FPM with Filament dependencies (e.g., `laravel:8.3-cli-filament`).
+- **octane-swoole** 🚀: CLI with Swoole for Laravel Octane (e.g., `laravel:8.3-cli-alpine-octane-swoole`).
 
 **Example** (Development):
-Use the `docker-compose.yml` from the [Development Environment](#development-environment-with-docker-compose-) section (or generated by the [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects-)) to spin up a Laravel app with Nginx, MySQL, Redis, and more.
+Use the `docker-compose.yml` from the [Development Environment](#development-environment-with-docker-compose) section (or generated by the [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects)) to spin up a Laravel app with Nginx, MySQL, Redis, and more.
 
 ## Image Features ✨
 
 ### Non-Root `laravel` User by Default 🔒
 
-All images run as the non-root `laravel` user, reducing risks in development and [production](#production-deployment-). No root privileges needed, keeping your apps secure! 😊
+All images run as the non-root `laravel` user, reducing risks in development and [production](#production-deployment). No root privileges needed, keeping your apps secure! 😊
 
 ### Built on Official PHP Images 🐳
 
@@ -156,13 +158,14 @@ Includes Laravel 11/12’s minimum extensions:
 - `tokenizer`
 - `xml`
 
-Add more (e.g., `gd`, `imagick`) via [customization](#customizing-the-images-).
+Add more (e.g., `gd`, `imagick`) via [customization](#customizing-the-images).
 
 ### Exposed Ports 🌍
 
 - **fpm variants** 🌐: Port 9000 for PHP-FPM (Nginx/Apache).
 - **cli variants** 🖥️: No ports, for command-line tasks.
 - **installer image** 🏗️: No ports, for scaffolding.
+- **octane-swoole** 🚀: Port 8000 for Laravel Octane with Swoole.
 
 ### Default Entrypoint 🚪
 
@@ -170,14 +173,30 @@ Smart entrypoints for each image:
 - **cli variants** 🖥️: Runs `php` (e.g., `php artisan queue:work`) via `/usr/local/bin/docker-entrypoint.sh`.
 - **fpm variants** 🌐: Starts PHP-FPM via `/usr/local/bin/docker-entrypoint.sh`.
 - **installer image** 🏗️: Runs `laravel` directly (e.g., `new example-app`).
+- **octane-swoole** 🚀: Runs `php artisan octane:start` via `/usr/local/bin/docker-php-entrypoint`.
 
-PHP images handle setup (permissions, `composer install`) and sync code in development (`./:/var/www`) or mount only `vendor` in [production](#production-deployment-) (`./vendor:/var/www/vendor`). The installer simplifies scaffolding to one command. Most apps don’t need custom entrypoints! 😊
+PHP images handle setup (permissions, `composer install`) and sync code in development (`./:/var/www`) or mount only `vendor` in [production](#production-deployment) (`./vendor:/var/www/vendor`). The installer simplifies scaffolding to one command. Most apps don’t need custom entrypoints! 😊
 
 ### Filament-Optimized Images 🎨
 
 Filament projects? Use `-filament` images with pre-installed dependencies:
 - `ghcr.io/redfieldchristabel/laravel:8.3-cli-filament`
 - `ghcr.io/redfieldchristabel/laravel:8.3-fpm-alpine-filament`
+
+### Octane-Optimized Images 🚀
+
+For high-performance Laravel apps, use our Octane images with Swoole, the most popular and fastest server for Laravel Octane. These images include the Swoole binary pre-installed, so you don’t need to wait for a lengthy `pecl install swoole`. Laravel is not pre-installed; scaffold your app with the [Laravel installer](#creating-a-new-laravel-app) first.
+
+- Available for PHP **8.1, 8.2, 8.3, 8.4**.
+- Tags: `laravel:<version>-cli-<variant>-octane-swoole` (e.g., `laravel:8.3-cli-alpine-octane-swoole`, `laravel:8.3-cli-debian-octane-swoole`).
+- **Note**: Currently supports only Swoole (no RoadRunner). SSL support requires extending the image (no `openssl` by default for minimal size).
+
+**Example** (Running Octane):
+```bash
+docker run -v $(pwd):/var/www -p 8000:8000 ghcr.io/redfieldchristabel/laravel:8.3-cli-alpine-octane-swoole
+```
+- Assumes a Laravel app with Octane installed (`composer require laravel/octane`) in the current directory.
+- Starts Octane on `http://localhost:8000`.
 
 ### Docker Best Practices 🐳
 
@@ -187,7 +206,7 @@ We follow best practices for efficient containers:
 
 ## Development Environment with Docker Compose 🛠️
 
-Set up a dev environment with this `docker-compose.yml`, syncing code for real-time edits. Includes `app`, `nginx`, `mysql`, `redis`, `queue`, `scheduler`, `mailpit`, and `phpmyadmin`. This file is automatically generated by the [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects-).
+Set up a dev environment with this `docker-compose.yml`, syncing code for real-time edits. Includes `app`, `nginx`, `mysql`, `redis`, `queue`, `scheduler`, `mailpit`, and `phpmyadmin`. This file is automatically generated by the [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects).
 
 ```yaml
 version: '3.8'
@@ -288,7 +307,7 @@ volumes:
 ```
 
 **Usage**:
-1. Save as `docker-compose.yml` in your project root (or use the one generated by the [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects-)).
+1. Save as `docker-compose.yml` in your project root (or use the one generated by the [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects)).
 2. Create `.env` (e.g., `DB_HOST=mysql`, `REDIS_HOST=redis`, `DB_DATABASE=laravel`).
 3. Add `docker/php/php.ini` (e.g., `memory_limit = 256M`).
 4. Create `docker/nginx/nginx.conf` and `docker/nginx/include/fpm-handler.conf` (below, or use script-generated versions).
@@ -349,10 +368,10 @@ fastcgi_param PATH_INFO $fastcgi_path_info;
 ```
 
 **Notes**:
-- Use `8.3-fpm` for `app` to match [production](#production-deployment-). For quick dev, try `8.3-cli` with `command: php artisan serve --host 0.0.0.0 --port 8000` and port `8000`.
-- `queue` and `scheduler` use `8.3-cli` in separate containers, per [Docker best practices](#docker-best-practices-).
+- Use `8.3-fpm` for `app` to match [production](#production-deployment). For quick dev, try `8.3-cli` with `command: php artisan serve --host 0.0.0.0 --port 8000` and port `8000`, or use `8.3-cli-alpine-octane-swoole` for Octane with `command: php artisan octane:start --server=swoole --host=0.0.0.0 --port=8000`.
+- `queue` and `scheduler` use `8.3-cli` in separate containers, per [Docker best practices](#docker-best-practices).
 - `.:/var/www` syncs code for fast `composer update`.
-- The [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects-) generates these files automatically.
+- The [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects) generates these files automatically.
 
 ### Customizing the Images 🔧
 
@@ -384,6 +403,18 @@ RUN apt-get update && apt-get install -y libpq-dev && \
 USER $user
 ```
 
+**Example** (Octane with SSL):
+```dockerfile
+FROM ghcr.io/redfieldchristabel/laravel:8.3-cli-alpine-octane-swoole
+
+USER root
+RUN apk add --no-cache openssl-dev && \
+    pecl install swoole --enable-openssl=yes && \
+    docker-php-ext-enable swoole && \
+    rm -rf /var/cache/apk/*
+USER $user
+```
+
 **Usage**:
 1. Save `Dockerfile` in project root.
 2. Update `docker-compose.yml`:
@@ -411,11 +442,11 @@ Tweak `php.ini` (e.g., `memory_limit`):
      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
    ```
 
-**Note**: Use default entrypoints for PHP images (`docker-entrypoint.sh`) to handle setup and logging. The installer uses `laravel` directly.
+**Note**: Use default entrypoints for PHP images (`docker-entrypoint.sh`) to handle setup and logging. The installer uses `laravel` directly, and Octane uses `docker-php-entrypoint` for `octane:start`.
 
 ### Production Deployment 🏭
 
-For [production](#production-deployment-), use `fpm` or `fpm-alpine` with Nginx, copying the codebase into the image for speed and mounting only `./vendor:/var/www/vendor`. The [non-root `laravel` user](#non-root-laravel-user-by-default-) ensures safety. Two `docker-compose.yml` options: standard or with Kong API Gateway. These files are generated by the [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects-) as `prod.docker-compose.yml`.
+For [production](#production-deployment), use `fpm` or `fpm-alpine` with Nginx, copying the codebase into the image for speed and mounting only `./vendor:/var/www/vendor`. For Octane, use `cli-alpine-octane-swoole` or `cli-debian-octane-swoole`. The [non-root `laravel` user](#non-root-laravel-user-by-default) ensures safety. Two `docker-compose.yml` options: standard or with Kong API Gateway. These files are generated by the [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects) as `prod.docker-compose.yml`.
 
 #### Production Docker Compose (Standard)
 ```yaml
@@ -423,17 +454,19 @@ version: '3.8'
 
 services:
   app:
-    image: ghcr.io/redfieldchristabel/laravel:8.3-fpm
+    image: ghcr.io/redfieldchristabel/laravel:8.3-cli-alpine-octane-swoole
     volumes:
       - ./vendor:/var/www/vendor
       - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    ports:
+      - "80:8000"
     depends_on:
       - mysql
       - redis
     env_file:
       - .env.production
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
       interval: 30s
       retries: 3
       timeout: 10s
@@ -463,18 +496,6 @@ services:
       - redis
     env_file:
       - .env.production
-
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./public:/var/www/public
-      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./docker/nginx/include:/etc/nginx/include
-    depends_on:
-      - app
 
   mysql:
     image: mysql:8.0
@@ -504,13 +525,13 @@ volumes:
 ```
 
 #### Production Docker Compose (with Kong API Gateway)
-Uses Kong for routing, authentication, and rate-limiting, with Nginx as the backend.
+Uses Kong for routing, authentication, and rate-limiting, with Octane as the backend.
 ```yaml
 version: '3.8'
 
 services:
   app:
-    image: ghcr.io/redfieldchristabel/laravel:8.3-fpm
+    image: ghcr.io/redfieldchristabel/laravel:8.3-cli-alpine-octane-swoole
     volumes:
       - ./vendor:/var/www/vendor
       - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
@@ -520,7 +541,7 @@ services:
     env_file:
       - .env.production
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
       interval: 30s
       retries: 3
       timeout: 10s
@@ -551,17 +572,6 @@ services:
     env_file:
       - .env.production
 
-  nginx:
-    image: nginx:alpine
-    volumes:
-      - ./public:/var/www/public
-      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./docker/nginx/include:/etc/nginx/include
-    depends_on:
-      - app
-    networks:
-      - kong
-
   kong:
     image: kong:latest
     environment:
@@ -578,7 +588,7 @@ services:
     volumes:
       - ./docker/kong/kong.yml:/usr/local/kong/declarative/kong.yml:ro
     depends_on:
-      - nginx
+      - app
     networks:
       - kong
 
@@ -618,7 +628,7 @@ volumes:
 _format_version: "3.0"
 services:
   - name: laravel-app
-    url: http://nginx:80
+    url: http://app:8000
     routes:
       - name: laravel-route
         paths:
@@ -629,16 +639,16 @@ services:
 1. Run `composer install --no-dev --optimize-autoloader` locally to generate `vendor`.
 2. Copy `vendor`, `public`, `docker/`, `.env.production` to the server.
 3. For Kong, add `docker/kong/kong.yml`.
-4. Run `docker-compose -f prod.docker-compose.yml up -d` (generated by the [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects-)).
+4. Run `docker-compose -f prod.docker-compose.yml up -d` (generated by the [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects)).
 5. Access at `http://<server-ip>` (standard) or Kong’s proxy.
 
 **Notes**:
-- **Standard**: Nginx on ports 80/443.
+- **Standard**: Octane on port 8000 (no Nginx needed for Octane).
 - **Kong**: Proxies via Kong; configure `kong.yml` for auth/rate-limiting.
 - Use `.env.production` (e.g., `APP_ENV=production`, `DB_HOST=mysql`).
-- Mount only `./vendor:/var/www/vendor`, `./public:/var/www/public` for security.
+- Mount only `./vendor:/var/www/vendor` for security.
 - Healthchecks and stdout logs ensure reliability.
-- The [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects-) generates `prod.docker-compose.yml` for this setup.
+- The [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects) generates `prod.docker-compose.yml` for this setup.
 
 ## Support and Contributions 🤝
 
