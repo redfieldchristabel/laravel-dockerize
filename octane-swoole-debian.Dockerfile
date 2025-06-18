@@ -10,8 +10,8 @@ USER root
 
 # Install system dependencies for Swoole
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpcre2-dev \
-    libssl-dev \
+    # libpcre2-dev \
+    # libssl-dev \
     && apt-get install -y --no-install-recommends \
     build-essential \
     autoconf \
@@ -19,9 +19,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && docker-php-ext-enable swoole \
     && apt-get purge -y --auto-remove build-essential autoconf \
     && rm -rf /var/lib/apt/lists/*
-
-# Set working directory
-WORKDIR /var/www
 
 # Octane target
 FROM base AS octane

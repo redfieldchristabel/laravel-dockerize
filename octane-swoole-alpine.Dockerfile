@@ -10,8 +10,6 @@ USER root
 
 # Install system dependencies for Swoole
 RUN apk add --no-cache \
-    libpcre2-dev \
-    openssl-dev \
     && apk add --no-cache --virtual .build-deps \
     build-base \
     autoconf \
