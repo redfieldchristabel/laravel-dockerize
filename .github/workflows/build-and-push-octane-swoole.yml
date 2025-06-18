@@ -23,7 +23,7 @@ jobs:
     # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
-        php_version: ["8.1"]
+        php_version: ["8.4"]
         variant: ["cli"]
         # php_version: ["8.1", "8.2", "8.3", "8.4"]
         # variant: ["alpine", "debian"]
