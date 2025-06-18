@@ -24,7 +24,7 @@ jobs:
     strategy:
       matrix:
         php_version: ["8.1"]
-        variant: [""]
+        variant: ["debian"]
         # php_version: ["8.1", "8.2", "8.3", "8.4"]
         # variant: ["alpine", "debian"]
       fail-fast: false
@@ -74,7 +74,7 @@ jobs:
           file: ${{ matrix.variant == 'debian' && 'octane-swoole-debian.Dockerfile' || 'octane-swoole-alpine.Dockerfile' }}
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
-            VARIANT=cli-${{ matrix.variant }}
+            VARIANT=${{ matrix.variant }}
           target: octane
           push: true
           tags: ${{ steps.meta.outputs.tags }}
