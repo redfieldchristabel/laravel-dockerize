@@ -1,0 +1,95 @@
+name: Build and Push Octane-Swoole Images
+
+on:
+  push:
+    branches:
+      - octane
+  #   workflow_run:
+  #     workflows: ["Build and Push Laravel Images"]
+  #     types:
+  #       - completed
+  workflow_dispatch:
+
+env:
+  LATEST_PHP_VERSION: "8.1"
+
+jobs:
+  build-and-push-octane-swoole:
+    name: Build and Push Octane-Swoole Images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    strategy:
+      matrix:
+        php_version: ["8.1"]
+        variant: ["alpine"]
+        # php_version: ["8.1", "8.2", "8.3", "8.4"]
+        # variant: ["alpine", "debian"]
+      fail-fast: false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Compute major version
+        run: |
+          echo "MAJOR_VERSION=$(echo ${{ matrix.php_version }} | cut -d'.' -f1)" >> $GITHUB_ENV
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          logout: true
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/redfieldchristabel/laravel
+          tags: |
+            type=raw,value=${{ matrix.php_version }}.0-cli-${{ matrix.variant }}-octane-swoole
+            type=raw,value=${{ matrix.php_version }}-cli-${{ matrix.variant }}-octane-swoole
+            type=raw,value=${{ env.MAJOR_VERSION }}-cli-${{ matrix.variant }}-octane-swoole,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION }}
+            type=raw,value=cli-${{ matrix.variant }}-octane-swoole
+            type=raw,value=${{ matrix.php_version }}.0-octane-swoole,enable=${{ matrix.variant == 'debian' }}
+            type=raw,value=${{ matrix.php_version }}-octane-swoole,enable=${{ matrix.variant == 'debian' }}
+            type=raw,value=${{ env.MAJOR_VERSION }}-octane-swoole,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION && matrix.variant == 'debian' }}
+            type=raw,value=octane-swoole,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION && matrix.variant == 'debian' }}
+
+      - name: Log generated tags
+        run: |
+          echo "Generated tags: ${{ steps.meta.outputs.tags }}"
+          echo "Tags JSON: ${{ steps.meta.outputs.json }}"
+
+      - name: Build and push Octane-Swoole Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.variant == 'debian' && 'octane-swoole-debian.Dockerfile' || 'octane-swoole-alpine.Dockerfile' }}
+          build-args: |
+            PHP_VERSION=${{ matrix.php_version }}
+            VARIANT=cli-${{ matrix.variant }}
+          target: octane
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Log in to GHCR for verification
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify pushed Octane-Swoole image
+        run: |
+          docker pull ghcr.io/redfieldchristabel/laravel:${{ matrix.php_version }}-cli-${{ matrix.variant }}-octane-swoole
+          echo "Successfully pulled ghcr.io/redfieldchristabel/laravel:${{ matrix.php_version }}-cli-${{ matrix.variant }}-octane-swoole"
