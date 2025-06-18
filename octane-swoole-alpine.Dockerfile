@@ -10,6 +10,8 @@ USER root
 
 # Install system dependencies for Swoole
 RUN apk add --no-cache \
+    pcre2-dev \
+    brotli-dev \
     && apk add --no-cache --virtual .build-deps \
     build-base \
     autoconf \
