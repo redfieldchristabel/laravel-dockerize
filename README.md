@@ -30,7 +30,7 @@ Kick off your project with our `laravel:installer` image! This lightweight image
 
 **Example**:
 ```bash
-docker run -v $(pwd):/app ghcr.io/redfieldchristabel/laravel:installer new example-app
+docker run -it -v $(pwd):/app ghcr.io/redfieldchristabel/laravel:installer new example-app
 ```
 This creates a Laravel 12 app (latest) in `./example-app/`. The image runs `laravel` directly, so you just add `new example-app`.
 
