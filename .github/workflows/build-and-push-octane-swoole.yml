@@ -24,7 +24,7 @@ jobs:
     strategy:
       matrix:
         php_version: ["8.1"]
-        variant: ["debian"]
+        variant: ["cli"]
         # php_version: ["8.1", "8.2", "8.3", "8.4"]
         # variant: ["alpine", "debian"]
       fail-fast: false
@@ -71,7 +71,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ${{ matrix.variant == 'debian' && 'octane-swoole-debian.Dockerfile' || 'octane-swoole-alpine.Dockerfile' }}
+          file: ${{ matrix.variant == 'cli' && 'octane-swoole-debian.Dockerfile' || 'octane-swoole-alpine.Dockerfile' }}
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
             VARIANT=${{ matrix.variant }}
