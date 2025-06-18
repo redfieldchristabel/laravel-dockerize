@@ -25,7 +25,7 @@ WORKDIR /var/www
 
 # Octane target
 FROM base AS octane
-COPY docker/php/docker-entrypoint-octane.sh /usr/local/bin/docker-php-entrypoint
+COPY docker/php/docker-entrypoint-octane-swoole.sh /usr/local/bin/docker-php-entrypoint
 RUN chmod +x /usr/local/bin/docker-php-entrypoint
 USER ${user}
 EXPOSE 8000
