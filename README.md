@@ -4,7 +4,7 @@
 
 # Laravel-Optimized PHP Images 🎉
 
-Welcome to the **Laravel-Optimized PHP Images** repository! 🚀 These pre-built Docker images, hosted on the GitHub Container Registry (GHCR), are your fast track to Laravel awesomeness. Whether you’re scaffolding a new app with our [Laravel installer](#creating-a-new-laravel-app) (no local PHP needed!) or running Laravel 10, 11, or 12 with our [PHP-optimized images](#running-your-laravel-app), we’ve got you covered. Packed with essential [PHP extensions](#pre-installed-php-extensions), running as a [non-root `laravel` user](#non-root-laravel-user-by-default), and optimized for [production](#production-deployment), these images make development secure, fast, and fun. Let’s build something amazing! 😄
+Welcome to the **Laravel-Optimized PHP Images** repository! 🚀 These pre-built Docker images, hosted on the GitHub Container Registry (GHCR), are your fast track to Laravel awesomeness. Whether you’re scaffolding a new app with our [Laravel installer](#creating-a-new-laravel-app-%EF%B8%8F) (no local PHP needed!) or running Laravel 10, 11, or 12 with our [PHP-optimized images](#running-your-laravel-app), we’ve got you covered. Packed with essential [PHP extensions](#pre-installed-php-extensions), running as a [non-root `laravel` user](#non-root-laravel-user-by-default), and optimized for [production](#production-deployment), these images make development secure, fast, and fun. Let’s build something amazing! 😄
 
 ## Why Choose These Images? 🌟
 
