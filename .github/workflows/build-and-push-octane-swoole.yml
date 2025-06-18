@@ -1,13 +1,13 @@
 name: Build and Push Octane-Swoole Images
 
 on:
-  push:
-    branches:
-      - octane
-  #   workflow_run:
-  #     workflows: ["Build and Push Laravel Images"]
-  #     types:
-  #       - completed
+  # push:
+  #   branches:
+  #     - octane
+  workflow_run:
+    workflows: ["Build and Push Laravel Images to GHCR"]
+    types:
+      - completed
   workflow_dispatch:
 
 env:
@@ -20,7 +20,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
         php_version: ["8.4"]
