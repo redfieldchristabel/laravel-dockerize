@@ -13,8 +13,9 @@ ENV uid=1000
 # Install system dependencies and PHP extensions
 RUN apk add --no-cache \
         libxml2-dev \
+        unzip \
         oniguruma-dev \
-    && docker-php-ext-install pdo pdo_mysql mbstring bcmath xml \
+    && docker-php-ext-install pdo pdo_mysql mbstring bcmath xml zip \
     && docker-php-ext-enable pdo pdo_mysql mbstring bcmath xml \
     && apk del --no-cache libxml2-dev oniguruma-dev \
     && rm -rf /var/cache/apk/*
