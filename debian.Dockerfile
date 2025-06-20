@@ -14,7 +14,8 @@ ENV uid=1000
 RUN apt-get update && apt-get install -y \
         libxml2-dev \
         libonig-dev \
-    && docker-php-ext-install pdo pdo_mysql mbstring bcmath xml \
+        unzip \
+    && docker-php-ext-install pdo pdo_mysql mbstring bcmath xml zip\
     && docker-php-ext-enable pdo pdo_mysql mbstring bcmath xml \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
