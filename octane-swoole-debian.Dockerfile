@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     autoconf \
     && pecl install swoole \
     && docker-php-ext-enable swoole \
+    && docker-php-ext-install pcntl \
     && apt-get purge -y --auto-remove build-essential autoconf \
     && rm -rf /var/lib/apt/lists/*
 
