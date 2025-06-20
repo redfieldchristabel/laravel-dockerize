@@ -17,6 +17,7 @@ RUN apk add --no-cache \
     autoconf \
     && pecl install swoole \
     && docker-php-ext-enable swoole \
+    && docker-php-ext-install pcntl \
     && apk del --no-cache .build-deps \
     && rm -rf /var/cache/apk/*
 
