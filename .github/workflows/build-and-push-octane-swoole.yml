@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 env:
-  LATEST_PHP_VERSION: "8.1"
+  LATEST_PHP_VERSION: "8.4"
 
 jobs:
   build-and-push-octane-swoole:
@@ -53,9 +53,9 @@ jobs:
         with:
           images: ghcr.io/redfieldchristabel/laravel
           tags: |
-            type=raw,value=${{ matrix.php_version }}.0-cli-${{ matrix.variant }}-octane-swoole
-            type=raw,value=${{ matrix.php_version }}-cli-${{ matrix.variant }}-octane-swoole
-            type=raw,value=${{ env.MAJOR_VERSION }}-cli-${{ matrix.variant }}-octane-swoole,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION }}
+            type=raw,value=${{ matrix.php_version }}.0-${{ matrix.variant }}-octane-swoole
+            type=raw,value=${{ matrix.php_version }}-${{ matrix.variant }}-octane-swoole
+            type=raw,value=${{ env.MAJOR_VERSION }}-${{ matrix.variant }}-octane-swoole,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION }}
             type=raw,value=cli-${{ matrix.variant }}-octane-swoole
             type=raw,value=${{ matrix.php_version }}.0-octane-swoole,enable=${{ matrix.variant == 'debian' }}
             type=raw,value=${{ matrix.php_version }}-octane-swoole,enable=${{ matrix.variant == 'debian' }}
