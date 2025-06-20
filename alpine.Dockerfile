@@ -15,6 +15,7 @@ RUN apk add --no-cache \
         libxml2-dev \
         unzip \
         oniguruma-dev \
+        libzip-dev \
     && docker-php-ext-install pdo pdo_mysql mbstring bcmath xml zip \
     && docker-php-ext-enable pdo pdo_mysql mbstring bcmath xml \
     && apk del --no-cache libxml2-dev oniguruma-dev \
