@@ -24,7 +24,7 @@ jobs:
     strategy:
       matrix:
         php_version: ["8.4", "8.3", "8.2", "8.1"]
-        variant: ["cli"]
+        variant: ["cli", "cli-alpine"]
         # php_version: ["8.1", "8.2", "8.3", "8.4"]
         # variant: ["alpine", "debian"]
       fail-fast: false
@@ -32,9 +32,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Compute major version
-        run: |
-          echo "MAJOR_VERSION=$(echo ${{ matrix.php_version }} | cut -d'.' -f1)" >> $GITHUB_ENV
+      # - name: Compute major version
+      #   run: |
+      #     echo "MAJOR_VERSION=$(echo ${{ matrix.php_version }} | cut -d'.' -f1)" >> $GITHUB_ENV
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
@@ -58,12 +58,20 @@ jobs:
           tags: |
             type=raw,value=${{ matrix.php_version }}.0-${{ matrix.variant }}-octane-swoole
             type=raw,value=${{ matrix.php_version }}-${{ matrix.variant }}-octane-swoole
-            type=raw,value=${{ env.MAJOR_VERSION }}-${{ matrix.variant }}-octane-swoole,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION }}
-            type=raw,value=cli-${{ matrix.variant }}-octane-swoole
-            type=raw,value=${{ matrix.php_version }}.0-octane-swoole,enable=${{ matrix.variant == 'debian' }}
-            type=raw,value=${{ matrix.php_version }}-octane-swoole,enable=${{ matrix.variant == 'debian' }}
-            type=raw,value=${{ env.MAJOR_VERSION }}-octane-swoole,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION && matrix.variant == 'debian' }}
-            type=raw,value=octane-swoole,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION && matrix.variant == 'debian' }}
+            type=raw,value=${{ matrix.variant }}-octane-swoole,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION }}
+            type=raw,value=${{ matrix.php_version }}.0-octane-swoole,enable=${{ matrix.variant == 'cli' }}
+            type=raw,value=${{ matrix.php_version }}-octane-swoole,enable=${{ matrix.variant == 'cli' }}
+            type=raw,value=octane-swoole,enable=${{ matrix.variant == 'cli' && matrix.php_version == env.LATEST_PHP_VERSION }}
+
+          # tags: |
+          #   type=raw,value=${{ matrix.php_version }}.0-${{ matrix.variant }}-octane-swoole
+          #   type=raw,value=${{ matrix.php_version }}-${{ matrix.variant }}-octane-swoole
+          #   type=raw,value=${{ env.MAJOR_VERSION }}-${{ matrix.variant }}-octane-swoole,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION }}
+          #   type=raw,value=${{ matrix.variant }}-octane-swoole
+          #   type=raw,value=${{ matrix.php_version }}.0-octane-swoole,enable=${{ matrix.variant == 'debian' }}
+          #   type=raw,value=${{ matrix.php_version }}-octane-swoole,enable=${{ matrix.variant == 'debian' }}
+          #   type=raw,value=${{ env.MAJOR_VERSION }}-octane-swoole,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION && matrix.variant == 'debian' }}
+          #   type=raw,value=octane-swoole,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION && matrix.variant == 'debian' }}
 
       - name: Log generated tags
         run: |
@@ -95,5 +103,8 @@ jobs:
 
       - name: Verify pushed Octane-Swoole image
         run: |
-          docker pull ghcr.io/redfieldchristabel/laravel:${{ matrix.php_version }}-cli-${{ matrix.variant }}-octane-swoole
-          echo "Successfully pulled ghcr.io/redfieldchristabel/laravel:${{ matrix.php_version }}-cli-${{ matrix.variant }}-octane-swoole"
+          for tag in ${{ steps.meta.outputs.tags }}; do
+            echo "Verifying tag: $tag"
+            docker pull $tag || { echo "Failed to pull $tag"; exit 1; }
+            echo "Successfully pulled $tag"
+          done

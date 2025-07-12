@@ -56,18 +56,27 @@ jobs:
             # Common tags for all variants
             type=raw,value=${{ matrix.php_version }}.0-${{ matrix.variant }}
             type=raw,value=${{ matrix.php_version }}-${{ matrix.variant }}
-            type=raw,value=${{ env.MAJOR_VERSION }}-${{ matrix.variant }},enable=${{ matrix.php_version == env.LATEST_PHP_VERSION }}
-            type=raw,value=${{ matrix.variant }}
-            # CLI-specific tags
+            type=raw,value=${{ matrix.variant }},enable=${{ matrix.php_version == env.LATEST_PHP_VERSION }}
+            # No-tag variant (Debian CLI)
             type=raw,value=${{ matrix.php_version }}.0,enable=${{ matrix.variant == 'cli' }}
             type=raw,value=${{ matrix.php_version }},enable=${{ matrix.variant == 'cli' }}
-            type=raw,value=${{ env.MAJOR_VERSION }},enable=${{ matrix.variant == 'cli' && matrix.php_version == env.LATEST_PHP_VERSION }}
             type=raw,value=latest,enable=${{ matrix.variant == 'cli' && matrix.php_version == env.LATEST_PHP_VERSION }}
-            # CLI Alpine-specific tags
-            type=raw,value=${{ matrix.php_version }}.0-alpine,enable=${{ matrix.variant == 'cli-alpine' }}
-            type=raw,value=${{ matrix.php_version }}-alpine,enable=${{ matrix.variant == 'cli-alpine' }}
-            type=raw,value=${{ env.MAJOR_VERSION }}-alpine,enable=${{ matrix.variant == 'cli-alpine' && matrix.php_version == env.LATEST_PHP_VERSION }}
-            type=raw,value=alpine,enable=${{ matrix.variant == 'cli-alpine' }}
+          # tags: |
+          #   # Common tags for all variants
+          #   type=raw,value=${{ matrix.php_version }}.0-${{ matrix.variant }}
+          #   type=raw,value=${{ matrix.php_version }}-${{ matrix.variant }}
+          #   type=raw,value=${{ env.MAJOR_VERSION }}-${{ matrix.variant }},enable=${{ matrix.php_version == env.LATEST_PHP_VERSION }}
+          #   type=raw,value=${{ matrix.variant }}
+          #   # CLI-specific tags
+          #   type=raw,value=${{ matrix.php_version }}.0,enable=${{ matrix.variant == 'cli' }}
+          #   type=raw,value=${{ matrix.php_version }},enable=${{ matrix.variant == 'cli' }}
+          #   type=raw,value=${{ env.MAJOR_VERSION }},enable=${{ matrix.variant == 'cli' && matrix.php_version == env.LATEST_PHP_VERSION }}
+          #   type=raw,value=latest,enable=${{ matrix.variant == 'cli' && matrix.php_version == env.LATEST_PHP_VERSION }}
+          #   # CLI Alpine-specific tags
+          #   type=raw,value=${{ matrix.php_version }}.0-alpine,enable=${{ matrix.variant == 'cli-alpine' }}
+          #   type=raw,value=${{ matrix.php_version }}-alpine,enable=${{ matrix.variant == 'cli-alpine' }}
+          #   type=raw,value=${{ env.MAJOR_VERSION }}-alpine,enable=${{ matrix.variant == 'cli-alpine' && matrix.php_version == env.LATEST_PHP_VERSION }}
+          #   type=raw,value=alpine,enable=${{ matrix.variant == 'cli-alpine' }}
 
       - name: Log generated tags
         run: |
@@ -146,8 +155,16 @@ jobs:
           tags: |
             type=raw,value=${{ matrix.php_version }}.0-${{ matrix.variant }}-filament
             type=raw,value=${{ matrix.php_version }}-${{ matrix.variant }}-filament
-            type=raw,value=${{ env.MAJOR_VERSION }}-${{ matrix.variant }}-filament,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION }}
-            type=raw,value=${{ matrix.variant }}-filament
+            type=raw,value=${{ matrix.variant }}-filament,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION }}
+            # No-tag variant for CLI
+            type=raw,value=${{ matrix.php_version }}.0-filament,enable=${{ matrix.variant == 'cli' }}
+            type=raw,value=${{ matrix.php_version }}-filament,enable=${{ matrix.variant == 'cli' }}
+            type=raw,value=filament,enable=${{ matrix.variant == 'cli' && matrix.php_version == env.LATEST_PHP_VERSION }}
+          # tags: |
+          #   type=raw,value=${{ matrix.php_version }}.0-${{ matrix.variant }}-filament
+          #   type=raw,value=${{ matrix.php_version }}-${{ matrix.variant }}-filament
+          #   type=raw,value=${{ env.MAJOR_VERSION }}-${{ matrix.variant }}-filament,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION }}
+          #   type=raw,value=${{ matrix.variant }}-filament
 
       - name: Log generated tags
         run: |
