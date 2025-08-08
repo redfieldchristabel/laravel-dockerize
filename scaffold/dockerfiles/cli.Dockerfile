@@ -1,5 +1,7 @@
 FROM ghcr.io/redfieldchristabel/laravel:8.4-cli-filament AS dev
 
+ENV DOCKER_ENV=development
+
 # # configure gd
 # RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 
@@ -8,6 +10,8 @@ FROM ghcr.io/redfieldchristabel/laravel:8.4-cli-filament AS dev
 
 # target prod
 FROM dev AS prod
+
+ENV DOCKER_ENV=production
 
 USER root
 
