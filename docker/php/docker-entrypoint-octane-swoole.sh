@@ -13,7 +13,6 @@ else
 fi
 
 # Run php artisan optimize, output to Docker logs
-php artisan optimize:clear
 php artisan optimize
 
 # Stream Laravel logs to Docker logs in background
