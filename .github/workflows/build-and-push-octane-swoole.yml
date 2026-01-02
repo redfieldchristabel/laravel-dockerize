@@ -103,8 +103,8 @@ jobs:
 
       - name: Verify pushed Octane-Swoole image
         run: |
-          for tag in ${{ steps.meta.outputs.tags }}; do
+          TAGS=$(echo "${{ steps.meta.outputs.tags }}" | tr '\n' ' ')
+          for tag in $TAGS; do
             echo "Verifying tag: $tag"
-            docker pull $tag || { echo "Failed to pull $tag"; exit 1; }
-            echo "Successfully pulled $tag"
+            docker pull "$tag"
           done
