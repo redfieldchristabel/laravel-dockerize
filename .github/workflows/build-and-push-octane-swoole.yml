@@ -108,3 +108,83 @@ jobs:
             echo "Verifying tag: $tag"
             docker pull "$tag"
           done
+
+  build-and-push-filament-octane-swoole:
+    name: Build and Push Filament-Octane-Swoole Images
+    runs-on: ubuntu-latest
+    needs: build-and-push-octane-swoole
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        php_version: ["8.4", "8.3", "8.2", "8.1"]
+        variant: ["cli", "cli-alpine"]
+      fail-fast: false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          logout: true
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/redfieldchristabel/laravel
+          tags: |
+            type=raw,value=${{ matrix.php_version }}.0-${{ matrix.variant }}-filament-octane-swoole
+            type=raw,value=${{ matrix.php_version }}-${{ matrix.variant }}-filament-octane-swoole
+            type=raw,value=${{ matrix.variant }}-filament-octane-swoole,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION }}
+            type=raw,value=${{ matrix.php_version }}.0-filament-octane-swoole,enable=${{ matrix.variant == 'cli' }}
+            type=raw,value=${{ matrix.php_version }}-filament-octane-swoole,enable=${{ matrix.variant == 'cli' }}
+            type=raw,value=filament-octane-swoole,enable=${{ matrix.variant == 'cli' && matrix.php_version == env.LATEST_PHP_VERSION }}
+
+      - name: Log generated tags
+        run: |
+          echo "Generated tags: ${{ steps.meta.outputs.tags }}"
+          echo "Tags JSON: ${{ steps.meta.outputs.json }}"
+
+      - name: Build and push Filament-Octane-Swoole Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.variant == 'cli' && 'filament-octane-swoole-debian.Dockerfile' || 'filament-octane-swoole-alpine.Dockerfile' }}
+          build-args: |
+            PHP_VERSION=${{ matrix.php_version }}
+            VARIANT=${{ matrix.variant }}
+          target: octane
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Log in to GHCR for verification
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify pushed Filament-Octane-Swoole image
+        run: |
+          TAGS=$(echo "${{ steps.meta.outputs.tags }}" | tr '\n' ' ')
+          for tag in $TAGS; do
+            echo "Verifying tag: $tag"
+            docker pull "$tag"
+          done
