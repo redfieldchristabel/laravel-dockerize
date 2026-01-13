@@ -1,9 +1,9 @@
 # Define build arguments
-ARG PHP_VERSION=8.3
-ARG VARIANT=fpm
+ARG PHP_VERSION=8.4
+ARG VARIANT=cli
 
-# Base stage: Start from the normal Laravel Debian-based image
-FROM ghcr.io/redfieldchristabel/laravel:${PHP_VERSION}-${VARIANT} AS base
+# Base stage: Start from the normal Octane-Swoole Debian-based image
+FROM ghcr.io/redfieldchristabel/laravel:${PHP_VERSION}-${VARIANT}-octane-swoole AS base
 ARG VARIANT
 
 USER root
@@ -22,17 +22,10 @@ RUN apt-get update && apt-get install -y \
     && apt-get purge -y --auto-remove autoconf build-essential \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# FPM target
-FROM base AS fpm
-COPY docker/php/docker-entrypoint-fpm.sh /usr/local/bin/docker-php-entrypoint
+# Octane target
+FROM base AS octane
+COPY docker/php/docker-entrypoint-octane-swoole.sh /usr/local/bin/docker-php-entrypoint
 RUN chmod +x /usr/local/bin/docker-php-entrypoint
-USER $user
-EXPOSE 9000
-ENTRYPOINT ["docker-php-entrypoint"]
-
-# CLI target
-FROM base AS cli
-COPY docker/php/docker-entrypoint-cli.sh /usr/local/bin/docker-php-entrypoint
-RUN chmod +x /usr/local/bin/docker-php-entrypoint
-USER $user
+USER ${user}
+EXPOSE 8000
 ENTRYPOINT ["docker-php-entrypoint"]
