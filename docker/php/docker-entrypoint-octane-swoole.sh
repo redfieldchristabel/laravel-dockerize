@@ -18,5 +18,12 @@ php artisan optimize
 # Stream Laravel logs to Docker logs in background
 tail -n 0 -f /var/www/storage/logs/*.log &
 
-# Start Laravel Octane with Swoole as the main process
-exec php artisan octane:start --server=swoole --host=0.0.0.0 --port=8000
+
+
+if [[ "$DOCKER_ENV" == "development" ]]; then
+   # Start Laravel Octane with Swoole as the main process
+  exec php artisan octane:start --server=swoole --host=0.0.0.0 --port=8000 --watch
+else
+  # Start Laravel Octane with Swoole as the main process
+  exec php artisan octane:start --server=swoole --host=0.0.0.0 --port=8000
+fi
