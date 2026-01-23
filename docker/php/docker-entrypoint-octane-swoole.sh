@@ -23,8 +23,7 @@ tail -n 0 -f /var/www/storage/logs/*.log &
 if [[ "$DOCKER_ENV" == "development" ]]; then
    # Start Laravel Octane with Swoole as the main process
   #  TODO: find a wat to run this in octane
-  # exec php artisan octane:start --server=swoole --host=0.0.0.0 --port=8000 --watch
-  exec php artisan serve --host=0.0.0.0 --port=8000 
+  exec php artisan octane:start --server=swoole --host=0.0.0.0 --port=8000 --watch
 else
   # Start Laravel Octane with Swoole as the main process
   exec php artisan octane:start --server=swoole --host=0.0.0.0 --port=8000
