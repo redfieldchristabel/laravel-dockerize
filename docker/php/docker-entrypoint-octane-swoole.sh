@@ -15,9 +15,13 @@ fi
 # Run php artisan optimize, output to Docker logs
 php artisan optimize
 
+# Check if this is an Artisan command container
+if [[ "$1" == "php" && "$2" == "artisan" ]]; then
+  exec "$@"
+fi
+
 # Stream Laravel logs to Docker logs in background
 tail -n 0 -f /var/www/storage/logs/*.log &
-
 
 
 if [[ "$DOCKER_ENV" == "development" ]]; then
