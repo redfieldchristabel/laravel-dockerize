@@ -30,6 +30,27 @@ class SelectionStep extends WizardStep<String> {
       Prompts.askSelection(question, options, initialValue: initialValue);
 }
 
+class EnumSelectionStep<T extends Enum> extends WizardStep<T> {
+  final List<T> options;
+
+  EnumSelectionStep({
+    required super.id,
+    required super.label,
+    required super.question,
+    required this.options,
+  });
+
+  @override
+  T ask({T? initialValue}) {
+    final selection = Prompts.askSelection(
+      question,
+      options.map((e) => e.name).toList(),
+      initialValue: initialValue?.name,
+    );
+    return options.firstWhere((e) => e.name == selection);
+  }
+}
+
 class ConfirmStep extends WizardStep<bool> {
   final bool defaultValue;
 
@@ -73,7 +94,16 @@ abstract class Wizard<T> {
     print('\n📋 --- Summary ---');
     for (final step in steps) {
       final value = answers[step.id];
-      final displayValue = value is bool ? (value ? 'Yes' : 'No') : value;
+      String displayValue;
+      
+      if (value is bool) {
+        displayValue = value ? 'Yes' : 'No';
+      } else if (value is Enum) {
+        displayValue = value.name;
+      } else {
+        displayValue = value.toString();
+      }
+
       print('${step.label}: \x1b[36m$displayValue\x1b[0m');
     }
     print('------------------');
