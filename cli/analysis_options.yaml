@@ -1,5 +1,5 @@
-# This file configures the static analysis results for your project (errors,
-# warnings, and lints).
+# This file configures the static analysis results for your project
+# (errors,warnings, and lints).
 #
 # This enables the 'recommended' set of lints from `package:lints`.
 # This set helps identify many issues that may lead to problems when running
@@ -19,9 +19,9 @@ include: package:lints/recommended.yaml
 #   rules:
 #     - camel_case_types
 
-# analyzer:
-#   exclude:
-#     - path/to/excluded/files/**
+analyzer:
+   exclude:
+     - cli.sh
 
 # For more information about the core and recommended set of lints, see
 # https://dart.dev/go/core-lints
