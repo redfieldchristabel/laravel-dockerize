@@ -31,7 +31,7 @@ enum Database { sqlite, mysql, postgres, mariadb }
 
 enum WebSocketTech { soketi, reverb }
 
-enum LinuxDistro { debian, alpine }
+enum BaseImage { debian, alpine }
 
 class ScaffoldOptions {
   final String phpVersion;
@@ -39,7 +39,7 @@ class ScaffoldOptions {
   final bool isFilament;
   final Database database;
   final WebSocketTech webSocket;
-  final LinuxDistro linuxDistro;
+  final BaseImage baseImage;
 
   ScaffoldOptions({
     required this.phpVersion,
@@ -47,7 +47,7 @@ class ScaffoldOptions {
     required this.isFilament,
     required this.database,
     required this.webSocket,
-    required this.linuxDistro,
+    required this.baseImage,
   });
 }
 
@@ -82,11 +82,11 @@ class ScaffoldWizard extends Wizard<ScaffoldOptions> {
       question: 'Select WebSocket Technology:',
       options: WebSocketTech.values,
     ),
-    EnumSelectionStep<LinuxDistro>(
-      id: 'linux_distro',
-      label: 'Linux Distribution',
-      question: 'Select Linux Distribution:',
-      options: LinuxDistro.values,
+    EnumSelectionStep<BaseImage>(
+      id: 'base_image',
+      label: 'Base Image',
+      question: 'Which base docker image do you want to use?',
+      options: BaseImage.values,
     ),
   ];
 
@@ -98,7 +98,7 @@ class ScaffoldWizard extends Wizard<ScaffoldOptions> {
       isFilament: answers['is_filament'],
       database: answers['database'],
       webSocket: answers['web_socket'],
-      linuxDistro: answers['linux_distro'],
+      baseImage: answers['base_image'],
     );
   }
 }
