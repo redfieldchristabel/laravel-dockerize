@@ -4,9 +4,15 @@ class Prompts {
   static const String _hideCursor = '\x1b[?25l';
   static const String _showCursor = '\x1b[?25h';
   static const String _cyan = '\x1b[36m';
+  static const String _grey = '\x1b[90m';
   static const String _reset = '\x1b[0m';
 
-  static String askSelection(String question, List<String> options, {String? initialValue}) {
+  static String askSelection(
+    String question,
+    List<String> options, {
+    String? initialValue,
+    String? description,
+  }) {
     var selectedIndex = 0;
     if (initialValue != null) {
       final index = options.indexOf(initialValue);
@@ -17,6 +23,12 @@ class Prompts {
 
     final hint = initialValue != null ? ' [$initialValue]' : '';
     stdout.write('$_hideCursor\n$question$hint\n');
+
+    int descriptionLines = 0;
+    if (description != null) {
+      descriptionLines = description.split('\n').length;
+      stdout.write('$_grey$description$_reset\n');
+    }
 
     // Initial render
     _renderOptions(options, selectedIndex);
@@ -41,7 +53,8 @@ class Prompts {
             final thirdByte = stdin.readByteSync();
             if (thirdByte == 65) {
               // Up arrow
-              selectedIndex = (selectedIndex - 1 + options.length) % options.length;
+              selectedIndex =
+                  (selectedIndex - 1 + options.length) % options.length;
             } else if (thirdByte == 66) {
               // Down arrow
               selectedIndex = (selectedIndex + 1) % options.length;
@@ -61,19 +74,30 @@ class Prompts {
     }
 
     // Final output: clear the selection list and show chosen value
-    _clearOptions(options.length);
+    _clearOptions(options.length + descriptionLines);
     // Use \x1b[2K to clear the question line before writing the answer
     stdout.write('\x1b[2K\r$question $_cyan${options[selectedIndex]}$_reset\n');
-    
+
     return options[selectedIndex];
   }
 
-  static bool askConfirm(String question, {bool defaultValue = true}) {
+  static bool askConfirm(
+    String question, {
+    bool defaultValue = true,
+    String? description,
+  }) {
     final options = ['Yes', 'No'];
     var selectedIndex = defaultValue ? 0 : 1;
     final hint = defaultValue ? '[Y/n]' : '[y/N]';
 
     stdout.write('$_hideCursor\n$question $hint\n');
+
+    int descriptionLines = 0;
+    if (description != null) {
+      descriptionLines = description.split('\n').length;
+      stdout.write('$_grey$description$_reset\n');
+    }
+
     _renderOptions(options, selectedIndex);
 
     stdin.echoMode = false;
@@ -88,11 +112,13 @@ class Prompts {
         }
 
         // Handle 'y' and 'n' keys
-        if (key == 121 || key == 89) { // y or Y
+        if (key == 121 || key == 89) {
+          // y or Y
           selectedIndex = 0;
           break;
         }
-        if (key == 110 || key == 78) { // n or N
+        if (key == 110 || key == 78) {
+          // n or N
           selectedIndex = 1;
           break;
         }
@@ -101,9 +127,11 @@ class Prompts {
           final secondByte = stdin.readByteSync();
           if (secondByte == 91) {
             final thirdByte = stdin.readByteSync();
-            if (thirdByte == 65 || thirdByte == 68) { // Up or Left
+            if (thirdByte == 65 || thirdByte == 68) {
+              // Up or Left
               selectedIndex = 0;
-            } else if (thirdByte == 66 || thirdByte == 67) { // Down or Right
+            } else if (thirdByte == 66 || thirdByte == 67) {
+              // Down or Right
               selectedIndex = 1;
             }
           }
@@ -118,9 +146,11 @@ class Prompts {
       stdout.write(_showCursor);
     }
 
-    _clearOptions(2);
+    _clearOptions(2 + descriptionLines);
     // Use \x1b[2K to clear the question line before writing the answer
-    stdout.write('\x1b[2K\r$question $_cyan${selectedIndex == 0 ? 'Yes' : 'No'}$_reset\n');
+    stdout.write(
+      '\x1b[2K\r$question $_cyan${selectedIndex == 0 ? 'Yes' : 'No'}$_reset\n',
+    );
 
     return selectedIndex == 0;
   }

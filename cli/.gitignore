@@ -3,3 +3,6 @@
 .dart_tool/
 
 .idea/
+
+# Ignore generated template
+lib/templates

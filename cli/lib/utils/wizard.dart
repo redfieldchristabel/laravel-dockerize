@@ -5,11 +5,13 @@ abstract class WizardStep<T> {
   final String id;
   final String label;
   final String question;
+  final String? description;
 
   WizardStep({
     required this.id,
     required this.label,
     required this.question,
+    this.description,
   });
 
   T ask({T? initialValue});
@@ -58,12 +60,16 @@ class ConfirmStep extends WizardStep<bool> {
     required super.id,
     required super.label,
     required super.question,
+    super.description,
     this.defaultValue = true,
   });
 
   @override
-  bool ask({bool? initialValue}) =>
-      Prompts.askConfirm(question, defaultValue: initialValue ?? defaultValue);
+  bool ask({bool? initialValue}) => Prompts.askConfirm(
+    question,
+    defaultValue: initialValue ?? defaultValue,
+    description: description,
+  );
 }
 
 abstract class Wizard<T> {
@@ -95,7 +101,7 @@ abstract class Wizard<T> {
     for (final step in steps) {
       final value = answers[step.id];
       String displayValue;
-      
+
       if (value is bool) {
         displayValue = value ? 'Yes' : 'No';
       } else if (value is Enum) {
@@ -108,10 +114,11 @@ abstract class Wizard<T> {
     }
     print('------------------');
 
-    final choice = Prompts.askSelection(
-      'Everything looks correct?',
-      ['Confirm and proceed', 'Edit answers', 'Cancel'],
-    );
+    final choice = Prompts.askSelection('Everything looks correct?', [
+      'Confirm and proceed',
+      'Edit answers',
+      'Cancel',
+    ]);
 
     if (choice == 'Cancel') {
       print('❌ Operation cancelled.');

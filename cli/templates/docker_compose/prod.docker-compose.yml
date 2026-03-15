@@ -1,0 +1,146 @@
+services:
+  app:
+    image: <registry-url>/app:${APP_VERSION:-latest}
+    hostname: rumc.app
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    volumes:
+      # bind storage public to public
+      - vendor:/var/www/vendor
+      - storage:/var/www/storage
+      - public:/var/www/public/storage
+      - ./downloads:/var/www/public/downloads:ro
+    networks:
+      - default
+      - bastion
+    env_file:
+      - .env
+
+  # Change the version to mysql or database you wanna use
+  mysql:
+    image: "mysql/mysql-server:8.0"
+    restart: always
+    command: ["--skip-log-bin"]
+    environment:
+      MYSQL_ROOT_PASSWORD: "admin143"
+      MYSQL_DATABASE: "${DB_DATABASE}"
+      MYSQL_USER: "${DB_USERNAME}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+    volumes:
+      - ./mysql:/var/lib/mysql
+    healthcheck:
+      test:
+        - CMD
+        - mysqladmin
+        - ping
+        - "-p${DB_PASSWORD}"
+      retries: 3
+      timeout: 5s
+
+  nginx:
+    image: <registry-url>/nginx:${APP_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      - app
+    volumes:
+      - public:/var/www/public/storage:ro
+    environment:
+      - DISABLE_IPV6=true
+    networks:
+      - npm
+      - default
+
+  redis:
+    image: "redis:alpine"
+    hostname: redis
+    restart: always
+    volumes:
+      - "redis:/data"
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      retries: 3
+      timeout: 5s
+
+  queue:
+    image: <registry-url>/cli:${MIS_APP_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - app
+      - mysql
+    command: ["php", "artisan", "queue:work", "--tries=3"]
+    env_file:
+      - .env
+    volumes:
+      - vendor:/var/www/vendor
+      - storage:/var/www/storage
+
+  queue-high:
+    image: gitlab.dev.cara.com.my:5050/cara/management-information-system/mis/cli:${MIS_APP_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - app
+      - mysql
+    command: ["php", "artisan", "queue:work", "--queue=high", "--tries=3"]
+    env_file:
+      - .env
+    volumes:
+      - vendor:/var/www/vendor
+      - storage:/var/www/storage
+
+  queue-critical:
+    image: gitlab.dev.cara.com.my:5050/cara/management-information-system/mis/cli:${MIS_APP_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - app
+      - mysql
+    command: ["php", "artisan", "queue:work", "--queue=critical", "--tries=3"]
+    env_file:
+      - .env
+    volumes:
+      - vendor:/var/www/vendor
+      - storage:/var/www/storage
+
+  scheduler:
+    image: gitlab.dev.cara.com.my:5050/cara/management-information-system/mis/cli:${MIS_APP_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - app
+      - mysql
+    command: ["php", "artisan", "schedule:work"]
+    env_file:
+      - .env
+    volumes:
+      - vendor:/var/www/vendor
+      - storage:/var/www/storage
+
+  soketi:
+    image: quay.io/soketi/soketi:latest
+    hostname: soketi
+    restart: unless-stopped
+    environment:
+      - SOKETI_DEBUG=true
+      - SOKETI_METRICS_SERVER_PORT=9601
+      - SOKETI_DEFAULT_APP_ID=${PUSHER_APP_ID}
+      - SOKETI_DEFAULT_APP_KEY=${PUSHER_APP_KEY}
+      - SOKETI_DEFAULT_APP_SECRET=${PUSHER_APP_SECRET}
+
+volumes:
+  vendor:
+  storage:
+  public:
+  published:
+  redis:
+
+networks:
+  npm:
+    external: true
+  bastion:
+    external: true
