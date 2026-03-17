@@ -12,6 +12,7 @@ USER root
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpcre2-dev \
     libbrotli-dev \
+    libssl-dev \
     pkg-config \
     && apt-get install -y --no-install-recommends \
     build-essential \
