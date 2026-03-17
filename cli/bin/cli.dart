@@ -4,7 +4,7 @@ import 'package:logging/logging.dart';
 import 'package:cli/commands/scaffold.dart';
 
 void main(List<String> arguments) async {
-  // 1. Setup Logging
+  // Setup Logging
   Logger.root.onRecord.listen((record) {
     if (record.level >= Level.SEVERE) {
       stderr.writeln('\x1b[31m${record.message}\x1b[0m');
@@ -27,7 +27,7 @@ void main(List<String> arguments) async {
 
   try {
     final argResults = runner.argParser.parse(arguments);
-    
+
     // Set log level based on verbose flag
     if (argResults['verbose'] == true) {
       Logger.root.level = Level.ALL;
