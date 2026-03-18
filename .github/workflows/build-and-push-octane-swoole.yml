@@ -39,6 +39,7 @@ jobs:
         uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -81,7 +82,7 @@ jobs:
       - name: Build and push Octane-Swoole Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: build
           file: ${{ matrix.variant == 'cli' && 'octane-swoole-debian.Dockerfile' || 'octane-swoole-alpine.Dockerfile' }}
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
@@ -161,7 +162,7 @@ jobs:
       - name: Build and push Filament-Octane-Swoole Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: build
           file: ${{ matrix.variant == 'cli' && 'filament-octane-swoole-debian.Dockerfile' || 'filament-octane-swoole-alpine.Dockerfile' }}
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}

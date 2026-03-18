@@ -86,7 +86,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: build
           file: ${{ contains(fromJson('["cli", "fpm"]'), matrix.variant) && 'debian.Dockerfile' || 'alpine.Dockerfile' }}
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
@@ -174,7 +174,7 @@ jobs:
       - name: Build and push Filament Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: build
           file: ${{ contains(fromJson('["cli", "fpm"]'), matrix.variant) && 'filament-debian.Dockerfile' || 'filament-alpine.Dockerfile' }}
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
