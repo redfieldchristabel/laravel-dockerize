@@ -23,6 +23,11 @@ jobs:
           # Configuration for monorepo is best handled via the config file below
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+      - name: Print release outputs for debugging
+        continue-on-error: true
+        run: |
+          echo "Release outputs:"
+          echo "${{ toJson(steps.release.outputs) }}"
 
   build-release-assets:
     needs: release-please

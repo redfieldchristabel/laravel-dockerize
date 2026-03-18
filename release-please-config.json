@@ -1,6 +1,7 @@
 {
   "packages": {
     "cli": {
+      "path": "cli",
       "release-type": "dart",
       "package-name": "laravel-dockerize-cli",
       "component": "cli",
