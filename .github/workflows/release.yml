@@ -13,16 +13,17 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
+      # We extract the release info for the 'cli' path specifically
+      release_created: ${{ steps.release.outputs['cli--release_created'] }}
+      tag_name: ${{ steps.release.outputs['cli--tag_name'] }}
     steps:
       - uses: google-github-actions/release-please-action@v4
         id: release
         with:
-          release-type: dart
-          package-name: laravel-dockerize-cli
+          # Configuration for monorepo is best handled via the config file below
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
 
-  # This job only runs AFTER the Release PR is merged and a release is created
   build-release-assets:
     needs: release-please
     if: ${{ needs.release-please.outputs.release_created }}
@@ -37,12 +38,15 @@ jobs:
           sdk: stable
 
       - name: Install dependencies
+        working-directory: ./cli # Target the cli folder
         run: dart pub get
 
       - name: Generate Assets
+        working-directory: ./cli
         run: dart run tool/generate_assets.dart
 
       - name: Compile CLI
+        working-directory: ./cli
         run: |
           mkdir -p build
           dart compile exe bin/cli.dart -o build/cli.sh
@@ -51,4 +55,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ needs.release-please.outputs.tag_name }} ./build/cli.sh --clobber
+          gh release upload ${{ needs.release-please.outputs.tag_name }} ./cli/build/cli.sh --clobber
