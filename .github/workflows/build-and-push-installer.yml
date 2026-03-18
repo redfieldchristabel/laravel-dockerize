@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "build/installer.Dockerfile"
-      - ".github/workflows/build-and-push-installer.yml"
   schedule:
     - cron: "0 0 * * *" # Daily at midnight UTC
   workflow_dispatch:
