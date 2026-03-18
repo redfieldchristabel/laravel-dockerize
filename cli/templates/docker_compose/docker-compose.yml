@@ -3,12 +3,12 @@ services:
     build:
       args:
         appVersion: dev
-      context: ..
+      context: .
       dockerfile: Dockerfile
       target: dev
     restart: unless-stopped
     depends_on:
-      - mysql
+      - db
     volumes:
       - ./:/var/www
       - ./docker/php/file.ini:/usr/local/etc/php/conf.d/file.ini
@@ -16,33 +16,33 @@ services:
   queue:
     image: ${APP_NAME}/cli:dev
     build:
-      context: ..
+      context: .
       dockerfile: cli.Dockerfile
       target: dev
     restart: unless-stopped
     depends_on:
       - app
-      - mysql
-    command: ["php", "artisan", "queue:listen", "--queue=high,default"]
+      - db
+    command: [ "php", "artisan", "queue:listen", "--queue=high,default" ]
     volumes:
       - ./:/var/www
       - ./docker/php/file.ini:/usr/local/etc/php/conf.d/file.ini
 
-#   scheduler:
-#     image: ${APP_NAME}/cli:dev
-#     restart: unless-stopped
-#     depends_on:
-#       - redis
-#       - app
-#       - mysql
-#     command: ["php", "artisan", "schedule:work"]
-#     env_file:
-#       - .env
-#     volumes:
-#       - vendor:/var/www/vendor
-#       - storage:/var/www/storage
+  #   scheduler:
+  #     image: ${APP_NAME}/cli:dev
+  #     restart: unless-stopped
+  #     depends_on:
+  #       - redis
+  #       - app
+  #       - db
+  #     command: ["php", "artisan", "schedule:work"]
+  #     env_file:
+  #       - .env
+  #     volumes:
+  #       - vendor:/var/www/vendor
+  #       - storage:/var/www/storage
 
-  mysql:
+  db:
     image: "mysql/mysql-server:8.0"
     restart: always
     environment:
@@ -53,17 +53,13 @@ services:
     volumes:
       - ./mysql:/var/lib/mysql
     healthcheck:
-      test:
-        - CMD
-        - mysqladmin
-        - ping
-        - "-p${DB_PASSWORD}"
+      test: "mysqladmin ping -p${DB_PASSWORD}"
       retries: 3
       timeout: 5s
 
   nginx:
     build:
-      context: ..
+      context: .
       dockerfile: nginx.Dockerfile
       target: dev
     restart: unless-stopped
@@ -74,8 +70,8 @@ services:
       # - 443:443 #https
     volumes:
       - ./:/var/www
-      - ./docker/nginx/conf/:/etc/nginx/conf.d/
-      - ./docker/nginx/include/:/etc/nginx/include/
+      - ./docker/nginx/app.conf:/etc/nginx/conf.d/app.conf
+      - ./docker/nginx/app_handler.conf:/etc/nginx/include/app_handler.conf
       # - ssl_cert:/etc/letsencrypt #ssl cert
     environment:
       - DISABLE_IPV6=true
@@ -86,10 +82,7 @@ services:
     volumes:
       - "redis:/data"
     healthcheck:
-      test:
-        - CMD
-        - redis-cli
-        - ping
+      test: "redis-cli ping"
       retries: 3
       timeout: 5s
 
@@ -97,11 +90,11 @@ services:
     image: phpmyadmin
     restart: always
     depends_on:
-      - mysql
+      - db
     ports:
       - ${FORWARD_PHPMYADMIN_PORT:-8081}:80
     environment:
-      - PMA_HOST=mysql
+      - PMA_HOST=db
 
   node:
     image: node:18
@@ -110,11 +103,11 @@ services:
     volumes:
       - ./:/app
       - ./node_modules:/app/node_modules
-    command: ["sleep", "infinity"]
+    command: [ "sleep", "infinity" ]
 
   vite:
     build:
-      context: ..
+      context: .
       dockerfile: vite.Dockerfile
     restart: unless-stopped
     ports:
@@ -122,7 +115,7 @@ services:
     volumes:
       - ./:/app
       - ./node_modules:/app/node_modules
-    command: ["npm", "run", "dev"]
+    command: [ "npm", "run", "dev" ]
 
   mailpit:
     image: axllent/mailpit
@@ -147,6 +140,20 @@ services:
       - SOKETI_DEFAULT_APP_ID=${PUSHER_APP_ID}
       - SOKETI_DEFAULT_APP_KEY=${PUSHER_APP_KEY}
       - SOKETI_DEFAULT_APP_SECRET=${PUSHER_APP_SECRET}
+
+  reverb:
+    image: ${APP_NAME}/cli:dev
+    container_name: reverb
+    restart: unless-stopped
+    depends_on:
+      - queue
+    command: [ "php", "artisan", "reverb:start" ]
+    ports:
+      - "8080:8080"
+    environment:
+      - REVERB_HOST=0.0.0.0
+      - REVERB_PORT=8080
+      - REVERB_SCHEME=http
 
 volumes:
   redis:
