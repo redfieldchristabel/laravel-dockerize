@@ -1,4 +1,5 @@
 import 'package:logging/logging.dart';
+import 'package:yaml/yaml.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
 class DockerComposeEditorService {
@@ -9,9 +10,24 @@ class DockerComposeEditorService {
 
   DockerComposeEditorService(this.content);
 
+  /// Returns the definition of a specific service.
+  YamlNode? getService(DockerComposeService service) {
+    try {
+      return editor.parseAt(['services', service]).value;
+    } catch (e) {
+      _log.finest('Service $service not found');
+      return null;
+    }
+  }
+
   void removeService(DockerComposeService service) {
     _log.finest('Removing service: ${service.name}');
     editor.remove(['services', service.name]);
+  }
+
+  void setService(DockerComposeService service, YamlNode definition) {
+    _log.finest('Setting service: ${service.name}');
+    editor.update(['services', service.name], definition);
   }
 
   void removeDependsOn(
@@ -51,6 +67,7 @@ class DockerComposeEditorService {
 
 enum DockerComposeService {
   app,
+  db,
   queue,
   scheduler,
   mysql,
@@ -61,5 +78,5 @@ enum DockerComposeService {
   vite,
   mailpit,
   soketi,
-  reverb,
+  reverb, postgres, mariadb,
 }

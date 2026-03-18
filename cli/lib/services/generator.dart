@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cli/models/scaffold_options.dart';
 import 'package:cli/services/docker_compose_editor.dart';
+import 'package:cli/templates/docker_compose/db.docker-compose.g.dart';
 import 'package:cli/templates/docker_compose/docker-compose.g.dart';
 import 'package:cli/templates/docker_compose/prod.docker-compose.g.dart';
 import 'package:cli/templates/dockerfile/cli.g.dart';
@@ -203,10 +204,61 @@ class GeneratorService {
       );
       return;
     }
-    File(
-      'prod.docker-compose.yml',
-    ).writeAsStringSync(dockercomposeProdDockerComposeTemplate);
 
+    final service = DockerComposeEditorService(
+      dockercomposeProdDockerComposeTemplate,
+    );
+
+    final dbService = DockerComposeEditorService(
+      dockercomposeDbDockerComposeTemplate,
+    );
+
+    // 1. Handle Database
+    switch (options.database) {
+      case Database.sqlite:
+        _log.finest('Removing mysql and phpmyadmin services for SQLite');
+        service.removeService(.mysql);
+        service.removeService(.phpmyadmin);
+        break;
+      case Database.mysql:
+        _log.finest('copy mysql from the template');
+        final mysqlNode = dbService.getService(.mysql)!;
+        _log.finest('inject mysql service to docker compose');
+        service.setService(.db, mysqlNode);
+        break;
+      case Database.postgres:
+        _log.finest('copy postgres from the template');
+        final pgNode = dbService.getService(.postgres)!;
+        _log.finest('inject postgres service to docker compose');
+        service.setService(.db, pgNode);
+        service.removeService(.phpmyadmin);
+        break;
+      case Database.mariadb:
+        _log.finest('copy mariadb from the template');
+        final mariaNode = dbService.getService(.mariadb)!;
+        _log.finest('inject mariadb service to docker compose');
+        service.setService(.db, mariaNode);
+        break;
+    }
+
+    // 2. Handle Vite
+    if (!options.useVite) {
+      _log.finest('Removing vite and node services');
+      service.removeService(.vite);
+      service.removeService(.node);
+    }
+
+    // 3. Handle WebSocket
+    if (options.webSocket != WebSocketTech.soketi) {
+      _log.finest('Removing soketi service');
+      service.removeService(.soketi);
+    } else {
+      _log.finest('Removing reverb service');
+      service.removeService(.reverb);
+    }
+
+    // Write the modified yaml
+    File('prod.docker-compose.yml').writeAsStringSync(service.toString());
     _log.fine('prod.docker-compose.yml generated.');
   }
 

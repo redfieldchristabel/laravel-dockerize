@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:cli/services/generator.dart';
 import 'package:cli/services/env.dart';
-import 'package:cli/services/vite_configuration.dart';
 import 'package:logging/logging.dart';
 import '../utils/wizard.dart';
 import '../models/scaffold_options.dart';
@@ -11,7 +10,6 @@ class ScaffoldCommand extends Command {
   final _log = Logger('Scaffold');
   final _generatorService = GeneratorService();
   final _envService = EnvService();
-  final _viteService = ViteConfigurationService();
 
   @override
   final name = 'scaffold';
@@ -78,9 +76,9 @@ class ScaffoldCommand extends Command {
 
     _envService.configure(option);
 
-    if (option.useVite) _viteService.setupDockerHost();
-
     _log.fine('Finished wizard process.');
+
+    //   TODO: check for pint and remove it from laravel composer with fun message
   }
 }
 
