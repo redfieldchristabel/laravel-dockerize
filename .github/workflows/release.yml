@@ -3,7 +3,7 @@ name: release
 on:
   push:
     branches:
-      - enhance-cli
+      - main
 
 permissions:
   contents: write
@@ -12,18 +12,12 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
-    outputs:
-      # We extract the release info for the 'cli' path specifically
-      release_created: ${{ steps.release.outputs['cli--release_created'] }}
-      tag_name: ${{ steps.release.outputs['cli--tag_name'] }}
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
         with:
-          # Configuration for monorepo is best handled via the config file below
-          ref: ${{ github.ref }}
-          config-file: release-please-config.json
-          manifest-file: .release-please-manifest.json
+          path: cli
+          release-type: dart
       - name: Print release outputs for debugging
         continue-on-error: true
         run: |
