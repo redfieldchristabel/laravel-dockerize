@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "installer.Dockerfile"
+      - "build/installer.Dockerfile"
       - ".github/workflows/build-and-push-installer.yml"
   schedule:
     - cron: "0 0 * * *" # Daily at midnight UTC
@@ -40,9 +40,9 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: installer.Dockerfile
+          file: build/installer.Dockerfile
           push: true
-          tags: ghcr.io/redfieldchristabel/laravel:installer
+          tags: ghcr.io/redfieldchristabel/laravel-installer:latest
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
