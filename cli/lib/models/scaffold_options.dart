@@ -1,10 +1,22 @@
-enum Database { sqlite, mysql, postgres, mariadb }
+enum Database {
+  sqlite,
+  mysql,
+  postgres,
+  mariadb;
+
+  String get connectionName => switch (this) {
+    Database.sqlite => 'sqlite',
+    Database.postgres => 'pgsql',
+    Database.mariadb => 'mariadb',
+    _ => 'mysql',
+  };
+}
 
 enum WebSocketTech { soketi, reverb }
 
 enum BaseImage { debian, alpine }
 
-class ScaffoldOptions {
+class ScaffoldOption {
   final String phpVersion;
   final bool useOctane;
   final bool isFilament;
@@ -14,7 +26,7 @@ class ScaffoldOptions {
   final bool useVite;
   final bool productionReady;
 
-  ScaffoldOptions({
+  ScaffoldOption({
     required this.phpVersion,
     required this.useOctane,
     required this.isFilament,

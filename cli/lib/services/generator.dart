@@ -8,13 +8,24 @@ import 'package:cli/templates/dockerfile/dockerfile.g.dart';
 import 'package:cli/templates/dockerfile/nginx.g.dart';
 import 'package:cli/templates/dockerfile/octane.g.dart';
 import 'package:cli/templates/dockerfile/vite.g.dart';
+import 'package:cli/templates/nginx_config/app.g.dart';
+import 'package:cli/templates/nginx_config/fpm_handler.g.dart';
+import 'package:cli/templates/nginx_config/octane_handler.g.dart';
+import 'package:cli/templates/nginx_config/reverb_handler.g.dart';
+import 'package:cli/templates/nginx_config/soketi_handler.g.dart';
 import 'package:cli/templates/php_ini.g.dart';
+import 'package:cli/templates/tool/app.g.dart';
+import 'package:cli/templates/tool/art.g.dart';
+import 'package:cli/templates/tool/cmpsr.g.dart';
+import 'package:cli/templates/tool/iart.g.dart';
+import 'package:cli/templates/tool/nd.g.dart';
+import 'package:cli/templates/tool/pint.g.dart';
 import 'package:logging/logging.dart';
 
 class GeneratorService {
   final _log = Logger('GeneratorService');
 
-  void generateDockerfile(ScaffoldOptions options) {
+  void generateDockerfile(ScaffoldOption options) {
     final buffer = StringBuffer();
 
     buffer.write('FROM ghcr.io/redfieldchristabel/laravel:');
@@ -64,7 +75,7 @@ class GeneratorService {
     _log.fine('Dockerfile generated.');
   }
 
-  void generateCliDockerfile(ScaffoldOptions options) {
+  void generateCliDockerfile(ScaffoldOption options) {
     if (options.useOctane) {
       _log.fine(
         'Skipping cli.Dockerfile because Octane uses the cli variant by default.',
@@ -108,12 +119,12 @@ class GeneratorService {
     _log.fine('cli.Dockerfile generated.');
   }
 
-  void generateNginxDockerfile(ScaffoldOptions options) {
+  void generateNginxDockerfile(ScaffoldOption options) {
     File('nginx.Dockerfile').writeAsStringSync(dockerfileNginxTemplate);
     _log.fine('nginx.Dockerfile generated.');
   }
 
-  void generateViteDockerfile(ScaffoldOptions options) {
+  void generateViteDockerfile(ScaffoldOption options) {
     File('vite.Dockerfile').writeAsStringSync(dockerfileViteTemplate);
     _log.fine('vite.Dockerfile generated.');
   }
@@ -123,7 +134,34 @@ class GeneratorService {
     _log.fine('php.ini (file.ini) generated.');
   }
 
-  void generateDockerCompose(ScaffoldOptions options) {
+  void generateNginxConf(ScaffoldOption options) {
+    File('docker/nginx/app.conf').writeAsStringSync(nginxconfigAppTemplate);
+    _log.fine('NGINX app.conf generated.');
+
+    final content = options.useOctane
+        ? nginxconfigOctaneHandlerTemplate
+        : nginxconfigFpmHandlerTemplate;
+    _log.finest('Use ${options.useOctane ? 'octane' : 'fpm'} handler');
+
+    File('docker/nginx/app_handler.conf').writeAsStringSync(content);
+
+    // generate web-soket handler
+    final wsContent = options.webSocket == WebSocketTech.soketi
+        ? nginxconfigSoketiHandlerTemplate
+        : nginxconfigReverbHandlerTemplate;
+    _log.finest(
+      'Use ${options.webSocket == WebSocketTech.soketi ? 'soketi' : 'reverb'} '
+      'handler',
+    );
+
+    File(
+      'docker/nginx/include/web-socket_handler.conf',
+    ).writeAsStringSync(wsContent);
+
+    _log.fine('NGINX app_handler.conf generated.');
+  }
+
+  void generateDockerCompose(ScaffoldOption options) {
     final service = DockerComposeEditorService(dockerComposeTemplate);
 
     // 1. Handle Database
@@ -148,6 +186,9 @@ class GeneratorService {
     if (options.webSocket != WebSocketTech.soketi) {
       _log.finest('Removing soketi service');
       service.removeService(.soketi);
+    } else {
+      _log.finest('Removing reverb service');
+      service.removeService(.reverb);
     }
 
     // Write the modified yaml
@@ -155,7 +196,7 @@ class GeneratorService {
     _log.fine('docker-compose.yml generated.');
   }
 
-  void generateProdDockerCompose(ScaffoldOptions options) {
+  void generateProdDockerCompose(ScaffoldOption options) {
     if (!options.productionReady) {
       _log.finest(
         'Skipping prod.docker-compose.yml because production_ready is false',
@@ -167,5 +208,35 @@ class GeneratorService {
     ).writeAsStringSync(dockercomposeProdDockerComposeTemplate);
 
     _log.fine('prod.docker-compose.yml generated.');
+  }
+
+  void generateToolArt() {
+    File('art').writeAsStringSync(toolArtTemplate);
+    _log.fine('art generated.');
+  }
+
+  void generateToolApp() {
+    File('app').writeAsStringSync(toolAppTemplate);
+    _log.fine('app generated.');
+  }
+
+  void generateToolCmpsr() {
+    File('cmpsr').writeAsStringSync(toolCmpsrTemplate);
+    _log.fine('cmpsr generated.');
+  }
+
+  void generateToolIart() {
+    File('iart').writeAsStringSync(toolIartTemplate);
+    _log.fine('iart generated.');
+  }
+
+  void generateToolNd() {
+    File('nd').writeAsStringSync(toolNdTemplate);
+    _log.fine('nd generated.');
+  }
+
+  void generateToolPint() {
+    File('pint').writeAsStringSync(toolPintTemplate);
+    _log.fine('pint generated.');
   }
 }

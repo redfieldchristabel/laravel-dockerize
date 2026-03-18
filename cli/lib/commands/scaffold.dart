@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:cli/services/generator.dart';
+import 'package:cli/services/env.dart';
+import 'package:cli/services/vite_configuration.dart';
 import 'package:logging/logging.dart';
 import '../utils/wizard.dart';
 import '../models/scaffold_options.dart';
@@ -8,6 +10,8 @@ import '../models/scaffold_options.dart';
 class ScaffoldCommand extends Command {
   final _log = Logger('Scaffold');
   final _generatorService = GeneratorService();
+  final _envService = EnvService();
+  final _viteService = ViteConfigurationService();
 
   @override
   final name = 'scaffold';
@@ -29,9 +33,9 @@ class ScaffoldCommand extends Command {
     _log.info('----------------------------------------------');
 
     final wizard = ScaffoldWizard();
-    final options = wizard.run();
+    final option = wizard.run();
 
-    _log.info('\n✅ Scaffolding project with PHP ${options.phpVersion}...');
+    _log.info('\n✅ Scaffolding project with PHP ${option.phpVersion}...');
 
     // 1. Directory Preparation
     _log.info('📁 Creating docker directories...');
@@ -47,26 +51,40 @@ class ScaffoldCommand extends Command {
 
     // 2. File Generation
     _log.info('📄 Generating Dockerfiles...');
-    _generatorService.generateDockerfile(options);
-    _generatorService.generateCliDockerfile(options);
-    _generatorService.generateNginxDockerfile(options);
-    _generatorService.generateViteDockerfile(options);
+    _generatorService.generateDockerfile(option);
+    _generatorService.generateCliDockerfile(option);
+    _generatorService.generateNginxDockerfile(option);
+    _generatorService.generateViteDockerfile(option);
     _log.info('🚀 Dockerfiles generated successfully!');
 
     _log.info('Generating Docker Compose files...');
-    _generatorService.generateDockerCompose(options);
-    _generatorService.generateProdDockerCompose(options);
+    _generatorService.generateDockerCompose(option);
+    _generatorService.generateProdDockerCompose(option);
     _log.info('🚀 Docker Compose files generated successfully!');
 
-    _log.info('📄 Generating PHP.ini...');
+    _log.info('📄 Generating config files...');
     _generatorService.generatePhpIni();
-    _log.info('🚀 PHP.ini generated successfully!');
+    _generatorService.generateNginxConf(option);
+    _log.info('🚀 Config files generated successfully!');
+
+    _log.info('Generating tools...');
+    _generatorService.generateToolArt();
+    _generatorService.generateToolApp();
+    _generatorService.generateToolCmpsr();
+    _generatorService.generateToolIart();
+    _generatorService.generateToolNd();
+    _generatorService.generateToolPint();
+    _log.info('🚀 Tools generated successfully!');
+
+    _envService.configure(option);
+
+    if (option.useVite) _viteService.setupDockerHost();
 
     _log.fine('Finished wizard process.');
   }
 }
 
-class ScaffoldWizard extends Wizard<ScaffoldOptions> {
+class ScaffoldWizard extends Wizard<ScaffoldOption> {
   @override
   List<WizardStep> get steps => [
     SelectionStep(
@@ -119,8 +137,8 @@ class ScaffoldWizard extends Wizard<ScaffoldOptions> {
   ];
 
   @override
-  ScaffoldOptions build(Map<String, dynamic> answers) {
-    return ScaffoldOptions(
+  ScaffoldOption build(Map<String, dynamic> answers) {
+    return ScaffoldOption(
       phpVersion: answers['php_version'],
       useOctane: answers['use_octane'],
       isFilament: answers['is_filament'],

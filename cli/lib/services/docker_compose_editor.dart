@@ -61,4 +61,5 @@ enum DockerComposeService {
   vite,
   mailpit,
   soketi,
+  reverb,
 }
