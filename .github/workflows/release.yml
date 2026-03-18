@@ -1,0 +1,54 @@
+name: release
+
+on:
+  push:
+    branches:
+      - enhance-cli
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: google-github-actions/release-please-action@v4
+        id: release
+        with:
+          release-type: dart
+          package-name: laravel-dockerize-cli
+
+  # This job only runs AFTER the Release PR is merged and a release is created
+  build-release-assets:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Generate Assets
+        run: dart run tool/generate_assets.dart
+
+      - name: Compile CLI
+        run: |
+          mkdir -p build
+          dart compile exe bin/cli.dart -o build/cli.sh
+
+      - name: Upload Binary to Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ needs.release-please.outputs.tag_name }} ./build/cli.sh --clobber
