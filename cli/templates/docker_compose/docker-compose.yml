@@ -158,5 +158,3 @@ services:
 volumes:
   redis:
     driver: local
-  meilisearch:
-    driver: local
