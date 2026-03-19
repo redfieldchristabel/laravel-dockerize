@@ -13,7 +13,7 @@ class DockerComposeEditorService {
   /// Returns the definition of a specific service.
   YamlNode? getService(DockerComposeService service) {
     try {
-      return editor.parseAt(['services', service]).value;
+      return editor.parseAt(['services', service.name]);
     } catch (e) {
       _log.finest('Service $service not found');
       return null;
@@ -78,5 +78,7 @@ enum DockerComposeService {
   vite,
   mailpit,
   soketi,
-  reverb, postgres, mariadb,
+  reverb,
+  postgres,
+  mariadb,
 }
