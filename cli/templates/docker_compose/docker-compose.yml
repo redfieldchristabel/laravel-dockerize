@@ -42,21 +42,6 @@ services:
   #       - vendor:/var/www/vendor
   #       - storage:/var/www/storage
 
-  db:
-    image: "mysql/mysql-server:8.0"
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: "admin143"
-      MYSQL_DATABASE: "${DB_DATABASE}"
-      MYSQL_USER: "${DB_USERNAME}"
-      MYSQL_PASSWORD: "${DB_PASSWORD}"
-    volumes:
-      - ./mysql:/var/lib/mysql
-    healthcheck:
-      test: "mysqladmin ping -p${DB_PASSWORD}"
-      retries: 3
-      timeout: 5s
-
   nginx:
     build:
       context: .

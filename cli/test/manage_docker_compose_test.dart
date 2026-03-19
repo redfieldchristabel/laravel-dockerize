@@ -38,12 +38,41 @@ void main() {
       service = ManageDockerComposeService(dockerComposeTemplate);
     });
 
-    test('removeService should remove the service from yaml', () {
+    test('hasDependency should return true if dependency exists', () {
+      expect(service.hasDependency(.app, .db), isTrue);
+      expect(service.hasDependency(.queue, .app), isTrue);
+      expect(service.hasDependency(.nginx, .app), isTrue);
+    });
+
+    test('hasDependency should return false if dependency does not exist', () {
+      expect(service.hasDependency(.app, .redis), isFalse);
+      expect(service.hasDependency(.nginx, .db), isFalse);
+    });
+
+    test('removeService should remove the service from yaml and internal state', () {
+      expect(service.getService(.phpmyadmin), isNotNull);
       expect(service.toString(), contains('phpmyadmin:'));
 
       service.removeService(.phpmyadmin);
 
+      expect(service.getService(.phpmyadmin), isNull);
       expect(service.toString(), isNot(contains('phpmyadmin:')));
+    });
+
+    test('tryRemoveService should return true if service exists and is removed', () {
+      expect(service.getService(.mailpit), isNotNull);
+      
+      final result = service.tryRemoveService(.mailpit);
+      
+      expect(result, isTrue);
+      expect(service.getService(.mailpit), isNull);
+    });
+
+    test('tryRemoveService should return false if service does not exist', () {
+      // .postgres is not in the main template
+      final result = service.tryRemoveService(.postgres);
+      
+      expect(result, isFalse);
     });
 
     test('setService should add or update a service', () {
@@ -60,24 +89,25 @@ void main() {
 
     test('removeDependsOn should remove a specific dependency', () {
       // In main template, 'queue' depends on 'app' and 'db'
-      expect(service.toString(), contains('depends_on:'));
+      expect(service.hasDependency(.queue, .db), isTrue);
 
       service.removeDependsOn(.queue, .db);
 
-      final queue = service.getService(.queue)!;
-      final dependsOn = queue.value['depends_on'] as List;
-      expect(dependsOn, isNot(contains('db')));
-      expect(dependsOn, contains('app'));
+      expect(service.hasDependency(.queue, .db), isFalse);
+      expect(service.hasDependency(.queue, .app), isTrue);
     });
 
     test(
       'removeDependsOn should remove the entire depends_on block if empty',
       () {
         // 'nginx' only depends on 'app'
+        expect(service.hasDependency(.nginx, .app), isTrue);
+        
         service.removeDependsOn(.nginx, .app);
 
         final nginx = service.getService(.nginx)!;
         expect(nginx.value.containsKey('depends_on'), isFalse);
+        expect(service.hasDependency(.nginx, .app), isFalse);
       },
     );
 

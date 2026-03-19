@@ -20,9 +20,33 @@ class ManageDockerComposeService {
     }
   }
 
+  /// Checks if a service has a specific dependency.
+  bool hasDependency(
+    DockerComposeService service,
+    DockerComposeService dependency,
+  ) {
+    try {
+      final dependsOn =
+          editor.parseAt(['services', service.name, 'depends_on']).value
+              as List?;
+      return dependsOn?.contains(dependency.name) ?? false;
+    } catch (e) {
+      return false;
+    }
+  }
+
   void removeService(DockerComposeService service) {
     _log.finest('Removing service: ${service.name}');
     editor.remove(['services', service.name]);
+  }
+
+  bool tryRemoveService(DockerComposeService service) {
+    try {
+      removeService(service);
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   void setService(DockerComposeService service, YamlNode definition) {

@@ -3,7 +3,7 @@ services:
     image: <registry-url>/app:${APP_VERSION:-latest}
     restart: unless-stopped
     depends_on:
-      - mysql
+      - db
     volumes:
       # bind storage public to public
       - vendor:/var/www/vendor
@@ -15,23 +15,6 @@ services:
       - bastion
     env_file:
       - .env
-
-  # Change the version to mysql or database you wanna use
-  mysql:
-    image: "mysql/mysql-server:8.0"
-    restart: always
-    command: [ "--skip-log-bin" ]
-    environment:
-      MYSQL_ROOT_PASSWORD: "admin143"
-      MYSQL_DATABASE: "${DB_DATABASE}"
-      MYSQL_USER: "${DB_USERNAME}"
-      MYSQL_PASSWORD: "${DB_PASSWORD}"
-    volumes:
-      - ./mysql:/var/lib/mysql
-    healthcheck:
-      test: "mysqladmin ping -p${DB_PASSWORD}"
-      retries: 3
-      timeout: 5s
 
   nginx:
     image: <registry-url>/nginx:${APP_VERSION:-latest}
@@ -62,7 +45,7 @@ services:
     depends_on:
       - redis
       - app
-      - mysql
+      - db
     command: [ "php", "artisan", "queue:work", "--tries=3" ]
     env_file:
       - .env
@@ -77,7 +60,7 @@ services:
   #    depends_on:
   #      - redis
   #      - app
-  #      - mysql
+  #      - db
   #    command: [ "php", "artisan", "queue:work", "--queue=high", "--tries=3" ]
   #    env_file:
   #      - .env
@@ -91,7 +74,7 @@ services:
   #    depends_on:
   #      - redis
   #      - app
-  #      - mysql
+  #      - db
   #    command: [ "php", "artisan", "queue:work", "--queue=critical", "--tries=3" ]
   #    env_file:
   #      - .env
@@ -105,7 +88,7 @@ services:
     depends_on:
       - redis
       - app
-      - mysql
+      - db
     command: [ "php", "artisan", "schedule:work" ]
     env_file:
       - .env

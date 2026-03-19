@@ -64,7 +64,9 @@ class GeneratorService {
       _log.finest('Octane swoole: true');
     }
 
-    buffer.writeln(' AS dev\n');
+    buffer.write(' AS ');
+
+    buffer.writeln('${options.useOctane ? 'base' : 'dev'}\n');
 
     // Append the Dockerfile template
     buffer.writeln(
@@ -164,26 +166,49 @@ class GeneratorService {
 
   void generateDockerCompose(ScaffoldOption options) {
     final service = ManageDockerComposeService(dockerComposeTemplate);
+    final dbService = ManageDockerComposeService(
+      dockercomposeDbDockerComposeTemplate,
+    );
 
-    // 1. Handle Database
-    if (options.database == Database.sqlite) {
-      _log.finest('Removing mysql and phpmyadmin services for SQLite');
-      service.removeService(.mysql);
-      service.removeService(.phpmyadmin);
+    // Handle Database
+    switch (options.database) {
+      case Database.sqlite:
+        _log.finest('Removing mysql and phpmyadmin services for SQLite');
+        service.removeService(.phpmyadmin);
 
-      // Remove mysql from depends_on
-      service.removeDependsOn(.app, .mysql);
-      service.removeDependsOn(.queue, .mysql);
+        // Remove db from depends_on
+        service.removeDependsOn(.app, .db);
+        service.removeDependsOn(.queue, .db);
+        break;
+      case Database.mysql:
+        _log.finest('copy mysql from the template');
+        final mysqlNode = dbService.getService(.mysql)!;
+        _log.finest('inject mysql service to docker compose');
+        service.setService(.db, mysqlNode);
+        break;
+      case Database.postgres:
+        _log.finest('copy postgres from the template');
+        final pgNode = dbService.getService(.postgres)!;
+        _log.finest('inject postgres service to docker compose');
+        service.setService(.db, pgNode);
+        service.removeService(.phpmyadmin);
+        break;
+      case Database.mariadb:
+        _log.finest('copy mariadb from the template');
+        final mariaNode = dbService.getService(.mariadb)!;
+        _log.finest('inject mariadb service to docker compose');
+        service.setService(.db, mariaNode);
+        break;
     }
 
-    // 2. Handle Vite
+    // Handle Vite
     if (!options.useVite) {
       _log.finest('Removing vite and node services');
       service.removeService(.vite);
       service.removeService(.node);
     }
 
-    // 3. Handle WebSocket
+    // Handle WebSocket
     if (options.webSocket != WebSocketTech.soketi) {
       _log.finest('Removing soketi service');
       service.removeService(.soketi);
@@ -217,8 +242,11 @@ class GeneratorService {
     switch (options.database) {
       case Database.sqlite:
         _log.finest('Removing mysql and phpmyadmin services for SQLite');
-        service.removeService(.mysql);
-        service.removeService(.phpmyadmin);
+
+        // Remove db from depends_on
+        service.removeDependsOn(.app, .db);
+        service.removeDependsOn(.queue, .db);
+        service.removeDependsOn(.scheduler, .db);
         break;
       case Database.mysql:
         _log.finest('copy mysql from the template');
@@ -231,7 +259,6 @@ class GeneratorService {
         final pgNode = dbService.getService(.postgres)!;
         _log.finest('inject postgres service to docker compose');
         service.setService(.db, pgNode);
-        service.removeService(.phpmyadmin);
         break;
       case Database.mariadb:
         _log.finest('copy mariadb from the template');
