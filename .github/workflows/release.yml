@@ -23,7 +23,7 @@ jobs:
 
   build-release-assets:
     needs: release-please
-    if: ${{ needs.release-please.result == 'success' }}
+    if: ${{ needs.release-please.outputs['cli--release_created'] == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -52,4 +52,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ needs.release-please.outputs.tag_name }} ./cli/build/cli.sh --clobber
+          gh release upload ${{ needs.release-please.outputs['cli--tag_name'] }} ./cli/build/cli.sh --clobber

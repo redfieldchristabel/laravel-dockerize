@@ -2,7 +2,8 @@
   "packages": {
     "cli": {
       "path": "cli",
-      "release-type": "dart"
+      "release-type": "dart",
+      "include-component-in-tag": false
     }
   }
 }
