@@ -1,14 +1,16 @@
-import 'package:cli/services/docker_compose_editor.dart';
+import 'package:cli/services/manage_docker_compose.dart';
 import 'package:cli/templates/docker_compose/db.docker-compose.g.dart';
 import 'package:cli/templates/docker_compose/docker-compose.g.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('DockerComposeEditorService - DB Template', () {
-    late DockerComposeEditorService service;
+    late ManageDockerComposeService service;
 
     setUp(() {
-      service = DockerComposeEditorService(dockercomposeDbDockerComposeTemplate);
+      service = ManageDockerComposeService(
+        dockercomposeDbDockerComposeTemplate,
+      );
     });
 
     test('getService returns YamlNode for existing services', () {
@@ -30,26 +32,28 @@ void main() {
   });
 
   group('DockerComposeEditorService - Main Template Operations', () {
-    late DockerComposeEditorService service;
+    late ManageDockerComposeService service;
 
     setUp(() {
-      service = DockerComposeEditorService(dockerComposeTemplate);
+      service = ManageDockerComposeService(dockerComposeTemplate);
     });
 
     test('removeService should remove the service from yaml', () {
       expect(service.toString(), contains('phpmyadmin:'));
-      
+
       service.removeService(.phpmyadmin);
-      
+
       expect(service.toString(), isNot(contains('phpmyadmin:')));
     });
 
     test('setService should add or update a service', () {
-      final dbTemplateService = DockerComposeEditorService(dockercomposeDbDockerComposeTemplate);
+      final dbTemplateService = ManageDockerComposeService(
+        dockercomposeDbDockerComposeTemplate,
+      );
       final postgresNode = dbTemplateService.getService(.postgres)!;
 
       service.setService(.db, postgresNode);
-      
+
       final updatedDb = service.getService(.db);
       expect(updatedDb!.value['image'], contains('postgres'));
     });
@@ -57,22 +61,25 @@ void main() {
     test('removeDependsOn should remove a specific dependency', () {
       // In main template, 'queue' depends on 'app' and 'db'
       expect(service.toString(), contains('depends_on:'));
-      
+
       service.removeDependsOn(.queue, .db);
-      
+
       final queue = service.getService(.queue)!;
       final dependsOn = queue.value['depends_on'] as List;
       expect(dependsOn, isNot(contains('db')));
       expect(dependsOn, contains('app'));
     });
 
-    test('removeDependsOn should remove the entire depends_on block if empty', () {
-      // 'nginx' only depends on 'app'
-      service.removeDependsOn(.nginx, .app);
-      
-      final nginx = service.getService(.nginx)!;
-      expect(nginx.value.containsKey('depends_on'), isFalse);
-    });
+    test(
+      'removeDependsOn should remove the entire depends_on block if empty',
+      () {
+        // 'nginx' only depends on 'app'
+        service.removeDependsOn(.nginx, .app);
+
+        final nginx = service.getService(.nginx)!;
+        expect(nginx.value.containsKey('depends_on'), isFalse);
+      },
+    );
 
     test('toString returns the modified YAML string', () {
       service.removeService(.soketi);

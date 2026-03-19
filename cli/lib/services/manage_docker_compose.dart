@@ -2,13 +2,13 @@ import 'package:logging/logging.dart';
 import 'package:yaml/yaml.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
-class DockerComposeEditorService {
+class ManageDockerComposeService {
   final String content;
   late final YamlEditor editor = YamlEditor(content);
 
   final _log = Logger('DockerComposeEditorService');
 
-  DockerComposeEditorService(this.content);
+  ManageDockerComposeService(this.content);
 
   /// Returns the definition of a specific service.
   YamlNode? getService(DockerComposeService service) {
