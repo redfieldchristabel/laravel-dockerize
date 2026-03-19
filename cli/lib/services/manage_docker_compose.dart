@@ -57,7 +57,15 @@ class ManageDockerComposeService {
   /// Sets or updates the 'image' property for a specific service.
   void setImage(DockerComposeService service, String image) {
     _log.finest('Setting image for ${service.name} to: $image');
-    editor.update(['services', service.name, 'image'], image);
+
+    // Wrap the string to control how it is rendered in YAML
+    final wrappedImage = YamlScalar.wrap(
+      image,
+      style: ScalarStyle
+          .SINGLE_QUOTED, // PLAIN usually removes the escape backslashes
+    );
+
+    editor.update(['services', service.name, 'image'], wrappedImage);
   }
 
   void removeDependsOn(
@@ -87,8 +95,6 @@ class ManageDockerComposeService {
     } catch (e) {
       // depends_on might not exist
     }
-
-
   }
 
   @override

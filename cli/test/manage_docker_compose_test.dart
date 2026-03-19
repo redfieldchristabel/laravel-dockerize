@@ -101,6 +101,31 @@ void main() {
       expect(app.value['image'], equals(newImage));
     });
 
+    test(
+      'setImage should produce a clean string without unnecessary backslash escapes',
+      () {
+        const appImage = r'${APP_NAME}/app:dev';
+        service.setImage(DockerComposeService.app, appImage);
+
+        final output = service.toString();
+
+        // The matcher must now account for the single quotes we forced
+        expect(
+          output,
+          contains("image: '\${APP_NAME}/app:dev'"),
+          // Wrap in double quotes so single quotes are literal
+          reason:
+              'The output should contain the image string wrapped in single quotes',
+        );
+
+        expect(
+          output,
+          isNot(contains(r'\/')),
+          reason: 'Forward slashes should not be escaped in the YAML output',
+        );
+      },
+    );
+
     test('removeDependsOn should remove a specific dependency', () {
       // In main template, 'queue' depends on 'app' and 'db'
       expect(service.hasDependency(.queue, .db), isTrue);
