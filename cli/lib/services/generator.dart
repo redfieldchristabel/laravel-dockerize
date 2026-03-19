@@ -226,7 +226,7 @@ class GeneratorService {
 
     // Handle octane image
     if (options.useOctane) {
-      final appImage = '\${APP_NAME}/app:dev';
+      final appImage = r'${APP_NAME}/app:dev';
 
       //   Octane can utilize same image as app for cli
       service.setImage(.queue, appImage);
@@ -306,7 +306,7 @@ class GeneratorService {
 
     // Handle use octane
     if (options.useOctane) {
-      final appImage = '<registry-url>/cli:\${APP_VERSION:-latest}';
+      final appImage = r'<registry-url>/cli:\${APP_VERSION:-latest}';
       //   Octane can utilize same image as app for cli
       service.setImage(.queue, appImage);
       service.setImage(.scheduler, appImage);
