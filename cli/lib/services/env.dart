@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:cli/models/scaffold_options.dart';
 import 'package:logging/logging.dart';
 

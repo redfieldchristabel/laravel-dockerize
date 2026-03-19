@@ -1,10 +1,12 @@
 import 'dart:io';
+
 import 'package:args/command_runner.dart';
-import 'package:cli/services/generator.dart';
 import 'package:cli/services/env.dart';
+import 'package:cli/services/generator.dart';
 import 'package:logging/logging.dart';
-import '../utils/wizard.dart';
+
 import '../models/scaffold_options.dart';
+import '../utils/wizard.dart';
 
 class ScaffoldCommand extends Command {
   final _log = Logger('Scaffold');

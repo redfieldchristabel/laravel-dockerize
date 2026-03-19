@@ -36,7 +36,7 @@ class GeneratorService {
     buffer.write('FROM ghcr.io/redfieldchristabel/laravel:');
 
     // PHP version
-    buffer.write('${options.phpVersion}-');
+    buffer.write('${options.phpVersion.value}-');
     _log.finest('PHP version: ${options.phpVersion}');
 
     // CLI / FPM
@@ -164,7 +164,9 @@ class GeneratorService {
       'handler',
     );
 
-    fs.file('docker/nginx/include/web-socket_handler.conf').writeAsStringSync(wsContent);
+    fs
+        .file('docker/nginx/include/web-socket_handler.conf')
+        .writeAsStringSync(wsContent);
 
     _log.fine('NGINX app_handler.conf generated.');
   }
