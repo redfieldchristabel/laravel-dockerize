@@ -67,7 +67,7 @@ class ScaffoldCommand extends Command {
 
     _log.info('Generating tools...');
     _generatorService.generateToolArt();
-    _generatorService.generateToolApp();
+    _generatorService.generateToolBox();
     _generatorService.generateToolCmpsr();
     _generatorService.generateToolIart();
     _generatorService.generateToolNd();

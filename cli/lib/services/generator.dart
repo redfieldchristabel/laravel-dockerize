@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:cli/models/scaffold_options.dart';
 import 'package:cli/services/manage_docker_compose.dart';
 import 'package:cli/templates/docker_compose/db.docker-compose.g.dart';
@@ -15,16 +14,21 @@ import 'package:cli/templates/nginx_config/octane_handler.g.dart';
 import 'package:cli/templates/nginx_config/reverb_handler.g.dart';
 import 'package:cli/templates/nginx_config/soketi_handler.g.dart';
 import 'package:cli/templates/php_ini.g.dart';
-import 'package:cli/templates/tool/app.g.dart';
 import 'package:cli/templates/tool/art.g.dart';
 import 'package:cli/templates/tool/cmpsr.g.dart';
 import 'package:cli/templates/tool/iart.g.dart';
 import 'package:cli/templates/tool/nd.g.dart';
 import 'package:cli/templates/tool/pint.g.dart';
+import 'package:cli/templates/tool/tool.g.dart';
+import 'package:file/file.dart';
+import 'package:file/local.dart';
 import 'package:logging/logging.dart';
 
 class GeneratorService {
   final _log = Logger('GeneratorService');
+  final FileSystem fs;
+
+  GeneratorService({FileSystem? fs}) : fs = fs ?? const LocalFileSystem();
 
   void generateDockerfile(ScaffoldOption options) {
     final buffer = StringBuffer();
@@ -74,7 +78,7 @@ class GeneratorService {
     );
 
     // Write to Dockerfile
-    File('Dockerfile').writeAsStringSync(buffer.toString());
+    fs.file('Dockerfile').writeAsStringSync(buffer.toString());
     _log.fine('Dockerfile generated.');
   }
 
@@ -118,30 +122,30 @@ class GeneratorService {
     buffer.writeln(dockerfileCliTemplate);
 
     // Write to cli.Dockerfile
-    File('cli.Dockerfile').writeAsStringSync(buffer.toString());
+    fs.file('cli.Dockerfile').writeAsStringSync(buffer.toString());
     _log.fine('cli.Dockerfile generated.');
   }
 
   void generateNginxDockerfile(ScaffoldOption options) {
-    File('nginx.Dockerfile').writeAsStringSync(dockerfileNginxTemplate);
+    fs.file('nginx.Dockerfile').writeAsStringSync(dockerfileNginxTemplate);
     _log.fine('nginx.Dockerfile generated.');
   }
 
   void generateViteDockerfile(ScaffoldOption options) {
-    File('vite.Dockerfile').writeAsStringSync(dockerfileViteTemplate);
+    fs.file('vite.Dockerfile').writeAsStringSync(dockerfileViteTemplate);
     _log.fine('vite.Dockerfile generated.');
   }
 
   void generatePhpIni() {
-    Directory('docker/php').createSync(recursive: true);
-    File('docker/php/file.ini').writeAsStringSync(phpIniTemplate);
+    fs.directory('docker/php').createSync(recursive: true);
+    fs.file('docker/php/file.ini').writeAsStringSync(phpIniTemplate);
     _log.fine('php.ini (file.ini) generated.');
   }
 
   void generateNginxConf(ScaffoldOption options) {
-    Directory('docker/nginx/include').createSync(recursive: true);
+    fs.directory('docker/nginx/include').createSync(recursive: true);
 
-    File('docker/nginx/app.conf').writeAsStringSync(nginxconfigAppTemplate);
+    fs.file('docker/nginx/app.conf').writeAsStringSync(nginxconfigAppTemplate);
     _log.fine('NGINX app.conf generated.');
 
     final content = options.useOctane
@@ -149,7 +153,7 @@ class GeneratorService {
         : nginxconfigFpmHandlerTemplate;
     _log.finest('Use ${options.useOctane ? 'octane' : 'fpm'} handler');
 
-    File('docker/nginx/app_handler.conf').writeAsStringSync(content);
+    fs.file('docker/nginx/app_handler.conf').writeAsStringSync(content);
 
     // generate web-soket handler
     final wsContent = options.webSocket == WebSocketTech.soketi
@@ -160,9 +164,7 @@ class GeneratorService {
       'handler',
     );
 
-    File(
-      'docker/nginx/include/web-socket_handler.conf',
-    ).writeAsStringSync(wsContent);
+    fs.file('docker/nginx/include/web-socket_handler.conf').writeAsStringSync(wsContent);
 
     _log.fine('NGINX app_handler.conf generated.');
   }
@@ -221,7 +223,7 @@ class GeneratorService {
     }
 
     // Write the modified yaml
-    File('docker-compose.yml').writeAsStringSync(service.toString());
+    fs.file('docker-compose.yml').writeAsStringSync(service.toString());
     _log.fine('docker-compose.yml generated.');
   }
 
@@ -288,37 +290,37 @@ class GeneratorService {
     }
 
     // Write the modified yaml
-    File('prod.docker-compose.yml').writeAsStringSync(service.toString());
+    fs.file('prod.docker-compose.yml').writeAsStringSync(service.toString());
     _log.fine('prod.docker-compose.yml generated.');
   }
 
   void generateToolArt() {
-    File('art').writeAsStringSync(toolArtTemplate);
+    fs.file('art').writeAsStringSync(toolArtTemplate);
     _log.fine('art generated.');
   }
 
-  void generateToolApp() {
-    File('app').writeAsStringSync(toolAppTemplate);
-    _log.fine('app generated.');
+  void generateToolBox() {
+    fs.file('tool').writeAsStringSync(toolTemplate);
+    _log.fine('tool generated.');
   }
 
   void generateToolCmpsr() {
-    File('cmpsr').writeAsStringSync(toolCmpsrTemplate);
+    fs.file('cmpsr').writeAsStringSync(toolCmpsrTemplate);
     _log.fine('cmpsr generated.');
   }
 
   void generateToolIart() {
-    File('iart').writeAsStringSync(toolIartTemplate);
+    fs.file('iart').writeAsStringSync(toolIartTemplate);
     _log.fine('iart generated.');
   }
 
   void generateToolNd() {
-    File('nd').writeAsStringSync(toolNdTemplate);
+    fs.file('nd').writeAsStringSync(toolNdTemplate);
     _log.fine('nd generated.');
   }
 
   void generateToolPint() {
-    File('pint').writeAsStringSync(toolPintTemplate);
+    fs.file('pint').writeAsStringSync(toolPintTemplate);
     _log.fine('pint generated.');
   }
 }
