@@ -1,10 +1,13 @@
-import 'dart:io';
-
 import 'package:cli/models/scaffold_options.dart';
+import 'package:file/file.dart';
+import 'package:file/local.dart';
 import 'package:logging/logging.dart';
 
 class EnvService {
   final _log = Logger('EnvService');
+  final FileSystem fs;
+
+  EnvService({FileSystem? fs}) : fs = fs ?? const LocalFileSystem();
 
   bool envExist = false;
 
@@ -32,15 +35,15 @@ class EnvService {
     _log.info('Creating env file');
     _log.finest('Checking if existing .env exist');
 
-    if (File('.env').existsSync()) {
+    if (fs.file('.env').existsSync()) {
       _log.info('ℹ️ .env already exists. Skipping...');
       envExist = true;
       return;
     }
 
     _log.info('📄 .env not found. Creating from .env.example...');
-    if (File('.env.example').existsSync()) {
-      File('.env.example').copySync('.env');
+    if (fs.file('.env.example').existsSync()) {
+      fs.file('.env.example').copySync('.env');
       _log.info('🚀 .env created successfully!');
       envExist = true;
     } else {
@@ -178,7 +181,7 @@ class EnvService {
   }
 
   (String, void Function(String content) finish) getContent() {
-    final file = File('.env');
+    final file = fs.file('.env');
     return (
       file.readAsStringSync(),
       (String content) => file.writeAsStringSync(content),

@@ -1,27 +1,21 @@
-import 'dart:io';
 import 'package:cli/models/scaffold_options.dart';
 import 'package:cli/services/env.dart';
+import 'package:file/file.dart';
+import 'package:file/memory.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('EnvService', () {
     late EnvService service;
+    late MemoryFileSystem fs;
     late File envFile;
     late File exampleFile;
 
     setUp(() {
-      service = EnvService();
-      envFile = File('.env');
-      exampleFile = File('.env.example');
-
-      // Ensure a clean state before each test
-      if (envFile.existsSync()) envFile.deleteSync();
-      if (exampleFile.existsSync()) exampleFile.deleteSync();
-    });
-
-    tearDown(() {
-      if (envFile.existsSync()) envFile.deleteSync();
-      if (exampleFile.existsSync()) exampleFile.deleteSync();
+      fs = MemoryFileSystem();
+      service = EnvService(fs: fs);
+      envFile = fs.file('.env');
+      exampleFile = fs.file('.env.example');
     });
 
     test('createFile should copy from .env.example if .env does not exist', () {
@@ -118,6 +112,41 @@ void main() {
       final content = envFile.readAsStringSync();
       expect(content, contains('REDIS_CLIENT=phpredis'));
       expect(content, contains('REDIS_HOST=redis'));
+    });
+    test('configure should call all sub-configuration methods', () {
+      exampleFile.writeAsStringSync(
+        'DB_CONNECTION=mysql\n'
+        'REDIS_HOST=127.0.0.1\n'
+        'MAIL_HOST=localhost\n'
+        'PUSHER_APP_ID=\n'
+        'SESSION_DRIVER=file\n'
+        'QUEUE_CONNECTION=sync\n'
+        'CACHE_STORE=file\n',
+      );
+
+      final options = ScaffoldOption(
+        phpVersion: PhpVersion.v8_2,
+        useOctane: false,
+        isFilament: false,
+        database: Database.mysql,
+        webSocket: WebSocketTech.soketi,
+        baseImage: BaseImage.debian,
+        useVite: true,
+        productionReady: false,
+      );
+
+      service.configure(options);
+
+      final content = envFile.readAsStringSync();
+      expect(envFile.existsSync(), isTrue);
+      expect(content, contains('DB_CONNECTION=mysql'));
+      expect(content, contains('DB_HOST=db'));
+      expect(content, contains('REDIS_HOST=redis'));
+      expect(content, contains('MAIL_HOST=mailpit'));
+      expect(content, contains('PUSHER_APP_ID=app-id'));
+      expect(content, contains('SESSION_DRIVER=redis'));
+      expect(content, contains('QUEUE_CONNECTION=redis'));
+      expect(content, contains('CACHE_STORE=redis'));
     });
   });
 }

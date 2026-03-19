@@ -49,29 +49,35 @@ void main() {
       expect(service.hasDependency(.nginx, .db), isFalse);
     });
 
-    test('removeService should remove the service from yaml and internal state', () {
-      expect(service.getService(.phpmyadmin), isNotNull);
-      expect(service.toString(), contains('phpmyadmin:'));
+    test(
+      'removeService should remove the service from yaml and internal state',
+      () {
+        expect(service.getService(.phpmyadmin), isNotNull);
+        expect(service.toString(), contains('phpmyadmin:'));
 
-      service.removeService(.phpmyadmin);
+        service.removeService(.phpmyadmin);
 
-      expect(service.getService(.phpmyadmin), isNull);
-      expect(service.toString(), isNot(contains('phpmyadmin:')));
-    });
+        expect(service.getService(.phpmyadmin), isNull);
+        expect(service.toString(), isNot(contains('phpmyadmin:')));
+      },
+    );
 
-    test('tryRemoveService should return true if service exists and is removed', () {
-      expect(service.getService(.mailpit), isNotNull);
-      
-      final result = service.tryRemoveService(.mailpit);
-      
-      expect(result, isTrue);
-      expect(service.getService(.mailpit), isNull);
-    });
+    test(
+      'tryRemoveService should return true if service exists and is removed',
+      () {
+        expect(service.getService(.mailpit), isNotNull);
+
+        final result = service.tryRemoveService(.mailpit);
+
+        expect(result, isTrue);
+        expect(service.getService(.mailpit), isNull);
+      },
+    );
 
     test('tryRemoveService should return false if service does not exist', () {
       // .postgres is not in the main template
       final result = service.tryRemoveService(.postgres);
-      
+
       expect(result, isFalse);
     });
 
@@ -85,6 +91,14 @@ void main() {
 
       final updatedDb = service.getService(.db);
       expect(updatedDb!.value['image'], contains('postgres'));
+    });
+
+    test('setImage should update the image property', () {
+      const newImage = 'mysql:8.0';
+      service.setImage(DockerComposeService.app, newImage);
+
+      final app = service.getService(DockerComposeService.app)!;
+      expect(app.value['image'], equals(newImage));
     });
 
     test('removeDependsOn should remove a specific dependency', () {
@@ -102,7 +116,7 @@ void main() {
       () {
         // 'nginx' only depends on 'app'
         expect(service.hasDependency(.nginx, .app), isTrue);
-        
+
         service.removeDependsOn(.nginx, .app);
 
         final nginx = service.getService(.nginx)!;
