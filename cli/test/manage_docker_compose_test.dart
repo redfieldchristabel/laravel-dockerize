@@ -163,6 +163,17 @@ void main() {
       expect(updatedApp.value.containsKey('image'), isTrue);
     });
 
+    test('removeBuild should not throw if build block is missing', () {
+      // In main template, 'scheduler' does not have a build block
+      final scheduler = service.getService(.scheduler)!;
+      expect(scheduler.value.containsKey('build'), isFalse);
+
+      expect(() => service.removeBuild(.scheduler), returnsNormally);
+
+      final updatedScheduler = service.getService(.scheduler)!;
+      expect(updatedScheduler.value.containsKey('build'), isFalse);
+    });
+
     test('toString returns the modified YAML string', () {
       service.removeService(.soketi);
       final output = service.toString();

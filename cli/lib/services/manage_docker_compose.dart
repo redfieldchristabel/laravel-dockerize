@@ -99,7 +99,11 @@ class ManageDockerComposeService {
 
   void removeBuild(DockerComposeService service) {
     _log.finest('Removing build for ${service.name}');
-    editor.remove(['services', service.name, 'build']);
+    try {
+      editor.remove(['services', service.name, 'build']);
+    } on ArgumentError catch (_) {
+      _log.finest('Build block not found for ${service.name}');
+    }
   }
 
   @override
