@@ -133,11 +133,14 @@ class GeneratorService {
   }
 
   void generatePhpIni() {
+    Directory('docker/php').createSync(recursive: true);
     File('docker/php/file.ini').writeAsStringSync(phpIniTemplate);
     _log.fine('php.ini (file.ini) generated.');
   }
 
   void generateNginxConf(ScaffoldOption options) {
+    Directory('docker/nginx/include').createSync(recursive: true);
+
     File('docker/nginx/app.conf').writeAsStringSync(nginxconfigAppTemplate);
     _log.fine('NGINX app.conf generated.');
 
