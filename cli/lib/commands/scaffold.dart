@@ -85,11 +85,11 @@ class ScaffoldCommand extends Command {
 class ScaffoldWizard extends Wizard<ScaffoldOption> {
   @override
   List<WizardStep> get steps => [
-    SelectionStep(
+    EnumSelectionStep<PhpVersion>(
       id: 'php_version',
       label: 'PHP Version',
       question: 'Select PHP Version:',
-      options: ['8.1', '8.2', '8.3', '8.4'],
+      options: PhpVersion.values,
     ),
     ConfirmStep(
       id: 'use_octane',

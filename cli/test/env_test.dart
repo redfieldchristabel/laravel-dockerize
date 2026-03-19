@@ -41,7 +41,7 @@ void main() {
         service.envExist = true;
 
         final options = ScaffoldOption(
-          phpVersion: '8.2',
+          phpVersion: .v8_2,
           useOctane: false,
           isFilament: false,
           database: Database.mysql,
@@ -68,7 +68,7 @@ void main() {
       service.envExist = true;
 
       final options = ScaffoldOption(
-        phpVersion: '8.2',
+        phpVersion: .v8_2,
         useOctane: false,
         isFilament: false,
         database: Database.sqlite,
@@ -91,7 +91,7 @@ void main() {
       service.envExist = true;
 
       final options = ScaffoldOption(
-        phpVersion: '8.2',
+        phpVersion: .v8_2,
         useOctane: false,
         isFilament: false,
         database: Database.mysql,

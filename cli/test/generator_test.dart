@@ -15,19 +15,22 @@ void main() {
     });
 
     group('Toolbox Generation', () {
-      test('generateToolBox creates "tool" file even if Laravel app directory exists', () {
-        // Create Laravel-like structure in memory
-        fs.directory('app').createSync();
-        fs.directory('routes').createSync();
-        fs.file('routes/web.php').createSync(recursive: true);
+      test(
+        'generateToolBox creates "tool" file even if Laravel app directory exists',
+        () {
+          // Create Laravel-like structure in memory
+          fs.directory('app').createSync();
+          fs.directory('routes').createSync();
+          fs.file('routes/web.php').createSync(recursive: true);
 
-        // This will succeed because it's using the memory file system
-        // and 'tool' doesn't exist as a directory there.
-        generator.generateToolBox();
+          // This will succeed because it's using the memory file system
+          // and 'tool' doesn't exist as a directory there.
+          generator.generateToolBox();
 
-        expect(fs.file('tool').existsSync(), isTrue);
-        expect(fs.directory('app').existsSync(), isTrue);
-      });
+          expect(fs.file('tool').existsSync(), isTrue);
+          expect(fs.directory('app').existsSync(), isTrue);
+        },
+      );
 
       test('generateToolArt creates art tool', () {
         generator.generateToolArt();
@@ -55,47 +58,59 @@ void main() {
       });
     });
 
-    test('generateDockerfile creates a Dockerfile with correct PHP version', () {
-      final options = ScaffoldOption(
-        phpVersion: '8.3',
-        useOctane: false,
-        isFilament: false,
-        database: Database.mysql,
-        webSocket: WebSocketTech.reverb,
-        baseImage: BaseImage.debian,
-        useVite: true,
-        productionReady: false,
-      );
+    test(
+      'generateDockerfile creates a Dockerfile with correct PHP version',
+      () {
+        final options = ScaffoldOption(
+          phpVersion: .v8_3,
+          useOctane: false,
+          isFilament: false,
+          database: Database.mysql,
+          webSocket: WebSocketTech.reverb,
+          baseImage: BaseImage.debian,
+          useVite: true,
+          productionReady: false,
+        );
 
-      generator.generateDockerfile(options);
+        generator.generateDockerfile(options);
 
-      expect(fs.file('Dockerfile').existsSync(), isTrue);
-      final content = fs.file('Dockerfile').readAsStringSync();
-      expect(content, contains('FROM ghcr.io/redfieldchristabel/laravel:8.3-fpm'));
-    });
+        expect(fs.file('Dockerfile').existsSync(), isTrue);
+        final content = fs.file('Dockerfile').readAsStringSync();
+        expect(
+          content,
+          contains('FROM ghcr.io/redfieldchristabel/laravel:8.3-fpm'),
+        );
+      },
+    );
 
-    test('generateNginxConf creates directory structure and files when they do not exist', () {
-      final options = ScaffoldOption(
-        phpVersion: '8.2',
-        useOctane: true,
-        isFilament: false,
-        database: Database.mysql,
-        webSocket: WebSocketTech.soketi,
-        baseImage: BaseImage.debian,
-        useVite: true,
-        productionReady: false,
-      );
+    test(
+      'generateNginxConf creates directory structure and files when they do not exist',
+      () {
+        final options = ScaffoldOption(
+          phpVersion: .v8_2,
+          useOctane: true,
+          isFilament: false,
+          database: Database.mysql,
+          webSocket: WebSocketTech.soketi,
+          baseImage: BaseImage.debian,
+          useVite: true,
+          productionReady: false,
+        );
 
-      generator.generateNginxConf(options);
+        generator.generateNginxConf(options);
 
-      expect(fs.file('docker/nginx/app.conf').existsSync(), isTrue);
-      expect(fs.file('docker/nginx/app_handler.conf').existsSync(), isTrue);
-      expect(fs.file('docker/nginx/include/web-socket_handler.conf').existsSync(), isTrue);
-    });
+        expect(fs.file('docker/nginx/app.conf').existsSync(), isTrue);
+        expect(fs.file('docker/nginx/app_handler.conf').existsSync(), isTrue);
+        expect(
+          fs.file('docker/nginx/include/web-socket_handler.conf').existsSync(),
+          isTrue,
+        );
+      },
+    );
 
     test('generateDockerCompose handles SQLite removal', () {
       final options = ScaffoldOption(
-        phpVersion: '8.2',
+        phpVersion: .v8_2,
         useOctane: false,
         isFilament: false,
         database: Database.sqlite,
@@ -112,7 +127,13 @@ void main() {
 
       expect(content, isNot(contains('db:')));
       final service = ManageDockerComposeService(content);
-      expect(service.hasDependency(DockerComposeService.app, DockerComposeService.db), isFalse);
+      expect(
+        service.hasDependency(
+          DockerComposeService.app,
+          DockerComposeService.db,
+        ),
+        isFalse,
+      );
     });
   });
 }

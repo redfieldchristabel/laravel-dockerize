@@ -1,23 +1,5 @@
-enum Database {
-  sqlite,
-  mysql,
-  postgres,
-  mariadb;
-
-  String get connectionName => switch (this) {
-    Database.sqlite => 'sqlite',
-    Database.postgres => 'pgsql',
-    Database.mariadb => 'mariadb',
-    _ => 'mysql',
-  };
-}
-
-enum WebSocketTech { soketi, reverb }
-
-enum BaseImage { debian, alpine }
-
 class ScaffoldOption {
-  final String phpVersion;
+  final PhpVersion phpVersion;
   final bool useOctane;
   final bool isFilament;
   final Database database;
@@ -37,3 +19,40 @@ class ScaffoldOption {
     required this.productionReady,
   });
 }
+
+mixin EnumValue {
+  String get value;
+}
+
+enum PhpVersion with EnumValue {
+  v8_4,
+  v8_3,
+  v8_2,
+  v8_1;
+
+  @override
+  String get value => switch (this) {
+    PhpVersion.v8_1 => '8.1',
+    PhpVersion.v8_2 => '8.2',
+    PhpVersion.v8_3 => '8.3',
+    PhpVersion.v8_4 => '8.4',
+  };
+}
+
+enum Database {
+  sqlite,
+  mysql,
+  postgres,
+  mariadb;
+
+  String get connectionName => switch (this) {
+    Database.sqlite => 'sqlite',
+    Database.postgres => 'pgsql',
+    Database.mariadb => 'mariadb',
+    _ => 'mysql',
+  };
+}
+
+enum WebSocketTech { soketi, reverb }
+
+enum BaseImage { debian, alpine }

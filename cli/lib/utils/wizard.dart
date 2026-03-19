@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:cli/models/scaffold_options.dart';
+
 import 'prompts.dart';
 
 abstract class WizardStep<T> {
@@ -25,11 +27,16 @@ class SelectionStep extends WizardStep<String> {
     required super.label,
     required super.question,
     required this.options,
+    super.description,
   });
 
   @override
-  String ask({String? initialValue}) =>
-      Prompts.askSelection(question, options, initialValue: initialValue);
+  String ask({String? initialValue}) => Prompts.askSelection(
+    question,
+    options,
+    initialValue: initialValue,
+    description: description,
+  );
 }
 
 class EnumSelectionStep<T extends Enum> extends WizardStep<T> {
@@ -40,14 +47,24 @@ class EnumSelectionStep<T extends Enum> extends WizardStep<T> {
     required super.label,
     required super.question,
     required this.options,
+    super.description,
   });
+
+  String _getEnumName(T value) {
+    if (value is EnumValue) {
+      return (value as EnumValue).value;
+    }
+
+    return value.name;
+  }
 
   @override
   T ask({T? initialValue}) {
     final selection = Prompts.askSelection(
       question,
-      options.map((e) => e.name).toList(),
+      options.map(_getEnumName).toList(),
       initialValue: initialValue?.name,
+      description: description,
     );
     return options.firstWhere((e) => e.name == selection);
   }
