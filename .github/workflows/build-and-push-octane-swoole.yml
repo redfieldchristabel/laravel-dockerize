@@ -1,9 +1,6 @@
 name: Build and Push Octane-Swoole Images
 
 on:
-  # push:
-  #   branches:
-  #     - octane
   workflow_run:
     workflows: ["Build and Push Laravel Images to GHCR"]
     types:

@@ -3,9 +3,6 @@ name: Build and Push Laravel Images to GHCR
 on:
   schedule:
     - cron: "0 0 * * *" # Run daily at midnight UTC
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 env:

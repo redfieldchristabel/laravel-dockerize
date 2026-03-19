@@ -1,9 +1,6 @@
 name: Build and Push Laravel Installer Image to GHCR
 
 on:
-  push:
-    branches:
-      - main
   schedule:
     - cron: "0 0 * * *" # Daily at midnight UTC
   workflow_dispatch:
