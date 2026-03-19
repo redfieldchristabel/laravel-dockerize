@@ -40,8 +40,8 @@ services:
     env_file:
       - .env
     volumes:
-      - vendor:/var/www/vendor
-      - storage:/var/www/storage
+      - ./:/var/www
+      - ./docker/php/file.ini:/usr/local/etc/php/conf.d/file.ini
 
   nginx:
     build:
