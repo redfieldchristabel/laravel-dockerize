@@ -1,5 +1,6 @@
 services:
   app:
+    image: ${APP_NAME}/app:dev
     build:
       args:
         appVersion: dev

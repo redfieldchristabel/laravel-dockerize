@@ -54,6 +54,12 @@ class ManageDockerComposeService {
     editor.update(['services', service.name], definition);
   }
 
+  /// Sets or updates the 'image' property for a specific service.
+  void setImage(DockerComposeService service, String image) {
+    _log.finest('Setting image for ${service.name} to: $image');
+    editor.update(['services', service.name, 'image'], image);
+  }
+
   void removeDependsOn(
     DockerComposeService service,
     DockerComposeService dependency,
@@ -81,6 +87,8 @@ class ManageDockerComposeService {
     } catch (e) {
       // depends_on might not exist
     }
+
+
   }
 
   @override

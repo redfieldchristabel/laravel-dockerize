@@ -177,6 +177,17 @@ class GeneratorService {
       dockercomposeDbDockerComposeTemplate,
     );
 
+    // Handle use octane
+    if (options.useOctane) {
+      //   Octane can utilize same image as app for cli
+      service.setImage(.queue, '\${APP_NAME}/app:dev');
+      service.setImage(.scheduler, '\${APP_NAME}/app:dev');
+
+      if (options.webSocket == .reverb) {
+        service.setImage(.reverb, '\${APP_NAME}/app:dev');
+      }
+    }
+
     // Handle Database
     switch (options.database) {
       case Database.sqlite:
@@ -244,6 +255,17 @@ class GeneratorService {
     final dbService = ManageDockerComposeService(
       dockercomposeDbDockerComposeTemplate,
     );
+
+    // Handle use octane
+    if (options.useOctane) {
+      //   Octane can utilize same image as app for cli
+      service.setImage(.queue, '\${APP_NAME}/app:dev');
+      service.setImage(.scheduler, '\${APP_NAME}/app:dev');
+
+      if (options.webSocket == .reverb) {
+        service.setImage(.reverb, '\${APP_NAME}/app:dev');
+      }
+    }
 
     // 1. Handle Database
     switch (options.database) {
