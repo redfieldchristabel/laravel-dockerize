@@ -29,19 +29,19 @@ services:
       - ./:/var/www
       - ./docker/php/file.ini:/usr/local/etc/php/conf.d/file.ini
 
-  #   scheduler:
-  #     image: ${APP_NAME}/cli:dev
-  #     restart: unless-stopped
-  #     depends_on:
-  #       - redis
-  #       - app
-  #       - db
-  #     command: ["php", "artisan", "schedule:work"]
-  #     env_file:
-  #       - .env
-  #     volumes:
-  #       - vendor:/var/www/vendor
-  #       - storage:/var/www/storage
+  scheduler:
+    image: ${APP_NAME}/cli:dev
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - app
+      - db
+    command: [ "php", "artisan", "schedule:work" ]
+    env_file:
+      - .env
+    volumes:
+      - vendor:/var/www/vendor
+      - storage:/var/www/storage
 
   nginx:
     build:

@@ -226,15 +226,14 @@ class GeneratorService {
 
     // Handle octane image
     if (options.useOctane) {
+      final appImage = '\${APP_NAME}/app:dev';
+
       //   Octane can utilize same image as app for cli
-      _log.finest('change queue image to app image for octane');
-      service.setImage(.queue, '\${APP_NAME}/app:dev');
-      _log.finest('change scheduler image to app image for octane');
-      service.setImage(.scheduler, '\${APP_NAME}/app:dev');
+      service.setImage(.queue, appImage);
+      service.setImage(.scheduler, appImage);
 
       if (options.webSocket == .reverb) {
-        _log.finest('change reverb image to app image for octane');
-        service.setImage(.reverb, '\${APP_NAME}/app:dev');
+        service.setImage(.reverb, appImage);
       }
     }
 
@@ -258,17 +257,6 @@ class GeneratorService {
     final dbService = ManageDockerComposeService(
       dockercomposeDbDockerComposeTemplate,
     );
-
-    // Handle use octane
-    if (options.useOctane) {
-      //   Octane can utilize same image as app for cli
-      service.setImage(.queue, '\${APP_NAME}/app:dev');
-      service.setImage(.scheduler, '\${APP_NAME}/app:dev');
-
-      if (options.webSocket == .reverb) {
-        service.setImage(.reverb, '\${APP_NAME}/app:dev');
-      }
-    }
 
     // 1. Handle Database
     switch (options.database) {
@@ -314,6 +302,18 @@ class GeneratorService {
     } else {
       _log.finest('Removing reverb service');
       service.removeService(.reverb);
+    }
+
+    // Handle use octane
+    if (options.useOctane) {
+      final appImage = '<registry-url>/cli:\${APP_VERSION:-latest}';
+      //   Octane can utilize same image as app for cli
+      service.setImage(.queue, appImage);
+      service.setImage(.scheduler, appImage);
+
+      if (options.webSocket == .reverb) {
+        service.setImage(.reverb, appImage);
+      }
     }
 
     // Write the modified yaml
