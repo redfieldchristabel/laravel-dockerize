@@ -16,9 +16,11 @@ RUN apk add --no-cache \
         unzip \
         oniguruma-dev \
         libzip-dev \
+        $PHPIZE_DEPS \
+    && pecl install redis \
     && docker-php-ext-install pdo pdo_mysql mbstring bcmath xml zip \
-    && docker-php-ext-enable pdo pdo_mysql mbstring bcmath xml \
-    && apk del --no-cache libxml2-dev oniguruma-dev \
+    && docker-php-ext-enable pdo pdo_mysql mbstring bcmath xml redis \
+    && apk del --no-cache libxml2-dev oniguruma-dev $PHPIZE_DEPS \
     && rm -rf /var/cache/apk/*
 
 # Install Composer

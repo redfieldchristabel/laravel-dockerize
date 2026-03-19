@@ -16,8 +16,9 @@ RUN apt-get update && apt-get install -y \
         libonig-dev \
         unzip \
         libzip-dev \
-    && docker-php-ext-install pdo pdo_mysql mbstring bcmath xml zip\
-    && docker-php-ext-enable pdo pdo_mysql mbstring bcmath xml \
+    && pecl install redis \
+    && docker-php-ext-install pdo pdo_mysql mbstring bcmath xml zip \
+    && docker-php-ext-enable pdo pdo_mysql mbstring bcmath xml redis \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
