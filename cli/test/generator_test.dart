@@ -43,8 +43,12 @@ void main() {
       final dirs = ['docker/php', 'docker/nginx/include', 'docker/nginx', 'docker'];
       for (final path in dirs) {
         final dir = Directory(path);
-        if (dir.existsSync() && dir.listSync().isEmpty) {
-          dir.deleteSync();
+        if (dir.existsSync()) {
+          try {
+             dir.deleteSync(recursive: true);
+          } catch (e) {
+            // Might not be empty or already deleted
+          }
         }
       }
     });
@@ -88,9 +92,12 @@ void main() {
       expect(content, contains('8.2-cli-alpine-filament-octane-swoole'));
     });
 
-    test('generateNginxConf creates directory structure and files', () {
-      // Ensure directories exist for the test
-      Directory('docker/nginx/include').createSync(recursive: true);
+    test('generateNginxConf creates directory structure and files when they do not exist', () {
+      // Ensure the 'docker' directory and its subdirectories do NOT exist
+      final dockerDir = Directory('docker');
+      if (dockerDir.existsSync()) {
+        dockerDir.deleteSync(recursive: true);
+      }
       
       final options = ScaffoldOption(
         phpVersion: '8.2',
