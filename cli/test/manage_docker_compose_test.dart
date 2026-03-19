@@ -150,6 +150,19 @@ void main() {
       },
     );
 
+    test('removeBuild should remove the build block from a service', () {
+      // In main template, 'app' has a build block
+      final app = service.getService(.app)!;
+      expect(app.value.containsKey('build'), isTrue);
+
+      service.removeBuild(.app);
+
+      final updatedApp = service.getService(.app)!;
+      expect(updatedApp.value.containsKey('build'), isFalse);
+      // Ensure other properties still exist
+      expect(updatedApp.value.containsKey('image'), isTrue);
+    });
+
     test('toString returns the modified YAML string', () {
       service.removeService(.soketi);
       final output = service.toString();
