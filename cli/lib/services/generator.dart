@@ -186,6 +186,7 @@ class GeneratorService {
         // Remove db from depends_on
         service.removeDependsOn(.app, .db);
         service.removeDependsOn(.queue, .db);
+        service.removeDependsOn(.scheduler, .db);
         break;
       case Database.mysql:
         _log.finest('copy mysql from the template');
