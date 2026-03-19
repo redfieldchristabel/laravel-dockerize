@@ -97,6 +97,11 @@ class ManageDockerComposeService {
     }
   }
 
+  void removeBuild(DockerComposeService service) {
+    _log.finest('Removing build for ${service.name}');
+    editor.remove(['services', service.name, 'build']);
+  }
+
   @override
   String toString() {
     return editor.toString();
