@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+
+  # -------------------
+  # MySQL 8
+  # -------------------
+  mysql:
+    image: mysql/mysql-server:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "admin143"
+      MYSQL_DATABASE: "${DB_DATABASE}"
+      MYSQL_USER: "${DB_USERNAME}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+    volumes:
+      - ./mysql:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: "mysqladmin ping -p${DB_PASSWORD}"
+      interval: 10s
+      retries: 3
+      timeout: 5s
+
+  # -------------------
+  # PostgreSQL
+  # -------------------
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: "${DB_DATABASE}"
+      POSTGRES_USER: "${DB_USERNAME}"
+      POSTGRES_PASSWORD: "${PG_PASSWORD}"
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: "pg_isready -U ${DB_USERNAME}"
+      interval: 10s
+      retries: 3
+      timeout: 5s
+
+  # -------------------
+  # MariaDB 10
+  # -------------------
+  mariadb:
+    image: mariadb:10.11
+    container_name: mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: "admin143"
+      MARIADB_DATABASE: "${DB_DATABASE}"
+      MARIADB_USER: "${DB_USERNAME}"
+      MARIADB_PASSWORD: "${DB_PASSWORD}"
+    volumes:
+      - ./mariadb:/var/lib/mysql
+    ports:
+      - "3306:3306"  # Avoid conflict with MySQL
+    healthcheck:
+      test: "mysqladmin ping -p${DB_PASSWORD}"
+      interval: 10s
+      retries: 3
+      timeout: 5s

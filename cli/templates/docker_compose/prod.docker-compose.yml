@@ -1,0 +1,133 @@
+services:
+  app:
+    image: <registry-url>/app:${APP_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      - db
+    volumes:
+      # bind storage public to public
+      - vendor:/var/www/vendor
+      - storage:/var/www/storage
+      - public:/var/www/public/storage
+      - ./downloads:/var/www/public/downloads:ro
+    networks:
+      - default
+      - bastion
+    env_file:
+      - .env
+
+  nginx:
+    image: <registry-url>/nginx:${APP_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      - app
+    volumes:
+      - public:/var/www/public/storage:ro
+    environment:
+      - DISABLE_IPV6=true
+    networks:
+      - npm
+      - default
+
+  redis:
+    image: "redis:alpine"
+    restart: always
+    volumes:
+      - "redis:/data"
+    healthcheck:
+      test: "redis-cli ping"
+      retries: 3
+      timeout: 5s
+
+  queue:
+    image: <registry-url>/cli:${APP_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - app
+      - db
+    command: [ "php", "artisan", "queue:work", "--tries=3" ]
+    env_file:
+      - .env
+    volumes:
+      - vendor:/var/www/vendor
+      - storage:/var/www/storage
+
+  # If you want more worker for queue, use like bellow
+  #  queue-high:
+  #    image: <registry-url>/cli:${APP_VERSION:-latest}
+  #    restart: unless-stopped
+  #    depends_on:
+  #      - redis
+  #      - app
+  #      - db
+  #    command: [ "php", "artisan", "queue:work", "--queue=high", "--tries=3" ]
+  #    env_file:
+  #      - .env
+  #    volumes:
+  #      - vendor:/var/www/vendor
+  #      - storage:/var/www/storage
+  #
+  #  queue-critical:
+  #    image: <registry-url>/cli:${APP_VERSION:-latest}
+  #    restart: unless-stopped
+  #    depends_on:
+  #      - redis
+  #      - app
+  #      - db
+  #    command: [ "php", "artisan", "queue:work", "--queue=critical", "--tries=3" ]
+  #    env_file:
+  #      - .env
+  #    volumes:
+  #      - vendor:/var/www/vendor
+  #      - storage:/var/www/storage
+
+  scheduler:
+    image: <registry-url>/cli:${APP_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - app
+      - db
+    command: [ "php", "artisan", "schedule:work" ]
+    env_file:
+      - .env
+    volumes:
+      - vendor:/var/www/vendor
+      - storage:/var/www/storage
+
+  soketi:
+    image: quay.io/soketi/soketi:latest
+    restart: unless-stopped
+    environment:
+      - SOKETI_DEBUG=true
+      - SOKETI_METRICS_SERVER_PORT=9601
+      - SOKETI_DEFAULT_APP_ID=${PUSHER_APP_ID}
+      - SOKETI_DEFAULT_APP_KEY=${PUSHER_APP_KEY}
+      - SOKETI_DEFAULT_APP_SECRET=${PUSHER_APP_SECRET}
+
+  reverb:
+    image: <registry-url>/cli:${APP_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      - queue
+    command: [ "php", "artisan", "reverb:start" ]
+    ports:
+      - "8080:8080"
+    environment:
+      - REVERB_HOST=0.0.0.0
+      - REVERB_PORT=8080
+      - REVERB_SCHEME=http
+
+volumes:
+  vendor:
+  storage:
+  public:
+  published:
+  redis:
+
+networks:
+  npm:
+    external: true
+  bastion:
+    external: true
