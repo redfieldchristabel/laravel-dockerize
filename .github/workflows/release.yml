@@ -15,9 +15,6 @@ jobs:
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
-        with:
-          path: cli
-          release-type: dart
       - name: Print release outputs for debugging
         continue-on-error: true
         run: |

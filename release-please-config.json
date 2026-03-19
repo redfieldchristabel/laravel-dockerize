@@ -1,0 +1,8 @@
+{
+  "packages": {
+    "cli": {
+      "path": "cli",
+      "release-type": "dart"
+    }
+  }
+}
