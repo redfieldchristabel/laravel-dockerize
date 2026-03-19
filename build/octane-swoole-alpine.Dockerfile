@@ -12,6 +12,7 @@ USER root
 RUN apk add --no-cache \
     pcre2-dev \
     brotli-dev \
+    openssl-dev \
     && apk add --no-cache --virtual .build-deps \
     build-base \
     autoconf \
