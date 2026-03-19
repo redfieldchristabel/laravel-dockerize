@@ -37,7 +37,7 @@ class GeneratorService {
 
     // PHP version
     buffer.write('${options.phpVersion.value}-');
-    _log.finest('PHP version: ${options.phpVersion}');
+    _log.finest('PHP version: ${options.phpVersion.value}');
 
     // CLI / FPM
     if (options.useOctane) {
