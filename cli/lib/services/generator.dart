@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:cli/models/scaffold_options.dart';
-import 'package:cli/services/docker_compose_editor.dart';
+import 'package:cli/services/manage_docker_compose.dart';
 import 'package:cli/templates/docker_compose/db.docker-compose.g.dart';
 import 'package:cli/templates/docker_compose/docker-compose.g.dart';
 import 'package:cli/templates/docker_compose/prod.docker-compose.g.dart';
@@ -163,7 +163,7 @@ class GeneratorService {
   }
 
   void generateDockerCompose(ScaffoldOption options) {
-    final service = DockerComposeEditorService(dockerComposeTemplate);
+    final service = ManageDockerComposeService(dockerComposeTemplate);
 
     // 1. Handle Database
     if (options.database == Database.sqlite) {
@@ -205,11 +205,11 @@ class GeneratorService {
       return;
     }
 
-    final service = DockerComposeEditorService(
+    final service = ManageDockerComposeService(
       dockercomposeProdDockerComposeTemplate,
     );
 
-    final dbService = DockerComposeEditorService(
+    final dbService = ManageDockerComposeService(
       dockercomposeDbDockerComposeTemplate,
     );
 
