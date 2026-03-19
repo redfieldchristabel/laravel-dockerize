@@ -1,3 +1,5 @@
+import '../utils/prompts.dart';
+
 class ScaffoldOption {
   final PhpVersion phpVersion;
   final bool useOctane;
@@ -18,10 +20,6 @@ class ScaffoldOption {
     required this.useVite,
     required this.productionReady,
   });
-}
-
-mixin EnumValue {
-  String get value;
 }
 
 enum PhpVersion with EnumValue {

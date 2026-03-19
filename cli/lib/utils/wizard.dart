@@ -32,7 +32,7 @@ class SelectionStep extends WizardStep<String> {
   });
 
   @override
-  String ask({String? initialValue}) => Prompts.askSelection(
+  String ask({String? initialValue}) => Prompts.askSelection<String>(
     question,
     options,
     initialValue: initialValue,
@@ -51,23 +51,15 @@ class EnumSelectionStep<T extends Enum> extends WizardStep<T> {
     super.description,
   });
 
-  String _getEnumName(T value) {
-    if (value is EnumValue) {
-      return (value as EnumValue).value;
-    }
-
-    return value.name;
-  }
-
   @override
   T ask({T? initialValue}) {
-    final selection = Prompts.askSelection(
+    final selection = Prompts.askSelection<T>(
       question,
-      options.map(_getEnumName).toList(),
-      initialValue: initialValue?.name,
+      options,
+      initialValue: initialValue,
       description: description,
     );
-    return options.firstWhere((e) => e.name == selection);
+    return options.firstWhere((e) => e == selection);
   }
 }
 
@@ -123,7 +115,7 @@ abstract class Wizard<T> {
       if (value is bool) {
         displayValue = value ? 'Yes' : 'No';
       } else if (value is Enum) {
-        displayValue = value.name;
+        displayValue = _getEnumValueForSummary(value);
       } else {
         displayValue = value.toString();
       }
@@ -144,5 +136,12 @@ abstract class Wizard<T> {
     }
 
     return choice == 'Confirm and proceed';
+  }
+
+  String _getEnumValueForSummary(Enum value) {
+    if (value is EnumValue) {
+      return (value as EnumValue).value;
+    }
+    return value.name;
   }
 }

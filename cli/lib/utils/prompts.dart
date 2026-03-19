@@ -1,16 +1,38 @@
 import 'dart:io';
 
-class Prompts {
+abstract class PromptProvider {
+  T askSelection<T>(
+    String question,
+    List<T> options, {
+    T? initialValue,
+    String? description,
+  });
+
+  bool askConfirm(
+    String question, {
+    bool defaultValue = true,
+    String? description,
+  });
+}
+
+class DefaultPromptProvider implements PromptProvider {
   static const String _hideCursor = '\x1b[?25l';
   static const String _showCursor = '\x1b[?25h';
   static const String _cyan = '\x1b[36m';
   static const String _grey = '\x1b[90m';
   static const String _reset = '\x1b[0m';
 
-  static String askSelection(
+  String _getDisplayValue<T>(T value) {
+    if (value is EnumValue) return value.value;
+    if (value is Enum) return value.name;
+    return value.toString();
+  }
+
+  @override
+  T askSelection<T>(
     String question,
-    List<String> options, {
-    String? initialValue,
+    List<T> options, {
+    T? initialValue,
     String? description,
   }) {
     var selectedIndex = 0;
@@ -21,7 +43,12 @@ class Prompts {
       }
     }
 
-    final hint = initialValue != null ? ' [$initialValue]' : '';
+    final displayOptions = options.map(_getDisplayValue).toList();
+    final initialDisplay = initialValue != null
+        ? _getDisplayValue(initialValue)
+        : null;
+
+    final hint = initialDisplay != null ? ' [$initialDisplay]' : '';
     stdout.write('$_hideCursor\n$question$hint\n');
 
     int descriptionLines = 0;
@@ -31,7 +58,7 @@ class Prompts {
     }
 
     // Initial render
-    _renderOptions(options, selectedIndex);
+    _renderOptions(displayOptions, selectedIndex);
 
     // Set terminal to raw mode
     stdin.echoMode = false;
@@ -62,9 +89,9 @@ class Prompts {
           }
         }
 
-        // Move cursor back up to redraw
+        // Redraw options
         stdout.write('\x1b[${options.length}A');
-        _renderOptions(options, selectedIndex);
+        _renderOptions(displayOptions, selectedIndex);
       }
     } finally {
       // Restore terminal state
@@ -73,15 +100,17 @@ class Prompts {
       stdout.write(_showCursor);
     }
 
-    // Final output: clear the selection list and show chosen value
+    // Final output: clear selection list and show chosen value
     _clearOptions(options.length + descriptionLines);
-    // Use \x1b[2K to clear the question line before writing the answer
-    stdout.write('\x1b[2K\r$question $_cyan${options[selectedIndex]}$_reset\n');
+    stdout.write(
+      '\x1b[2K\r$question $_cyan${displayOptions[selectedIndex]}$_reset\n',
+    );
 
     return options[selectedIndex];
   }
 
-  static bool askConfirm(
+  @override
+  bool askConfirm(
     String question, {
     bool defaultValue = true,
     String? description,
@@ -147,7 +176,6 @@ class Prompts {
     }
 
     _clearOptions(2 + descriptionLines);
-    // Use \x1b[2K to clear the question line before writing the answer
     stdout.write(
       '\x1b[2K\r$question $_cyan${selectedIndex == 0 ? 'Yes' : 'No'}$_reset\n',
     );
@@ -155,7 +183,7 @@ class Prompts {
     return selectedIndex == 0;
   }
 
-  static void _renderOptions(List<String> options, int selectedIndex) {
+  void _renderOptions(List<String> options, int selectedIndex) {
     for (var i = 0; i < options.length; i++) {
       stdout.write('\x1b[2K'); // Clear line
       if (i == selectedIndex) {
@@ -166,11 +194,41 @@ class Prompts {
     }
   }
 
-  static void _clearOptions(int count) {
-    stdout.write('\x1b[${count}A'); // Move to start of list
+  void _clearOptions(int count) {
+    stdout.write('\x1b[${count}A'); // Move up
     for (var i = 0; i < count; i++) {
-      stdout.write('\x1b[2K\n'); // Clear line and move down
+      stdout.write('\x1b[2K\n'); // Clear line
     }
-    stdout.write('\x1b[${count + 1}A'); // Move back up to question line
+    stdout.write('\x1b[${count + 1}A'); // Move back up to question
   }
+}
+
+class Prompts {
+  static PromptProvider instance = DefaultPromptProvider();
+
+  static T askSelection<T>(
+    String question,
+    List<T> options, {
+    T? initialValue,
+    String? description,
+  }) => instance.askSelection<T>(
+    question,
+    options,
+    initialValue: initialValue,
+    description: description,
+  );
+
+  static bool askConfirm(
+    String question, {
+    bool defaultValue = true,
+    String? description,
+  }) => instance.askConfirm(
+    question,
+    defaultValue: defaultValue,
+    description: description,
+  );
+}
+
+mixin EnumValue {
+  String get value;
 }
