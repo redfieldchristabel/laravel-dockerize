@@ -36,7 +36,7 @@ docker run -it -v $(pwd):/app ghcr.io/redfieldchristabel/laravel-installer:lates
 This creates a Laravel 12 app (latest) in `./example-app/`. The image runs `laravel` directly, so you just add `new example-app`.
 
 **Older Versions**:
-- Use `--version` to scaffold Laravel 10 or 11.
+- Use `--version` to create Laravel 10 or 11.
 - Example: `docker run -v $(pwd):/app ghcr.io/redfieldchristabel/laravel-installer:latest new example-app --version=11` (Laravel 11 app).
 
 **Customize Your App**:
