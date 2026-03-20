@@ -11,7 +11,7 @@ Welcome to the **Laravel-Optimized PHP Images** repository! 🚀 These pre-built
 
 Forget wrestling with PHP setups or complex Docker configs. Our images are tailor-made for Laravel developers, offering:
 
-- **Zero-Setup Scaffolding** 🏗️: Create Laravel 10, 11, or 12 apps with just Docker using our [installer image](#creating-a-new-laravel-app)—no PHP or Composer required locally.
+- **Zero-Setup Scaffolding** 🏗️: Create Laravel 10, 11, or 12 apps with just Docker using our [installer package](#creating-a-new-laravel-app)—no PHP or Composer required locally.
 - **Top-Notch Security** 🔒: Run as the [non-root `laravel` user](#non-root-laravel-user-by-default) for safer development and [production](#production-deployment).
 - **Blazing-Fast Setup** ⚡: Pre-installed [PHP extensions](#pre-installed-php-extensions) for instant local and CI/CD environments.
 - **Streamlined Workflows** 🛠️: Focus on coding, not configuring, with Laravel-friendly defaults.
@@ -27,21 +27,21 @@ Pull images from `ghcr.io/redfieldchristabel/laravel` and jump in! Start by [cre
 
 ### Creating a New Laravel App 🏗️
 
-Kick off your project with our `laravel:installer` image! This lightweight image (~120-150 MB) includes the latest Laravel CLI and scaffolds Laravel 10, 11, or 12 apps with just Docker—no local PHP or Composer needed. Perfect for Linux, Mac, or Windows (with WSL2)!
+Kick off your project with our `laravel-installer` package! This lightweight image (~120-150 MB) includes the latest Laravel CLI and scaffolds Laravel 10, 11, or 12 apps with just Docker—no local PHP or Composer needed. Perfect for Linux, Mac, or Windows (with WSL2)!
 
 **Example**:
 ```bash
-docker run -it -v $(pwd):/app ghcr.io/redfieldchristabel/laravel:installer new example-app
+docker run -it -v $(pwd):/app ghcr.io/redfieldchristabel/laravel-installer:latest new example-app
 ```
 This creates a Laravel 12 app (latest) in `./example-app/`. The image runs `laravel` directly, so you just add `new example-app`.
 
 **Older Versions**:
 - Use `--version` to scaffold Laravel 10 or 11.
-- Example: `docker run -v $(pwd):/app ghcr.io/redfieldchristabel/laravel:installer new example-app --version=11` (Laravel 11 app).
+- Example: `docker run -v $(pwd):/app ghcr.io/redfieldchristabel/laravel-installer:latest new example-app --version=11` (Laravel 11 app).
 
 **Customize Your App**:
 - Add stacks: `--breeze` (Blade), `--jet` (Livewire/Inertia), or `--api` for API-only apps.
-- Example: `docker run -v $(pwd):/app ghcr.io/redfieldchristabel/laravel:installer new example-app --breeze --version=11`
+- Example: `docker run -v $(pwd):/app ghcr.io/redfieldchristabel/laravel-installer:latest new example-app --breeze --version=11`
 
 **Notes**:
 - Saves output to a volume (e.g., `./:/app`), accessible locally.
@@ -52,26 +52,27 @@ After scaffolding, use our [PHP-based images](#running-your-laravel-app) (e.g., 
 
 ### Scaffolding a Docker Environment for Existing Projects 🛠️
 
-For existing Laravel projects, you can use our optional bash script to set up a complete Docker environment for development and production. This script, designed to run after your Laravel project is created, generates all necessary Docker files, including `docker-compose.yml` for development and production, Nginx configurations, and PHP settings. It also ensures Vite is Docker-ready by setting `server.host` to `"0.0.0.0"` in `vite.config.js`.
+For existing Laravel projects, you can use our interactive CLI tool to set up a complete Docker environment for development and production. The CLI wizard will guide you through selecting the PHP version, Database, WebSockets, Base Image, and more! It will then generate all necessary Docker files, including `docker-compose.yml` for development and production, Nginx configurations, and PHP settings. It also configures environment variables so you are ready to go.
 
 **Usage**:
 Run the script in your Laravel project directory (must contain `artisan` and `app/`):
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/redfieldchristabel/laravel-dockerize/main/scaffold/setup.sh)"
+(curl -fsSL https://github.com/redfieldchristabel/laravel-dockerize/releases/download/v1.1.3/cli.sh > /tmp/cli && chmod +x /tmp/cli && /tmp/cli scaffold)
 ```
 
 **Platform Notes**:
-- **Linux**: Run the script directly in your terminal.
-- **Mac**: Run the script directly in Terminal or iTerm2.
-- **Windows**: Run the script in WSL2 (Windows Subsystem for Linux 2). Install WSL2 with `wsl --install` and enable Docker Desktop’s WSL2 integration. Git Bash is not recommended due to potential compatibility issues.
+- **Linux**: Run the command directly in your terminal.
+- **Mac**: Run the command directly in Terminal or iTerm2.
+- **Windows**: Run the command in WSL2 (Windows Subsystem for Linux 2). Install WSL2 with `wsl --install` and enable Docker Desktop’s WSL2 integration. Git Bash is not recommended due to potential compatibility issues.
 
 **What the Script Does**:
+- **Interactive Wizard**: Guides you through selecting options.
 - **Creates Docker Files**: Generates `docker-compose.yml` (development), `build.docker-compose.yml`, `prod.docker-compose.yml`, and Dockerfiles for PHP, Nginx, and Vite.
 - **Configures Nginx and PHP**: Adds `docker/nginx/conf/app.conf`, `docker/nginx/include/fpm-handler.conf`, and `docker/php/file.ini` for seamless integration.
-- **Sets Up Tools**: Downloads helper scripts (`art`, `cmpsr`, `pint`, `nd`, `iart`) for Artisan, Composer, Node, and more.
-- **Vite Compatibility**: Modifies `vite.config.js` to set `server.host` to `"0.0.0.0"` (required for Docker), updating existing `server` blocks or adding a new one.
-- **Environment Setup**: Copies `.env.example` to `.env` if `.env` is missing.
-- **Requirements**: Needs `curl` and `docker` installed. Must be run in a Laravel project directory.
+- **Sets Up Tools**: Downloads helper scripts (`art`, `cmpsr`, `pint`, `nd`, `iart`, `box`) for Artisan, Composer, Node, and more.
+- **Vite Compatibility**: Generates Vite-specific components if chosen during the wizard.
+- **Environment Setup**: Configures your `.env` to work with the generated Docker services.
+- **Requirements**: Needs `curl` installed. Must be run in a Laravel project directory.
 
 **Using Helper Scripts**:
 The script generates the following helper scripts in your project root to simplify running commands in Docker containers:
@@ -108,11 +109,10 @@ After running, you’ll have:
 - Helper scripts (`art`, `cmpsr`, `pint`, `nd`, `iart`) in the project root for easy Artisan/Composer/Node commands.
 
 **Notes**:
-- Run this script after creating your Laravel app (e.g., via `laravel:installer`).
+- Run this tool after creating your Laravel app (e.g., via `laravel-installer`).
 - The generated `docker-compose.yml` matches the [Development Environment](#development-environment-with-docker-compose) section.
 - Production files align with the [Production Deployment](#production-deployment) section.
-- The script uses images from `ghcr.io/redfieldchristabel/laravel` (e.g., `laravel:8.3-fpm`).
-- If `vite.config.js` is missing, the script skips Vite configuration.
+- The wizard uses images from `ghcr.io/redfieldchristabel/laravel` (e.g., `laravel:8.3-fpm`).
 
 Proceed to [Running Your Laravel App](#running-your-laravel-app) to start your Dockerized environment with `docker-compose up -d`.
 
