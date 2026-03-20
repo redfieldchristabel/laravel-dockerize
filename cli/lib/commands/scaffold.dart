@@ -79,7 +79,7 @@ class ScaffoldCommand extends Command {
 
     _envService.configure(option);
 
-    _log.fine('Finished wizard process.');
+    _log.fine('🚀 Finished wizard process.');
 
     //   TODO: check for pint and remove it from laravel composer with fun message
   }
