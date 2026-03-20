@@ -22,12 +22,12 @@ class ScaffoldCommand extends Command {
   @override
   void run() {
     // Check if current directory is a Laravel project
-    // if (!File('artisan').existsSync() || !Directory('app').existsSync()) {
-    //   _log.severe(
-    //     'Error: This is not a Laravel project. Please run in a Laravel project directory (must contain "artisan" and "app/").',
-    //   );
-    //   exit(1);
-    // }
+    if (!File('artisan').existsSync() || !Directory('app').existsSync()) {
+      _log.severe(
+        'Error: This is not a Laravel project. Please run in a Laravel project directory (must contain "artisan" and "app/").',
+      );
+      exit(1);
+    }
 
     _log.info('🐋 Welcome to the Laravel Dockerize Scaffolder!');
     _log.info('----------------------------------------------');
