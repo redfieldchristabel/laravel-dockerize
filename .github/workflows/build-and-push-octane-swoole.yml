@@ -80,7 +80,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: build
-          file: ${{ matrix.variant == 'cli' && 'octane-swoole-debian.Dockerfile' || 'octane-swoole-alpine.Dockerfile' }}
+          file: ${{ matrix.variant == 'cli' && 'build/octane-swoole-debian.Dockerfile' || 'build/octane-swoole-alpine.Dockerfile' }}
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
             VARIANT=${{ matrix.variant }}
@@ -160,7 +160,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: build
-          file: ${{ matrix.variant == 'cli' && 'filament-octane-swoole-debian.Dockerfile' || 'filament-octane-swoole-alpine.Dockerfile' }}
+          file: ${{ matrix.variant == 'cli' && 'build/filament-octane-swoole-debian.Dockerfile' || 'build/filament-octane-swoole-alpine.Dockerfile' }}
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
             VARIANT=${{ matrix.variant }}

@@ -84,7 +84,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: build
-          file: ${{ contains(fromJson('["cli", "fpm"]'), matrix.variant) && 'debian.Dockerfile' || 'alpine.Dockerfile' }}
+          file: ${{ contains(fromJson('["cli", "fpm"]'), matrix.variant) && 'build/debian.Dockerfile' || 'build/alpine.Dockerfile' }}
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
             VARIANT=${{ matrix.variant }}
@@ -172,7 +172,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: build
-          file: ${{ contains(fromJson('["cli", "fpm"]'), matrix.variant) && 'filament-debian.Dockerfile' || 'filament-alpine.Dockerfile' }}
+          file: ${{ contains(fromJson('["cli", "fpm"]'), matrix.variant) && 'build/filament-debian.Dockerfile' || 'build/filament-alpine.Dockerfile' }}
           build-args: |
             PHP_VERSION=${{ matrix.php_version }}
             VARIANT=${{ matrix.variant }}

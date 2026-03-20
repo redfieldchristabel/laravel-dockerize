@@ -33,7 +33,7 @@ jobs:
       - name: Build and push installer (Laravel 10, 11, 12, PHP 8.3)
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: build
           file: build/installer.Dockerfile
           push: true
           tags: ghcr.io/redfieldchristabel/laravel-installer:latest
