@@ -36,7 +36,9 @@ class ScaffoldCommand extends Command {
     final wizard = ScaffoldWizard();
     final option = wizard.run();
 
-    _log.info('\n✅ Scaffolding project with PHP ${option.phpVersion}...');
+    _log.info(
+      '\n🏗️ Scaffolding project with PHP ${option.phpVersion.value}...',
+    );
 
     // 1. Directory Preparation
     _log.info('📁 Creating docker directories...');
@@ -51,35 +53,35 @@ class ScaffoldCommand extends Command {
     }
 
     // 2. File Generation
-    _log.info('📄 Generating Dockerfiles...');
+    _log.info('🐳 Generating Dockerfiles...');
     _generatorService.generateDockerfile(option);
     _generatorService.generateCliDockerfile(option);
     _generatorService.generateNginxDockerfile(option);
     _generatorService.generateViteDockerfile(option);
-    _log.info('🚀 Dockerfiles generated successfully!');
+    _log.info('✨ Dockerfiles generated successfully!');
 
-    _log.info('Generating Docker Compose files...');
+    _log.info('🧩 Generating Docker Compose files...');
     _generatorService.generateDockerCompose(option);
     _generatorService.generateProdDockerCompose(option);
-    _log.info('🚀 Docker Compose files generated successfully!');
+    _log.info('✨ Docker Compose files generated successfully!');
 
-    _log.info('📄 Generating config files...');
+    _log.info('⚙️ Generating config files...');
     _generatorService.generatePhpIni();
     _generatorService.generateNginxConf(option);
-    _log.info('🚀 Config files generated successfully!');
+    _log.info('✨ Config files generated successfully!');
 
-    _log.info('Generating tools...');
+    _log.info('🔧 Generating tools...');
     _generatorService.generateToolArt();
     _generatorService.generateToolBox();
     _generatorService.generateToolCmpsr();
     _generatorService.generateToolIart();
     _generatorService.generateToolNd();
     _generatorService.generateToolPint();
-    _log.info('🚀 Tools generated successfully!');
+    _log.info('✨ Tools generated successfully!');
 
     _envService.configure(option);
 
-    _log.fine('🚀 Finished wizard process.');
+    _log.info('🎉 Finished wizard process.');
 
     //   TODO: check for pint and remove it from laravel composer with fun message
   }
