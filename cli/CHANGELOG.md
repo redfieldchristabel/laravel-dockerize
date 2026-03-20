@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/redfieldchristabel/laravel-dockerize/compare/v1.1.1...v1.1.2) (2026-03-20)
+
+
+### Bug Fixes
+
+* add rocket emoji to wizard completion log message ([e7019c7](https://github.com/redfieldchristabel/laravel-dockerize/commit/e7019c70f8966eb2e564e5679e05a072a15b05f0))
+
 ## [1.1.1](https://github.com/redfieldchristabel/laravel-dockerize/compare/v1.1.0...v1.1.1) (2026-03-20)
 
 
