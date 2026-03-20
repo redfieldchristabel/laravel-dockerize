@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/redfieldchristabel/laravel-dockerize/compare/v1.1.0...v1.1.1) (2026-03-20)
+
+
+### Bug Fixes
+
+* **ci:** test ([3263047](https://github.com/redfieldchristabel/laravel-dockerize/commit/326304724895afe62276b3255feb2c2f75fae721))
+
 ## [1.1.0](https://github.com/redfieldchristabel/laravel-dockerize/compare/v1.0.0...v1.1.0) (2026-03-20)
 
 
