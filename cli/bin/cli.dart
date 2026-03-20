@@ -1,4 +1,5 @@
 import 'package:args/command_runner.dart';
+import 'package:cli/commands/generate.dart';
 import 'dart:io';
 import 'package:logging/logging.dart';
 import 'package:cli/commands/scaffold.dart';
@@ -13,17 +14,19 @@ void main(List<String> arguments) async {
     }
   });
 
-  final runner = CommandRunner(
-    'laravel-dockerize',
-    'CLI for redfieldchristabel/laravel-dockerize',
-  )
-    ..argParser.addFlag(
-      'verbose',
-      abbr: 'v',
-      negatable: false,
-      help: 'Enable verbose logging.',
-    )
-    ..addCommand(ScaffoldCommand());
+  final runner =
+      CommandRunner(
+          'laravel-dockerize',
+          'CLI for redfieldchristabel/laravel-dockerize',
+        )
+        ..argParser.addFlag(
+          'verbose',
+          abbr: 'v',
+          negatable: false,
+          help: 'Enable verbose logging.',
+        )
+        ..addCommand(ScaffoldCommand())
+        ..addCommand(GenerateCommand());
 
   try {
     final argResults = runner.argParser.parse(arguments);
