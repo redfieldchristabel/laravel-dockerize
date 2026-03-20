@@ -20,18 +20,13 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
-        php_version: ["8.4", "8.3", "8.2", "8.1"]
+        php_version: ["8.4", "8.3", "8.2"]
         variant: ["cli", "cli-alpine"]
-        # php_version: ["8.1", "8.2", "8.3", "8.4"]
-        # variant: ["alpine", "debian"]
       fail-fast: false
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # - name: Compute major version
-      #   run: |
-      #     echo "MAJOR_VERSION=$(echo ${{ matrix.php_version }} | cut -d'.' -f1)" >> $GITHUB_ENV
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
@@ -60,16 +55,6 @@ jobs:
             type=raw,value=${{ matrix.php_version }}.0-octane-swoole,enable=${{ matrix.variant == 'cli' }}
             type=raw,value=${{ matrix.php_version }}-octane-swoole,enable=${{ matrix.variant == 'cli' }}
             type=raw,value=octane-swoole,enable=${{ matrix.variant == 'cli' && matrix.php_version == env.LATEST_PHP_VERSION }}
-
-          # tags: |
-          #   type=raw,value=${{ matrix.php_version }}.0-${{ matrix.variant }}-octane-swoole
-          #   type=raw,value=${{ matrix.php_version }}-${{ matrix.variant }}-octane-swoole
-          #   type=raw,value=${{ env.MAJOR_VERSION }}-${{ matrix.variant }}-octane-swoole,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION }}
-          #   type=raw,value=${{ matrix.variant }}-octane-swoole
-          #   type=raw,value=${{ matrix.php_version }}.0-octane-swoole,enable=${{ matrix.variant == 'debian' }}
-          #   type=raw,value=${{ matrix.php_version }}-octane-swoole,enable=${{ matrix.variant == 'debian' }}
-          #   type=raw,value=${{ env.MAJOR_VERSION }}-octane-swoole,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION && matrix.variant == 'debian' }}
-          #   type=raw,value=octane-swoole,enable=${{ matrix.php_version == env.LATEST_PHP_VERSION && matrix.variant == 'debian' }}
 
       - name: Log generated tags
         run: |
@@ -116,7 +101,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        php_version: ["8.4", "8.3", "8.2", "8.1"]
+        php_version: ["8.4", "8.3", "8.2"]
         variant: ["cli", "cli-alpine"]
       fail-fast: false
     steps:
