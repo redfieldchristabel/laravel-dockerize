@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.release.outputs.releases_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
+      tag_name: ${{ steps.release.outputs['cli--tag_name'] }}
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
@@ -58,6 +58,6 @@ jobs:
 
       - name: Upload Binary to Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.MY_RELEASE_PLEASE_TOKEN }}
         run: |
-          gh release upload ${{ needs.release-please.outputs['cli--tag_name'] }} ./cli/build/cli.sh --clobber
+          gh release upload ${{ needs.release-please.outputs.tag_name }} ./cli/build/cli.sh --clobber
