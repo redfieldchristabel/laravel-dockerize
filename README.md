@@ -47,6 +47,7 @@ This creates a Laravel 12 app (latest) in `./example-app/`. The image runs `lara
 - Saves output to a volume (e.g., `./:/app`), accessible locally.
 - Runs as a [non-root `laravel` user](#non-root-laravel-user-by-default) for security.
 - No PHP extensions installed, keeping it lean for scaffolding.
+- For more on how to use the Laravel installer, see the [official Laravel documentation](https://laravel.com/docs/13.x/installation#creating-an-application).
 
 After scaffolding, use our [PHP-based images](#running-your-laravel-app) (e.g., `laravel:8.3-fpm`) to run your app or [scaffold a Docker environment](#scaffolding-a-docker-environment-for-existing-projects).
 
