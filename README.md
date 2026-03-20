@@ -324,7 +324,7 @@ For [production](#production-deployment), we recommend using specialized configu
    ```
 
 > [!IMPORTANT]
-> Always use `.env.production` for your production environment variables and ensure your secrets are managed securely.
+> **Never commit production `.env` files (e.g., `.env.production`, `.env.prod`) to version control.** As a best practice, copy `.env.example` from Laravel and configure it directly on the server. Since environment variables change infrequently, it is safer to handle this manually rather than including sensitive secrets in your CI/CD configuration.
 
 ## Support and Contributions 🤝
 
