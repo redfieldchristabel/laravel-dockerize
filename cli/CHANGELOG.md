@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/redfieldchristabel/laravel-dockerize/compare/v1.1.2...v1.1.3) (2026-03-20)
+
+
+### Bug Fixes
+
+* enhance scaffolding log messages and use PHP version value ([2c3bbe2](https://github.com/redfieldchristabel/laravel-dockerize/commit/2c3bbe21819c18e8f41196fc98b0ae1202dd9b48))
+
 ## [1.1.2](https://github.com/redfieldchristabel/laravel-dockerize/compare/v1.1.1...v1.1.2) (2026-03-20)
 
 
