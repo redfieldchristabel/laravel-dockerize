@@ -24,7 +24,8 @@ class ScaffoldCommand extends Command {
     // Check if current directory is a Laravel project
     if (!File('artisan').existsSync() || !Directory('app').existsSync()) {
       _log.severe(
-        'Error: This is not a Laravel project. Please run in a Laravel project directory (must contain "artisan" and "app/").',
+        'Error: This is not a Laravel project. Please run in a Laravel project '
+        'directory (must contain "artisan" and "app/").',
       );
       exit(1);
     }
