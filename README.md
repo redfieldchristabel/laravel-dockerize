@@ -11,7 +11,7 @@ Welcome to the **Laravel-Optimized PHP Images** repository! 🚀 These pre-built
 
 Forget wrestling with PHP setups or complex Docker configs. Our images are tailor-made for Laravel developers, offering:
 
-- **Zero-Setup Scaffolding** 🏗️: Create Laravel 10, 11, or 12 apps with just Docker using our [installer image](#creating-a-new-laravel-app)—no PHP or Composer required locally.
+- **Zero-Setup Scaffolding** 🏗️: Create Laravel 10, 11, or 12 apps with just Docker using our [installer package](#creating-a-new-laravel-app)—no PHP or Composer required locally.
 - **Top-Notch Security** 🔒: Run as the [non-root `laravel` user](#non-root-laravel-user-by-default) for safer development and [production](#production-deployment).
 - **Blazing-Fast Setup** ⚡: Pre-installed [PHP extensions](#pre-installed-php-extensions) for instant local and CI/CD environments.
 - **Streamlined Workflows** 🛠️: Focus on coding, not configuring, with Laravel-friendly defaults.
@@ -27,51 +27,53 @@ Pull images from `ghcr.io/redfieldchristabel/laravel` and jump in! Start by [cre
 
 ### Creating a New Laravel App 🏗️
 
-Kick off your project with our `laravel:installer` image! This lightweight image (~120-150 MB) includes the latest Laravel CLI and scaffolds Laravel 10, 11, or 12 apps with just Docker—no local PHP or Composer needed. Perfect for Linux, Mac, or Windows (with WSL2)!
+Kick off your project with our `laravel-installer` package! This lightweight image (~120-150 MB) includes the latest Laravel CLI and scaffolds Laravel 10, 11, or 12 apps with just Docker—no local PHP or Composer needed. Perfect for Linux, Mac, or Windows (with WSL2)!
 
 **Example**:
 ```bash
-docker run -it -v $(pwd):/app ghcr.io/redfieldchristabel/laravel:installer new example-app
+docker run -it -v $(pwd):/app ghcr.io/redfieldchristabel/laravel-installer:latest new example-app
 ```
 This creates a Laravel 12 app (latest) in `./example-app/`. The image runs `laravel` directly, so you just add `new example-app`.
 
 **Older Versions**:
-- Use `--version` to scaffold Laravel 10 or 11.
-- Example: `docker run -v $(pwd):/app ghcr.io/redfieldchristabel/laravel:installer new example-app --version=11` (Laravel 11 app).
+- Use `--version` to create Laravel 10 or 11.
+- Example: `docker run -v $(pwd):/app ghcr.io/redfieldchristabel/laravel-installer:latest new example-app --version=11` (Laravel 11 app).
 
 **Customize Your App**:
 - Add stacks: `--breeze` (Blade), `--jet` (Livewire/Inertia), or `--api` for API-only apps.
-- Example: `docker run -v $(pwd):/app ghcr.io/redfieldchristabel/laravel:installer new example-app --breeze --version=11`
+- Example: `docker run -v $(pwd):/app ghcr.io/redfieldchristabel/laravel-installer:latest new example-app --breeze --version=11`
 
 **Notes**:
 - Saves output to a volume (e.g., `./:/app`), accessible locally.
 - Runs as a [non-root `laravel` user](#non-root-laravel-user-by-default) for security.
 - No PHP extensions installed, keeping it lean for scaffolding.
+- For more on how to use the Laravel installer, see the [official Laravel documentation](https://laravel.com/docs/13.x/installation#creating-an-application).
 
 After scaffolding, use our [PHP-based images](#running-your-laravel-app) (e.g., `laravel:8.3-fpm`) to run your app or [scaffold a Docker environment](#scaffolding-a-docker-environment-for-existing-projects).
 
 ### Scaffolding a Docker Environment for Existing Projects 🛠️
 
-For existing Laravel projects, you can use our optional bash script to set up a complete Docker environment for development and production. This script, designed to run after your Laravel project is created, generates all necessary Docker files, including `docker-compose.yml` for development and production, Nginx configurations, and PHP settings. It also ensures Vite is Docker-ready by setting `server.host` to `"0.0.0.0"` in `vite.config.js`.
+For existing Laravel projects, you can use our interactive CLI tool to set up a complete Docker environment for development and production. The CLI wizard will guide you through selecting the PHP version, Database, WebSockets, Base Image, and more! It will then generate all necessary Docker files, including `docker-compose.yml` for development and production, Nginx configurations, and PHP settings. It also configures environment variables so you are ready to go.
 
 **Usage**:
 Run the script in your Laravel project directory (must contain `artisan` and `app/`):
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/redfieldchristabel/laravel-dockerize/main/scaffold/setup.sh)"
+(curl -fsSL https://github.com/redfieldchristabel/laravel-dockerize/releases/download/v1.1.3/cli.sh > /tmp/cli && chmod +x /tmp/cli && /tmp/cli scaffold)
 ```
 
 **Platform Notes**:
-- **Linux**: Run the script directly in your terminal.
-- **Mac**: Run the script directly in Terminal or iTerm2.
-- **Windows**: Run the script in WSL2 (Windows Subsystem for Linux 2). Install WSL2 with `wsl --install` and enable Docker Desktop’s WSL2 integration. Git Bash is not recommended due to potential compatibility issues.
+- **Linux**: Run the command directly in your terminal.
+- **Mac**: Run the command directly in Terminal or iTerm2.
+- **Windows**: Run the command in WSL2 (Windows Subsystem for Linux 2). Install WSL2 with `wsl --install` and enable Docker Desktop’s WSL2 integration. Git Bash is not recommended due to potential compatibility issues.
 
 **What the Script Does**:
+- **Interactive Wizard**: Guides you through selecting options.
 - **Creates Docker Files**: Generates `docker-compose.yml` (development), `build.docker-compose.yml`, `prod.docker-compose.yml`, and Dockerfiles for PHP, Nginx, and Vite.
 - **Configures Nginx and PHP**: Adds `docker/nginx/conf/app.conf`, `docker/nginx/include/fpm-handler.conf`, and `docker/php/file.ini` for seamless integration.
-- **Sets Up Tools**: Downloads helper scripts (`art`, `cmpsr`, `pint`, `nd`, `iart`) for Artisan, Composer, Node, and more.
-- **Vite Compatibility**: Modifies `vite.config.js` to set `server.host` to `"0.0.0.0"` (required for Docker), updating existing `server` blocks or adding a new one.
-- **Environment Setup**: Copies `.env.example` to `.env` if `.env` is missing.
-- **Requirements**: Needs `curl` and `docker` installed. Must be run in a Laravel project directory.
+- **Sets Up Tools**: Downloads helper scripts (`art`, `cmpsr`, `pint`, `nd`, `iart`, `box`) for Artisan, Composer, Node, and more.
+- **Vite Compatibility**: Generates Vite-specific components if chosen during the wizard.
+- **Environment Setup**: Configures your `.env` to work with the generated Docker services.
+- **Requirements**: Needs `curl` installed. Must be run in a Laravel project directory.
 
 **Using Helper Scripts**:
 The script generates the following helper scripts in your project root to simplify running commands in Docker containers:
@@ -108,11 +110,10 @@ After running, you’ll have:
 - Helper scripts (`art`, `cmpsr`, `pint`, `nd`, `iart`) in the project root for easy Artisan/Composer/Node commands.
 
 **Notes**:
-- Run this script after creating your Laravel app (e.g., via `laravel:installer`).
+- Run this tool after creating your Laravel app (e.g., via `laravel-installer`).
 - The generated `docker-compose.yml` matches the [Development Environment](#development-environment-with-docker-compose) section.
 - Production files align with the [Production Deployment](#production-deployment) section.
-- The script uses images from `ghcr.io/redfieldchristabel/laravel` (e.g., `laravel:8.3-fpm`).
-- If `vite.config.js` is missing, the script skips Vite configuration.
+- The wizard uses images from `ghcr.io/redfieldchristabel/laravel` (e.g., `laravel:8.3-fpm`).
 
 Proceed to [Running Your Laravel App](#running-your-laravel-app) to start your Dockerized environment with `docker-compose up -d`.
 
@@ -186,18 +187,27 @@ Filament projects? Use `-filament` images with pre-installed dependencies:
 
 ### Octane-Optimized Images 🚀
 
-For high-performance Laravel apps, use our Octane images with Swoole, the most popular and fastest server for Laravel Octane. These images include the Swoole binary pre-installed, so you don’t need to wait for a lengthy `pecl install swoole`. Laravel is not pre-installed; scaffold your app with the [Laravel installer](#creating-a-new-laravel-app) first.
+For high-performance Laravel apps, use our Octane images with Swoole, the most popular and fastest server for Laravel Octane. These images include the Swoole binary pre-installed, so you don’t need to wait for a lengthy `pecl install swoole`. Laravel CLI is not pre-installed; create your app with the [Laravel installer](#creating-a-new-laravel-app) first.
 
-- Available for PHP **8.1, 8.2, 8.3, 8.4**.
+- Available for PHP **8.2, 8.3, 8.4** (Swoole requires minimum PHP 8.2).
 - Tags: `laravel:<version>-cli-<variant>-octane-swoole` (e.g., `laravel:8.3-cli-alpine-octane-swoole`, `laravel:8.3-cli-debian-octane-swoole`).
-- **Note**: Currently supports only Swoole (no RoadRunner). SSL support requires extending the image (no `openssl` by default for minimal size).
+- **Note**: Currently supports only Swoole (no RoadRunner). SSL support requires extending the image (no `openssl` by default for minimal size). For security and performance, it is best practice to use a reverse proxy (like NGINX) for SSL termination to handle encryption/decryption at the proxy level.
 
-**Example** (Running Octane):
-```bash
-docker run -v $(pwd):/var/www -p 8000:8000 ghcr.io/redfieldchristabel/laravel:8.3-cli-alpine-octane-swoole
-```
-- Assumes a Laravel app with Octane installed (`composer require laravel/octane`) in the current directory.
-- Starts Octane on `http://localhost:8000`.
+**How to Use**:
+1. Scaffold your environment using the [Interactive CLI](#scaffolding-a-docker-environment-for-existing-projects) and choose an **Octane-Swoole** image.
+2. Install the Octane package (required for official Laravel installation):
+   ```bash
+   ./cmpsr require laravel/octane
+   ```
+3. Set up Octane and select **swoole** as your server:
+   ```bash
+   ./art octane:install
+   ```
+4. Start your environment:
+   ```bash
+   docker-compose up -d
+   ```
+5. Your app is now running on `http://localhost:8000`.
 
 ### Docker Best Practices 🐳
 
@@ -207,174 +217,26 @@ We follow best practices for efficient containers:
 
 ## Development Environment with Docker Compose 🛠️
 
-Set up a dev environment with this `docker-compose.yml`, syncing code for real-time edits. Includes `app`, `nginx`, `mysql`, `redis`, `queue`, `scheduler`, `mailpit`, and `phpmyadmin`. This file is automatically generated by the [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects).
-
-```yaml
-version: '3.8'
-
-services:
-  app:
-    image: ghcr.io/redfieldchristabel/laravel:8.3-fpm
-    volumes:
-      - .:/var/www # Sync codebase
-      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
-    depends_on:
-      - mysql
-      - redis
-    env_file:
-      - .env
-
-  queue:
-    image: ghcr.io/redfieldchristabel/laravel:8.3-cli
-    command: ["php", "artisan", "queue:work", "--queue=high,default"]
-    volumes:
-      - .:/var/www
-      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
-    depends_on:
-      - app
-      - mysql
-      - redis
-    env_file:
-      - .env
-
-  scheduler:
-    image: ghcr.io/redfieldchristabel/laravel:8.3-cli
-    command: ["php", "artisan", "schedule:work"]
-    volumes:
-      - .:/var/www
-      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
-    depends_on:
-      - app
-      - mysql
-      - redis
-    env_file:
-      - .env
-
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-    volumes:
-      - .:/var/www
-      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./docker/nginx/include:/etc/nginx/include
-    depends_on:
-      - app
-
-  mysql:
-    image: mysql:8.0
-    volumes:
-      - mysql-data:/var/lib/mysql
-    env_file:
-      - .env
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      retries: 3
-      timeout: 5s
-
-  redis:
-    image: redis:alpine
-    volumes:
-      - redis-data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      retries: 3
-      timeout: 5s
-
-  mailpit:
-    image: axllent/mailpit
-    ports:
-      - "8025:8025" # Web UI
-      - "1025:1025" # SMTP
-    environment:
-      MP_MAX_MESSAGES: 5000
-      MP_SMTP_AUTH_ACCEPT_ANY: 1
-      MP_SMTP_AUTH_ALLOW_INSECURE: 1
-
-  phpmyadmin:
-    image: phpmyadmin
-    ports:
-      - "8081:80"
-    environment:
-      PMA_HOST: mysql
-    depends_on:
-      - mysql
-
-volumes:
-  mysql-data:
-  redis-data:
-```
+Our [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects) automatically generates a `docker-compose.yml` tailored to your project.
 
 **Usage**:
-1. Save as `docker-compose.yml` in your project root (or use the one generated by the [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects)).
-2. Create `.env` (e.g., `DB_HOST=mysql`, `REDIS_HOST=redis`, `DB_DATABASE=laravel`).
-3. Add `docker/php/php.ini` (e.g., `memory_limit = 256M`).
-4. Create `docker/nginx/nginx.conf` and `docker/nginx/include/fpm-handler.conf` (below, or use script-generated versions).
-5. Run `docker-compose up -d` and visit `http://localhost` or `http://localhost:8081` (phpMyAdmin).
+1. Run the [Interactive CLI](#scaffolding-a-docker-environment-for-existing-projects) and select your preferred development services.
+2. Once the script finishes, you will have a `docker-compose.yml` file in your project root.
+3. Start your environment:
+   ```sh
+   docker-compose up -d
+   ```
 
-**Example** `docker/nginx/nginx.conf`:
-```nginx
-server {
-    listen 80 default_server;
-    server_name localhost;
-    client_max_body_size 120M;
+**Services Typically Included**:
+- **app**: Your Laravel application (FPM or CLI).
+- **nginx**: Configured for Laravel and optionally Vite/WebSockets.
+- **mysql/pgsql**: Your chosen database.
+- **redis**: For caching and queues.
+- **queue/scheduler**: Dedicated containers for background tasks.
+- **mailpit**: For local email testing.
+- **phpmyadmin**: Web interface for database management.
 
-    access_log /dev/stderr;
-    error_log /dev/stderr;
-
-    root /var/www/public;
-    index index.php;
-
-    # Remove trailing slash
-    location ~ ^(.+)/$ {
-        return 301 $1$is_args$args;
-    }
-
-    # Serve static files
-    location ~* \.(css|js|gif|jpeg|jpg|png|webp|woff2|woff|ico)$ {
-        root /var/www/public;
-        add_header X-Serve-Type 'static';
-    }
-
-    # Soketi WebSocket
-    location /app {
-        proxy_pass http://soketi:6001;
-        proxy_read_timeout 60;
-        proxy_connect_timeout 60;
-        proxy_redirect off;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-
-    location / {
-        include include/fpm-handler.conf;
-    }
-}
-```
-
-**Example** `docker/nginx/include/fpm-handler.conf`:
-```nginx
-add_header X-Serve-Type 'php';
-add_header X-Serve-Uri '$uri';
-fastcgi_pass app:9000;
-fastcgi_index index.php;
-include fastcgi_params;
-fastcgi_param SCRIPT_FILENAME $document_root/index.php;
-fastcgi_param PATH_INFO $fastcgi_path_info;
-```
-
-**Notes**:
-- Use `8.3-fpm` for `app` to match [production](#production-deployment). For quick dev, try `8.3-cli` with `command: php artisan serve --host 0.0.0.0 --port 8000` and port `8000`, or use `8.3-cli-alpine-octane-swoole` for Octane with `command: php artisan octane:start --server=swoole --host=0.0.0.0 --port=8000`.
-- `queue` and `scheduler` use `8.3-cli` in separate containers, per [Docker best practices](#docker-best-practices).
-- `.:/var/www` syncs code for fast `composer update`.
-- The [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects) generates these files automatically.
-
-### Customizing the Images 🔧
+## Customizing the Images 🔧
 
 Add extensions or tweak PHP settings with a custom `Dockerfile` or volume mounts.
 
@@ -445,211 +307,24 @@ Tweak `php.ini` (e.g., `memory_limit`):
 
 **Note**: Use default entrypoints for PHP images (`docker-entrypoint.sh`) to handle setup and logging. The installer uses `laravel` directly, and Octane uses `docker-php-entrypoint` for `octane:start`.
 
-### Production Deployment 🏭
+## Production Deployment 🏭
 
-For [production](#production-deployment), use `fpm` or `fpm-alpine` with Nginx, copying the codebase into the image for speed and mounting only `./vendor:/var/www/vendor`. For Octane, use `cli-alpine-octane-swoole` or `cli-debian-octane-swoole`. The [non-root `laravel` user](#non-root-laravel-user-by-default) ensures safety. Two `docker-compose.yml` options: standard or with Kong API Gateway. These files are generated by the [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects) as `prod.docker-compose.yml`.
+For [production](#production-deployment), we recommend using specialized configurations generated by our [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects) as `prod.docker-compose.yml`. These are optimized for security and performance, running as the [non-root `laravel` user](#non-root-laravel-user-by-default) and utilizing minimal mounts.
 
-#### Production Docker Compose (Standard)
-```yaml
-version: '3.8'
+**Usage**:
+1. Run the [Interactive CLI](#scaffolding-a-docker-environment-for-existing-projects) and select the production options that match your infrastructure (e.g., standard Nginx or Kong API Gateway).
+2. If a `prod.docker-compose.yml` is generated, **please ensure you change the registry URL** to your project's specific container registry.
+3. Prepare your environment:
+   ```bash
+   composer install --no-dev --optimize-autoloader
+   ```
+4. Deploy your configuration and start the environment:
+   ```bash
+   docker-compose -f prod.docker-compose.yml up -d
+   ```
 
-services:
-  app:
-    image: ghcr.io/redfieldchristabel/laravel:8.3-cli-alpine-octane-swoole
-    volumes:
-      - ./vendor:/var/www/vendor
-      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
-    ports:
-      - "80:8000"
-    depends_on:
-      - mysql
-      - redis
-    env_file:
-      - .env.production
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000"]
-      interval: 30s
-      retries: 3
-      timeout: 10s
-
-  queue:
-    image: ghcr.io/redfieldchristabel/laravel:8.3-cli
-    command: ["php", "artisan", "queue:work", "--queue=high,default"]
-    volumes:
-      - ./vendor:/var/www/vendor
-      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
-    depends_on:
-      - app
-      - mysql
-      - redis
-    env_file:
-      - .env.production
-
-  scheduler:
-    image: ghcr.io/redfieldchristabel/laravel:8.3-cli
-    command: ["php", "artisan", "schedule:work"]
-    volumes:
-      - ./vendor:/var/www/vendor
-      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
-    depends_on:
-      - app
-      - mysql
-      - redis
-    env_file:
-      - .env.production
-
-  mysql:
-    image: mysql:8.0
-    volumes:
-      - mysql-data:/var/lib/mysql
-    env_file:
-      - .env.production
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 30s
-      retries: 3
-      timeout: 10s
-
-  redis:
-    image: redis:alpine
-    volumes:
-      - redis-data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      retries: 3
-      timeout: 10s
-
-volumes:
-  mysql-data:
-  redis-data:
-```
-
-#### Production Docker Compose (with Kong API Gateway)
-Uses Kong for routing, authentication, and rate-limiting, with Octane as the backend.
-```yaml
-version: '3.8'
-
-services:
-  app:
-    image: ghcr.io/redfieldchristabel/laravel:8.3-cli-alpine-octane-swoole
-    volumes:
-      - ./vendor:/var/www/vendor
-      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
-    depends_on:
-      - mysql
-      - redis
-    env_file:
-      - .env.production
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000"]
-      interval: 30s
-      retries: 3
-      timeout: 10s
-
-  queue:
-    image: ghcr.io/redfieldchristabel/laravel:8.3-cli
-    command: ["php", "artisan", "queue:work", "--queue=high,default"]
-    volumes:
-      - ./vendor:/var/www/vendor
-      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
-    depends_on:
-      - app
-      - mysql
-      - redis
-    env_file:
-      - .env.production
-
-  scheduler:
-    image: ghcr.io/redfieldchristabel/laravel:8.3-cli
-    command: ["php", "artisan", "schedule:work"]
-    volumes:
-      - ./vendor:/var/www/vendor
-      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
-    depends_on:
-      - app
-      - mysql
-      - redis
-    env_file:
-      - .env.production
-
-  kong:
-    image: kong:latest
-    environment:
-      KONG_DATABASE: "off"
-      KONG_PROXY_ACCESS_LOG: /dev/stdout
-      KONG_ADMIN_ACCESS_LOG: /dev/stdout
-      KONG_PROXY_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
-    ports:
-      - "80:8000"
-      - "443:8443"
-      - "8001:8001"
-    volumes:
-      - ./docker/kong/kong.yml:/usr/local/kong/declarative/kong.yml:ro
-    depends_on:
-      - app
-    networks:
-      - kong
-
-  mysql:
-    image: mysql:8.0
-    volumes:
-      - mysql-data:/var/lib/mysql
-    env_file:
-      - .env.production
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 30s
-      retries: 3
-      timeout: 10s
-
-  redis:
-    image: redis:alpine
-    volumes:
-      - redis-data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      retries: 3
-      timeout: 10s
-
-networks:
-  kong:
-    external: true
-
-volumes:
-  mysql-data:
-  redis-data:
-```
-
-**Example** `docker/kong/kong.yml`:
-```yaml
-_format_version: "3.0"
-services:
-  - name: laravel-app
-    url: http://app:8000
-    routes:
-      - name: laravel-route
-        paths:
-          - /
-```
-
-**Production Usage**:
-1. Run `composer install --no-dev --optimize-autoloader` locally to generate `vendor`.
-2. Copy `vendor`, `public`, `docker/`, `.env.production` to the server.
-3. For Kong, add `docker/kong/kong.yml`.
-4. Run `docker-compose -f prod.docker-compose.yml up -d` (generated by the [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects)).
-5. Access at `http://<server-ip>` (standard) or Kong’s proxy.
-
-**Notes**:
-- **Standard**: Octane on port 8000 (no Nginx needed for Octane).
-- **Kong**: Proxies via Kong; configure `kong.yml` for auth/rate-limiting.
-- Use `.env.production` (e.g., `APP_ENV=production`, `DB_HOST=mysql`).
-- Mount only `./vendor:/var/www/vendor` for security.
-- Healthchecks and stdout logs ensure reliability.
-- The [scaffolding script](#scaffolding-a-docker-environment-for-existing-projects) generates `prod.docker-compose.yml` for this setup.
+> [!IMPORTANT]
+> **Never commit production `.env` files (e.g., `.env.production`, `.env.prod`) to version control.** As a best practice, copy `.env.example` from Laravel and configure it directly on the server. Since environment variables change infrequently, it is safer to handle this manually rather than including sensitive secrets in your CI/CD configuration.
 
 ## Support and Contributions 🤝
 
