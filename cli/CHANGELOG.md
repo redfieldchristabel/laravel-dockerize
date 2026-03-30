@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.1](https://github.com/redfieldchristabel/laravel-dockerize/compare/v1.2.0...v1.2.1) (2026-03-30)
+
+
+### Bug Fixes
+
+* abstract tool generation into a helper method and set generated … ([5964ada](https://github.com/redfieldchristabel/laravel-dockerize/commit/5964adad2616154645583f4927302a313d003f71))
+* abstract tool generation into a helper method and set generated files as executable ([f8497d5](https://github.com/redfieldchristabel/laravel-dockerize/commit/f8497d5049a415e2a477535315cbcab7b0499b6a))
+
 ## [1.2.0](https://github.com/redfieldchristabel/laravel-dockerize/compare/v1.1.3...v1.2.0) (2026-03-30)
 
 
