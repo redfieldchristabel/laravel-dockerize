@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/redfieldchristabel/laravel-dockerize/compare/v1.1.3...v1.2.0) (2026-03-30)
+
+
+### Features
+
+* add support for disabling options in confirmation steps ([352204b](https://github.com/redfieldchristabel/laravel-dockerize/commit/352204b401aa7bc927473fd9d1fa38e1cdc06160))
+
 ## [1.1.3](https://github.com/redfieldchristabel/laravel-dockerize/compare/v1.1.2...v1.1.3) (2026-03-20)
 
 
