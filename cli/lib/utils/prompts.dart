@@ -8,7 +8,7 @@ abstract class PromptProvider {
     List<T> options, {
     T? initialValue,
     String? description,
-    SelectionState Function(T option)? getDisabledState,
+    SelectionState? Function(T option)? getDisabledState,
   });
 
   bool askConfirm(
@@ -37,7 +37,7 @@ class DefaultPromptProvider implements PromptProvider {
     List<T> options, {
     T? initialValue,
     String? description,
-    SelectionState Function(T option)? getDisabledState,
+    SelectionState? Function(T option)? getDisabledState,
   }) {
     var selectedIndex = 0;
     if (initialValue != null) {
@@ -48,7 +48,7 @@ class DefaultPromptProvider implements PromptProvider {
     }
 
     bool isDisabled(int index) =>
-        getDisabledState?.call(options[index]).isDisabled ?? false;
+        getDisabledState?.call(options[index])?.isDisabled ?? false;
 
     // Ensure we don't start on a disabled item
     if (isDisabled(selectedIndex)) {
@@ -218,7 +218,7 @@ class DefaultPromptProvider implements PromptProvider {
   void _renderOptions(
     List<String> options,
     int selectedIndex, {
-    SelectionState Function(int index)? getDisabledState,
+    SelectionState? Function(int index)? getDisabledState,
   }) {
     for (var i = 0; i < options.length; i++) {
       stdout.write('\x1b[2K'); // Clear line
@@ -255,7 +255,7 @@ class Prompts {
     List<T> options, {
     T? initialValue,
     String? description,
-    SelectionState Function(T option)? getDisabledState,
+    SelectionState? Function(T option)? getDisabledState,
   }) =>
       instance.askSelection<T>(
         question,
@@ -282,5 +282,5 @@ mixin EnumValue {
 }
 
 mixin HasDisableSelection {
-  SelectionState checkDisabled(Map<String, dynamic> answers);
+  SelectionState? checkDisabled(Map<String, dynamic> answers);
 }

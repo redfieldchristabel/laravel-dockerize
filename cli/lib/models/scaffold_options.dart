@@ -37,12 +37,11 @@ enum PhpVersion with EnumValue, HasDisableSelection {
   };
 
   @override
-  SelectionState checkDisabled(Map<String, dynamic> answers) {
+  SelectionState? checkDisabled(Map<String, dynamic> answers) {
     if (this == .v8_1 && answers['use_octane'] == true) {
       return (isDisabled: true, reason: 'Octane is not supported on PHP 8.1');
     }
-
-    return (isDisabled: false, reason: null);
+    return null;
   }
 }
 
