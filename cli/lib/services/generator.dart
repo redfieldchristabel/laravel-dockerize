@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cli/models/scaffold_options.dart';
 import 'package:cli/services/manage_docker_compose.dart';
 import 'package:cli/templates/docker_compose/db.docker-compose.g.dart';
@@ -327,32 +329,35 @@ class GeneratorService {
   }
 
   void generateToolArt() {
-    fs.file('art').writeAsStringSync(toolArtTemplate);
-    _log.fine('art generated.');
+    _generateTool('art', toolArtTemplate);
   }
 
   void generateToolBox() {
-    fs.file('tool').writeAsStringSync(toolTemplate);
-    _log.fine('tool generated.');
+    _generateTool('tool', toolTemplate);
   }
 
   void generateToolCmpsr() {
-    fs.file('cmpsr').writeAsStringSync(toolCmpsrTemplate);
-    _log.fine('cmpsr generated.');
+    _generateTool('cmpsr', toolCmpsrTemplate);
   }
 
   void generateToolIart() {
-    fs.file('iart').writeAsStringSync(toolIartTemplate);
-    _log.fine('iart generated.');
+    _generateTool('iart', toolIartTemplate);
   }
 
   void generateToolNd() {
-    fs.file('nd').writeAsStringSync(toolNdTemplate);
-    _log.fine('nd generated.');
+    _generateTool('nd', toolNdTemplate);
   }
 
   void generateToolPint() {
-    fs.file('pint').writeAsStringSync(toolPintTemplate);
-    _log.fine('pint generated.');
+    _generateTool('pint', toolPintTemplate);
+  }
+
+  void _generateTool(String name, String content) {
+    final file = fs.file(name);
+    file.writeAsStringSync(content);
+    _log.fine('$name generated.');
+
+    Process.runSync('chmod', ['+x', file.path]);
+    _log.fine('$name made executable.');
   }
 }
