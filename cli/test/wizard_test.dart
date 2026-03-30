@@ -16,6 +16,7 @@ class FakePromptProvider implements PromptProvider {
     List<T> options, {
     T? initialValue,
     String? description,
+    SelectionState? Function(T option)? getDisabledState,
   }) {
     lastQuestion = question;
     lastOptions = options;
@@ -27,6 +28,7 @@ class FakePromptProvider implements PromptProvider {
     String question, {
     bool defaultValue = true,
     String? description,
+    SelectionState? Function(bool value)? getDisabledState,
   }) {
     lastQuestion = question;
     return (lastAnswer ?? defaultValue) as bool;

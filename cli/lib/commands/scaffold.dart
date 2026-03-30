@@ -100,6 +100,14 @@ class ScaffoldWizard extends Wizard<ScaffoldOption> {
       id: 'use_octane',
       label: 'Use Octane',
       question: 'Do you want to use Laravel Octane?',
+      getDisabledState: (value, answers) {
+        if (value && PhpVersion.v8_1 == answers['php_version']) {
+          return (
+            isDisabled: true,
+            reason: 'Laravel Octane is not compatible with PHP 8.1',
+          );
+        }
+      },
     ),
     ConfirmStep(
       id: 'is_filament',
