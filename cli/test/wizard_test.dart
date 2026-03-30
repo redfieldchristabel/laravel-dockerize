@@ -16,6 +16,7 @@ class FakePromptProvider implements PromptProvider {
     List<T> options, {
     T? initialValue,
     String? description,
+    SelectionState Function(T option)? getDisabledState,
   }) {
     lastQuestion = question;
     lastOptions = options;

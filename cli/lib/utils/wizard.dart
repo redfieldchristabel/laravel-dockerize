@@ -15,11 +15,15 @@ abstract class WizardStep<T> {
     this.description,
   });
 
-  T ask({T? initialValue});
+  T ask({T? initialValue, Map<String, dynamic>? answers});
 }
 
 class SelectionStep extends WizardStep<String> {
   final List<String> options;
+  final ({bool isDisabled, String? reason}) Function(
+    String option,
+    Map<String, dynamic> answers,
+  )? getDisabledState;
 
   SelectionStep({
     required super.id,
@@ -27,15 +31,20 @@ class SelectionStep extends WizardStep<String> {
     required super.question,
     required this.options,
     super.description,
+    this.getDisabledState,
   });
 
   @override
-  String ask({String? initialValue}) => Prompts.askSelection<String>(
-    question,
-    options,
-    initialValue: initialValue,
-    description: description,
-  );
+  String ask({String? initialValue, Map<String, dynamic>? answers}) =>
+      Prompts.askSelection<String>(
+        question,
+        options,
+        initialValue: initialValue,
+        description: description,
+        getDisabledState: getDisabledState != null
+            ? (option) => getDisabledState!(option, answers ?? {})
+            : null,
+      );
 }
 
 class EnumSelectionStep<T extends Enum> extends WizardStep<T> {
@@ -50,14 +59,19 @@ class EnumSelectionStep<T extends Enum> extends WizardStep<T> {
   });
 
   @override
-  T ask({T? initialValue}) {
-    final selection = Prompts.askSelection<T>(
+  T ask({T? initialValue, Map<String, dynamic>? answers}) {
+    return Prompts.askSelection<T>(
       question,
       options,
       initialValue: initialValue,
       description: description,
+      getDisabledState: (option) {
+        if (option is HasDisableSelection) {
+          return (option as HasDisableSelection).checkDisabled(answers ?? {});
+        }
+        return (isDisabled: false, reason: null);
+      },
     );
-    return options.firstWhere((e) => e == selection);
   }
 }
 
@@ -73,11 +87,12 @@ class ConfirmStep extends WizardStep<bool> {
   });
 
   @override
-  bool ask({bool? initialValue}) => Prompts.askConfirm(
-    question,
-    defaultValue: initialValue ?? defaultValue,
-    description: description,
-  );
+  bool ask({bool? initialValue, Map<String, dynamic>? answers}) =>
+      Prompts.askConfirm(
+        question,
+        defaultValue: initialValue ?? defaultValue,
+        description: description,
+      );
 }
 
 abstract class Wizard<T> {
@@ -92,7 +107,10 @@ abstract class Wizard<T> {
       // 1. Ask all questions
       for (final step in steps) {
         // Pass previous answer as initialValue if it exists
-        answers[step.id] = step.ask(initialValue: answers[step.id]);
+        answers[step.id] = step.ask(
+          initialValue: answers[step.id],
+          answers: answers,
+        );
       }
 
       // 2. Show Summary and Confirm

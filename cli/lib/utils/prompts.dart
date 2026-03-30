@@ -1,11 +1,14 @@
 import 'dart:io';
 
+typedef SelectionState = ({bool isDisabled, String? reason});
+
 abstract class PromptProvider {
   T askSelection<T>(
     String question,
     List<T> options, {
     T? initialValue,
     String? description,
+    SelectionState Function(T option)? getDisabledState,
   });
 
   bool askConfirm(
@@ -34,6 +37,7 @@ class DefaultPromptProvider implements PromptProvider {
     List<T> options, {
     T? initialValue,
     String? description,
+    SelectionState Function(T option)? getDisabledState,
   }) {
     var selectedIndex = 0;
     if (initialValue != null) {
@@ -43,10 +47,22 @@ class DefaultPromptProvider implements PromptProvider {
       }
     }
 
+    bool isDisabled(int index) =>
+        getDisabledState?.call(options[index]).isDisabled ?? false;
+
+    // Ensure we don't start on a disabled item
+    if (isDisabled(selectedIndex)) {
+      for (var i = 0; i < options.length; i++) {
+        if (!isDisabled(i)) {
+          selectedIndex = i;
+          break;
+        }
+      }
+    }
+
     final displayOptions = options.map(_getDisplayValue).toList();
-    final initialDisplay = initialValue != null
-        ? _getDisplayValue(initialValue)
-        : null;
+    final initialDisplay =
+        initialValue != null ? _getDisplayValue(initialValue) : null;
 
     final hint = initialDisplay != null ? ' [$initialDisplay]' : '';
     stdout.write('$_hideCursor\n$question$hint\n');
@@ -58,7 +74,10 @@ class DefaultPromptProvider implements PromptProvider {
     }
 
     // Initial render
-    _renderOptions(displayOptions, selectedIndex);
+    _renderOptions(displayOptions, selectedIndex,
+        getDisabledState: getDisabledState != null
+            ? (idx) => getDisabledState(options[idx])
+            : null);
 
     // Set terminal to raw mode
     stdin.echoMode = false;
@@ -69,8 +88,11 @@ class DefaultPromptProvider implements PromptProvider {
         final key = stdin.readByteSync();
 
         if (key == 13 || key == 10) {
-          // Enter key
-          break;
+          // Enter key - only accept if enabled
+          if (!isDisabled(selectedIndex)) {
+            break;
+          }
+          continue;
         }
 
         if (key == 27) {
@@ -80,18 +102,28 @@ class DefaultPromptProvider implements PromptProvider {
             final thirdByte = stdin.readByteSync();
             if (thirdByte == 65) {
               // Up arrow
-              selectedIndex =
-                  (selectedIndex - 1 + options.length) % options.length;
+              int next = selectedIndex;
+              do {
+                next = (next - 1 + options.length) % options.length;
+              } while (isDisabled(next) && next != selectedIndex);
+              selectedIndex = next;
             } else if (thirdByte == 66) {
               // Down arrow
-              selectedIndex = (selectedIndex + 1) % options.length;
+              int next = selectedIndex;
+              do {
+                next = (next + 1) % options.length;
+              } while (isDisabled(next) && next != selectedIndex);
+              selectedIndex = next;
             }
           }
         }
 
         // Redraw options
         stdout.write('\x1b[${options.length}A');
-        _renderOptions(displayOptions, selectedIndex);
+        _renderOptions(displayOptions, selectedIndex,
+            getDisabledState: getDisabledState != null
+                ? (idx) => getDisabledState(options[idx])
+                : null);
       }
     } finally {
       // Restore terminal state
@@ -183,13 +215,25 @@ class DefaultPromptProvider implements PromptProvider {
     return selectedIndex == 0;
   }
 
-  void _renderOptions(List<String> options, int selectedIndex) {
+  void _renderOptions(
+    List<String> options,
+    int selectedIndex, {
+    SelectionState Function(int index)? getDisabledState,
+  }) {
     for (var i = 0; i < options.length; i++) {
       stdout.write('\x1b[2K'); // Clear line
+      final state =
+          getDisabledState?.call(i) ?? (isDisabled: false, reason: null);
+
       if (i == selectedIndex) {
         stdout.write('$_cyan❯ ${options[i]}$_reset\n');
       } else {
-        stdout.write('  ${options[i]}\n');
+        if (!state.isDisabled) {
+          stdout.write('  ${options[i]}\n');
+        } else {
+          final reason = state.reason ?? 'disabled';
+          stdout.write('  $_grey${options[i]} ($reason)$_reset\n');
+        }
       }
     }
   }
@@ -211,24 +255,32 @@ class Prompts {
     List<T> options, {
     T? initialValue,
     String? description,
-  }) => instance.askSelection<T>(
-    question,
-    options,
-    initialValue: initialValue,
-    description: description,
-  );
+    SelectionState Function(T option)? getDisabledState,
+  }) =>
+      instance.askSelection<T>(
+        question,
+        options,
+        initialValue: initialValue,
+        description: description,
+        getDisabledState: getDisabledState,
+      );
 
   static bool askConfirm(
     String question, {
     bool defaultValue = true,
     String? description,
-  }) => instance.askConfirm(
-    question,
-    defaultValue: defaultValue,
-    description: description,
-  );
+  }) =>
+      instance.askConfirm(
+        question,
+        defaultValue: defaultValue,
+        description: description,
+      );
 }
 
 mixin EnumValue {
   String get value;
+}
+
+mixin HasDisableSelection {
+  SelectionState checkDisabled(Map<String, dynamic> answers);
 }

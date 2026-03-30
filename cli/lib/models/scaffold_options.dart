@@ -22,7 +22,7 @@ class ScaffoldOption {
   });
 }
 
-enum PhpVersion with EnumValue {
+enum PhpVersion with EnumValue, HasDisableSelection {
   v8_4,
   v8_3,
   v8_2,
@@ -35,6 +35,15 @@ enum PhpVersion with EnumValue {
     PhpVersion.v8_3 => '8.3',
     PhpVersion.v8_4 => '8.4',
   };
+
+  @override
+  SelectionState checkDisabled(Map<String, dynamic> answers) {
+    if (this == .v8_1 && answers['use_octane'] == true) {
+      return (isDisabled: true, reason: 'Octane is not supported on PHP 8.1');
+    }
+
+    return (isDisabled: false, reason: null);
+  }
 }
 
 enum Database {
