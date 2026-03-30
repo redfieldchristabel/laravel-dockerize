@@ -58,7 +58,7 @@ For existing Laravel projects, you can use our interactive CLI tool to set up a 
 **Usage**:
 Run the script in your Laravel project directory (must contain `artisan` and `app/`):
 ```bash
-(curl -fsSL https://github.com/.../releases/latest/download/cli.sh > /tmp/cli && chmod +x /tmp/cli && /tmp/cli scaffold)
+(curl -fsSL https://github.com/redfieldchristabel/laravel-dockerize/releases/latest/download/cli.sh > /tmp/cli && chmod +x /tmp/cli && /tmp/cli scaffold)
 ```
 
 **Platform Notes**:
