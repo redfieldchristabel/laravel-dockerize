@@ -15,6 +15,7 @@ abstract class PromptProvider {
     String question, {
     bool defaultValue = true,
     String? description,
+    SelectionState? Function(bool value)? getDisabledState,
   });
 }
 
@@ -146,10 +147,25 @@ class DefaultPromptProvider implements PromptProvider {
     String question, {
     bool defaultValue = true,
     String? description,
+    SelectionState? Function(bool value)? getDisabledState,
   }) {
-    final options = ['Yes', 'No'];
+    final options = [true, false]; // Yes = true, No = false
+    final displayOptions = ['Yes', 'No'];
     var selectedIndex = defaultValue ? 0 : 1;
     final hint = defaultValue ? '[Y/n]' : '[y/N]';
+
+    bool isDisabled(int index) =>
+        getDisabledState?.call(options[index])?.isDisabled ?? false;
+
+    // Ensure we don't start on a disabled item
+    if (isDisabled(selectedIndex)) {
+      for (var i = 0; i < options.length; i++) {
+        if (!isDisabled(i)) {
+          selectedIndex = i;
+          break;
+        }
+      }
+    }
 
     stdout.write('$_hideCursor\n$question $hint\n');
 
@@ -159,7 +175,10 @@ class DefaultPromptProvider implements PromptProvider {
       stdout.write('$_grey$description$_reset\n');
     }
 
-    _renderOptions(options, selectedIndex);
+    _renderOptions(displayOptions, selectedIndex,
+        getDisabledState: getDisabledState != null
+            ? (idx) => getDisabledState(options[idx])
+            : null);
 
     stdin.echoMode = false;
     stdin.lineMode = false;
@@ -169,16 +188,20 @@ class DefaultPromptProvider implements PromptProvider {
         final key = stdin.readByteSync();
 
         if (key == 13 || key == 10) {
-          break;
+          // Enter key - only accept if enabled
+          if (!isDisabled(selectedIndex)) {
+            break;
+          }
+          continue;
         }
 
         // Handle 'y' and 'n' keys
-        if (key == 121 || key == 89) {
+        if ((key == 121 || key == 89) && !isDisabled(0)) {
           // y or Y
           selectedIndex = 0;
           break;
         }
-        if (key == 110 || key == 78) {
+        if ((key == 110 || key == 78) && !isDisabled(1)) {
           // n or N
           selectedIndex = 1;
           break;
@@ -190,16 +213,27 @@ class DefaultPromptProvider implements PromptProvider {
             final thirdByte = stdin.readByteSync();
             if (thirdByte == 65 || thirdByte == 68) {
               // Up or Left
-              selectedIndex = 0;
+              int next = selectedIndex;
+              do {
+                next = (next - 1 + options.length) % options.length;
+              } while (isDisabled(next) && next != selectedIndex);
+              selectedIndex = next;
             } else if (thirdByte == 66 || thirdByte == 67) {
               // Down or Right
-              selectedIndex = 1;
+              int next = selectedIndex;
+              do {
+                next = (next + 1) % options.length;
+              } while (isDisabled(next) && next != selectedIndex);
+              selectedIndex = next;
             }
           }
         }
 
         stdout.write('\x1b[2A');
-        _renderOptions(options, selectedIndex);
+        _renderOptions(displayOptions, selectedIndex,
+            getDisabledState: getDisabledState != null
+                ? (idx) => getDisabledState(options[idx])
+                : null);
       }
     } finally {
       stdin.lineMode = true;
@@ -269,11 +303,13 @@ class Prompts {
     String question, {
     bool defaultValue = true,
     String? description,
+    SelectionState? Function(bool value)? getDisabledState,
   }) =>
       instance.askConfirm(
         question,
         defaultValue: defaultValue,
         description: description,
+        getDisabledState: getDisabledState,
       );
 }
 

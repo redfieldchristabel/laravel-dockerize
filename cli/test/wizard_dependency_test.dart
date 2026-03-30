@@ -6,6 +6,7 @@ enum DependencyFeature with EnumValue, HasDisableSelection {
   featureA('A'),
   featureB('B');
 
+  @override
   final String value;
 
   const DependencyFeature(this.value);
@@ -24,15 +25,6 @@ class FakePromptProvider implements PromptProvider {
   Map<String, SelectionState? Function(dynamic)?> capturedStates = {};
 
   @override
-  bool askConfirm(
-    String question, {
-    bool defaultValue = true,
-    String? description,
-  }) {
-    return (mockedAnswers[question] ?? defaultValue) as bool;
-  }
-
-  @override
   T askSelection<T>(
     String question,
     List<T> options, {
@@ -45,6 +37,16 @@ class FakePromptProvider implements PromptProvider {
         : null;
 
     return (mockedAnswers[question] ?? options.first) as T;
+  }
+
+  @override
+  bool askConfirm(
+    String question, {
+    bool defaultValue = true,
+    String? description,
+    SelectionState? Function(bool value)? getDisabledState,
+  }) {
+    return (mockedAnswers[question] ?? defaultValue) as bool;
   }
 }
 
@@ -100,8 +102,6 @@ void main() {
     test(
       'Disabled state should respect preserved answers during Edit/Restart phase',
       () {
-        final wizard = DependencyWizard();
-
         // First pass: Enable B is true, so nothing is disabled
         fakePrompts.mockedAnswers['Enable B?'] = true;
         fakePrompts.mockedAnswers['Select Feature:'] =
@@ -127,16 +127,7 @@ void main() {
         // Simulation of user interaction:
         // Loop 1: Enable B (Yes) -> Feature (B) -> Summary (Edit)
         // Loop 2: Enable B (No) -> Feature (Check state here)
-        final sequence = [
-          true, // Enable B? (Loop 1)
-          DependencyFeature.featureB, // Select Feature: (Loop 1)
-          'Edit answers', // Summary (Loop 1)
-          false, // Enable B? (Loop 2)
-          DependencyFeature.featureA, // Select Feature: (Loop 2)
-          'Confirm and proceed', // Summary (Loop 2)
-        ];
 
-        int seqIdx = 0;
         fakePrompts.mockedAnswers['Enable B?'] =
             null; // Use sequential logic instead
 

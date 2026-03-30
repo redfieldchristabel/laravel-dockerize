@@ -77,6 +77,10 @@ class EnumSelectionStep<T extends Enum> extends WizardStep<T> {
 
 class ConfirmStep extends WizardStep<bool> {
   final bool defaultValue;
+  final SelectionState? Function(
+    bool value,
+    Map<String, dynamic> answers,
+  )? getDisabledState;
 
   ConfirmStep({
     required super.id,
@@ -84,6 +88,7 @@ class ConfirmStep extends WizardStep<bool> {
     required super.question,
     super.description,
     this.defaultValue = true,
+    this.getDisabledState,
   });
 
   @override
@@ -92,6 +97,9 @@ class ConfirmStep extends WizardStep<bool> {
         question,
         defaultValue: initialValue ?? defaultValue,
         description: description,
+        getDisabledState: getDisabledState != null
+            ? (value) => getDisabledState!(value, answers ?? {})
+            : null,
       );
 }
 

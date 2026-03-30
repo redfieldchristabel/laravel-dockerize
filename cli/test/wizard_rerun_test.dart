@@ -46,9 +46,11 @@ class FakePromptProvider implements PromptProvider {
   }
 
   @override
-  bool askConfirm(String question, {bool defaultValue = true, String? description}) {
+  bool askConfirm(String question, {bool defaultValue = true, String? description, SelectionState? Function(bool value)? getDisabledState}) {
     return (responses[_responseIndex++] ?? defaultValue) as bool;
   }
+
+
 }
 
 class TestWizard extends Wizard<String> {

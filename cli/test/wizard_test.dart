@@ -11,16 +11,6 @@ class FakePromptProvider implements PromptProvider {
   List<dynamic>? lastOptions;
 
   @override
-  bool askConfirm(
-    String question, {
-    bool defaultValue = true,
-    String? description,
-  }) {
-    lastQuestion = question;
-    return (lastAnswer ?? defaultValue) as bool;
-  }
-
-  @override
   T askSelection<T>(
     String question,
     List<T> options, {
@@ -31,6 +21,17 @@ class FakePromptProvider implements PromptProvider {
     lastQuestion = question;
     lastOptions = options;
     return (lastAnswer ?? options.first) as T;
+  }
+
+  @override
+  bool askConfirm(
+    String question, {
+    bool defaultValue = true,
+    String? description,
+    SelectionState? Function(bool value)? getDisabledState,
+  }) {
+    lastQuestion = question;
+    return (lastAnswer ?? defaultValue) as bool;
   }
 }
 

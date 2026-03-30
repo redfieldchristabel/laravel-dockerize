@@ -12,11 +12,11 @@ enum MockFeature with EnumValue, HasDisableSelection {
   const MockFeature(this.value);
 
   @override
-  SelectionState checkDisabled(Map<String, dynamic> answers) {
+  SelectionState? checkDisabled(Map<String, dynamic> answers) {
     if (this == MockFeature.featureB && answers['dependency'] == 'off') {
       return (isDisabled: true, reason: 'dependency is off');
     }
-    return (isDisabled: false, reason: null);
+    return null;
   }
 }
 
@@ -29,6 +29,7 @@ class FakePromptProvider implements PromptProvider {
     String question, {
     bool defaultValue = true,
     String? description,
+    SelectionState? Function(bool value)? getDisabledState,
   }) {
     return true;
   }
@@ -73,7 +74,7 @@ void main() {
       expect(fakePrompts.lastGetDisabledState, isNotNull);
 
       final stateA = fakePrompts.lastGetDisabledState!(MockFeature.featureA);
-      expect(stateA?.isDisabled, isFalse);
+      expect(stateA, isNull);
 
       final stateB = fakePrompts.lastGetDisabledState!(MockFeature.featureB);
       expect(stateB?.isDisabled, isTrue);
@@ -91,13 +92,13 @@ void main() {
           getDisabledState: (option, answers) =>
               option == 'two' && answers['allow_two'] == false
               ? (isDisabled: true, reason: 'not allowed')
-              : (isDisabled: false, reason: null),
+              : null,
         );
 
         step.ask(answers: {'allow_two': false});
 
         final stateOne = fakePrompts.lastGetDisabledState!('one');
-        expect(stateOne?.isDisabled, isFalse);
+        expect(stateOne, isNull);
 
         final stateTwo = fakePrompts.lastGetDisabledState!('two');
         expect(stateTwo?.isDisabled, isTrue);
