@@ -22,23 +22,7 @@ enum MockFeature with EnumValue, HasDisableSelection {
 
 class FakePromptProvider implements PromptProvider {
   Object? lastAnswer;
-  SelectionState Function(dynamic)? lastGetDisabledState;
-
-  @override
-  T askSelection<T>(
-    String question,
-    List<T> options, {
-    T? initialValue,
-    String? description,
-    SelectionState Function(T)? getDisabledState,
-  }) {
-    if (getDisabledState != null) {
-      lastGetDisabledState = (dynamic val) => getDisabledState(val as T);
-    } else {
-      lastGetDisabledState = null;
-    }
-    return (lastAnswer ?? options.first) as T;
-  }
+  SelectionState? Function(dynamic)? lastGetDisabledState;
 
   @override
   bool askConfirm(
@@ -47,6 +31,22 @@ class FakePromptProvider implements PromptProvider {
     String? description,
   }) {
     return true;
+  }
+
+  @override
+  T askSelection<T>(
+    String question,
+    List<T> options, {
+    T? initialValue,
+    String? description,
+    SelectionState? Function(T option)? getDisabledState,
+  }) {
+    if (getDisabledState != null) {
+      lastGetDisabledState = (dynamic val) => getDisabledState(val as T);
+    } else {
+      lastGetDisabledState = null;
+    }
+    return (lastAnswer ?? options.first) as T;
   }
 }
 
@@ -73,11 +73,11 @@ void main() {
       expect(fakePrompts.lastGetDisabledState, isNotNull);
 
       final stateA = fakePrompts.lastGetDisabledState!(MockFeature.featureA);
-      expect(stateA.isDisabled, isFalse);
+      expect(stateA?.isDisabled, isFalse);
 
       final stateB = fakePrompts.lastGetDisabledState!(MockFeature.featureB);
-      expect(stateB.isDisabled, isTrue);
-      expect(stateB.reason, 'dependency is off');
+      expect(stateB?.isDisabled, isTrue);
+      expect(stateB?.reason, 'dependency is off');
     });
 
     test(
@@ -97,11 +97,11 @@ void main() {
         step.ask(answers: {'allow_two': false});
 
         final stateOne = fakePrompts.lastGetDisabledState!('one');
-        expect(stateOne.isDisabled, isFalse);
+        expect(stateOne?.isDisabled, isFalse);
 
         final stateTwo = fakePrompts.lastGetDisabledState!('two');
-        expect(stateTwo.isDisabled, isTrue);
-        expect(stateTwo.reason, 'not allowed');
+        expect(stateTwo?.isDisabled, isTrue);
+        expect(stateTwo?.reason, 'not allowed');
       },
     );
   });

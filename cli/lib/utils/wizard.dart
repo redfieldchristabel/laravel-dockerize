@@ -20,7 +20,7 @@ abstract class WizardStep<T> {
 
 class SelectionStep extends WizardStep<String> {
   final List<String> options;
-  final ({bool isDisabled, String? reason}) Function(
+  final SelectionState? Function(
     String option,
     Map<String, dynamic> answers,
   )? getDisabledState;
@@ -69,7 +69,7 @@ class EnumSelectionStep<T extends Enum> extends WizardStep<T> {
         if (option is HasDisableSelection) {
           return (option as HasDisableSelection).checkDisabled(answers ?? {});
         }
-        return (isDisabled: false, reason: null);
+        return null;
       },
     );
   }

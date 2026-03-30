@@ -11,12 +11,11 @@ enum DependencyFeature with EnumValue, HasDisableSelection {
   const DependencyFeature(this.value);
 
   @override
-  SelectionState checkDisabled(Map<String, dynamic> answers) {
-    // Note: 'use_octane' matches the id in ScaffoldWizard
+  SelectionState? checkDisabled(Map<String, dynamic> answers) {
     if (this == DependencyFeature.featureB && answers['use_octane'] == true) {
       return (isDisabled: true, reason: 'Incompatible with Octane');
     }
-    return (isDisabled: false, reason: null);
+    return null;
   }
 }
 
@@ -35,7 +34,7 @@ class FakePromptProvider implements PromptProvider {
     List<T> options, {
     T? initialValue,
     String? description,
-    SelectionState Function(T option)? getDisabledState,
+    SelectionState? Function(T option)? getDisabledState,
   }) {
     if (question == 'Select Feature:') {
       lastFeatureStateB = getDisabledState?.call(DependencyFeature.featureB as T);
@@ -74,19 +73,11 @@ class TestWizard extends Wizard<String> {
 
 void main() {
   test('Wizard should update disabled state during rerun after editing', () {
-    // Scenario:
-    // 1. First run: 
-    //    - Select Feature B (Allowed, octane is null/false)
-    //    - Use Octane? YES
-    //    - Summary -> Edit answers
-    // 2. Second run (Rerun):
-    //    - Select Feature: (At this point, Feature B should be DISABLED because use_octane is true from prev run)
-    
     final fakePrompts = FakePromptProvider([
       DependencyFeature.featureB, // Loop 1: Select Feature
       true,                       // Loop 1: Use Octane? YES
       'Edit answers',             // Loop 1: Summary
-      DependencyFeature.featureA, // Loop 2: Select Feature (will check state here)
+      DependencyFeature.featureA, // Loop 2: Select Feature
       true,                       // Loop 2: Use Octane? YES
       'Confirm and proceed',      // Loop 2: Summary
     ]);
@@ -97,7 +88,6 @@ void main() {
     wizard.run();
     
     expect(fakePrompts.lastFeatureStateB, isNotNull);
-    expect(fakePrompts.lastFeatureStateB!.isDisabled, isTrue, 
-      reason: 'Feature B should be disabled in the second loop because use_octane was set to true in the first loop');
+    expect(fakePrompts.lastFeatureStateB!.isDisabled, isTrue);
   });
 }
