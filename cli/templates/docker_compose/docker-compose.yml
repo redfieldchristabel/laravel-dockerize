@@ -84,7 +84,7 @@ services:
       - PMA_HOST=db
 
   node:
-    image: node:18
+    image: node:22
     restart: unless-stopped
     working_dir: /app
     volumes:
