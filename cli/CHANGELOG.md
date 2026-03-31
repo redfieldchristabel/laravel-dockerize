@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/redfieldchristabel/laravel-dockerize/compare/v1.3.0...v1.4.0) (2026-03-31)
+
+
+### Features
+
+* upgrade node image version from 18 to 22 in docker-compose template ([41a0163](https://github.com/redfieldchristabel/laravel-dockerize/commit/41a0163de5043a49582f8971d4502bf19e3c6c01))
+
 ## [1.3.0](https://github.com/redfieldchristabel/laravel-dockerize/compare/v1.2.2...v1.3.0) (2026-03-31)
 
 
