@@ -1,0 +1,30 @@
+name: Dart CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Install dependencies
+        working-directory: ./cli
+        run: dart pub get
+
+      - name: Generate Assets
+        working-directory: ./cli
+        run: dart run tool/generate_assets.dart
+
+      - name: Run Tests
+        working-directory: ./cli
+        run: dart test
