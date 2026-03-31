@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/redfieldchristabel/laravel-dockerize/compare/v1.2.2...v1.3.0) (2026-03-31)
+
+
+### Features
+
+* implement `GitignoreService` to manage `.gitignore` updates ([e0a57e5](https://github.com/redfieldchristabel/laravel-dockerize/commit/e0a57e501bcea47853fb4ed8e45ad0f99cfb1113))
+
 ## [1.2.2](https://github.com/redfieldchristabel/laravel-dockerize/compare/v1.2.1...v1.2.2) (2026-03-31)
 
 
