@@ -15,4 +15,5 @@ COPY public /var/www/public
 
 # copy default nginx config
 COPY docker/nginx/app.conf /etc/nginx/conf.d/app.conf
-COPY docker/nginx/app_handler.conf /etc/nginx/include/app_handler.conf
+COPY docker/nginx/include/app_handler.conf /etc/nginx/include/app_handler.conf
+COPY docker/nginx/include/web-socket_handler.conf /etc/nginx/include/web-socket_handler.conf
