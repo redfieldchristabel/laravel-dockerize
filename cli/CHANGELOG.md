@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/redfieldchristabel/laravel-dockerize/compare/v1.2.1...v1.2.2) (2026-03-31)
+
+
+### Bug Fixes
+
+* move nginx handlers to include directory and add websocket support ([7ef37b2](https://github.com/redfieldchristabel/laravel-dockerize/commit/7ef37b2a31ae99dee5d9a0dd4447e16cb2d4d815))
+
 ## [1.2.1](https://github.com/redfieldchristabel/laravel-dockerize/compare/v1.2.0...v1.2.1) (2026-03-30)
 
 
