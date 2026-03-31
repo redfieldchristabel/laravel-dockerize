@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:cli/services/env.dart';
 import 'package:cli/services/generator.dart';
+import 'package:cli/services/gitignore.dart';
 import 'package:logging/logging.dart';
 
 import '../models/scaffold_options.dart';
@@ -12,6 +13,7 @@ class ScaffoldCommand extends Command {
   final _log = Logger('Scaffold');
   final _generatorService = GeneratorService();
   final _envService = EnvService();
+  final _gitignoreService = GitignoreService();
 
   @override
   final name = 'scaffold';
@@ -80,6 +82,10 @@ class ScaffoldCommand extends Command {
     _log.info('✨ Tools generated successfully!');
 
     _envService.configure(option);
+
+    _log.info('🙈 Updating .gitignore...');
+    _gitignoreService.addDbMountPath(option.database);
+    _log.info('✨ .gitignore updated successfully!');
 
     _log.info('🎉 Finished wizard process.');
 

@@ -100,7 +100,7 @@ void main() {
         generator.generateNginxConf(options);
 
         expect(fs.file('docker/nginx/app.conf').existsSync(), isTrue);
-        expect(fs.file('docker/nginx/app_handler.conf').existsSync(), isTrue);
+        expect(fs.file('docker/nginx/include/app_handler.conf').existsSync(), isTrue);
         expect(
           fs.file('docker/nginx/include/web-socket_handler.conf').existsSync(),
           isTrue,
