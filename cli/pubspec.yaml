@@ -1,6 +1,6 @@
 name: cli
 description: A sample command-line application.
-version: 1.2.0
+version: 1.2.1
 
 environment:
   sdk: ^3.10.7
