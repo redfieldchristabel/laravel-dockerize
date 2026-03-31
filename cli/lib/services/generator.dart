@@ -155,7 +155,7 @@ class GeneratorService {
         : nginxconfigFpmHandlerTemplate;
     _log.finest('Use ${options.useOctane ? 'octane' : 'fpm'} handler');
 
-    fs.file('docker/nginx/app_handler.conf').writeAsStringSync(content);
+    fs.file('docker/nginx/include/app_handler.conf').writeAsStringSync(content);
 
     // generate web-soket handler
     final wsContent = options.webSocket == WebSocketTech.soketi
