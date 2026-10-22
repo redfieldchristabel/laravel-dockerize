@@ -5,6 +5,9 @@ ARG VARIANT=cli
 # Base stage: Common setup for Alpine variants
 FROM php:${PHP_VERSION}-${VARIANT} AS base
 ARG VARIANT
+# Pinned tarball: pecl.php.net serves broken REST metadata for redis,
+# so `pecl install redis` by name fails. Bump deliberately.
+ARG REDIS_VERSION=6.3.0
 
 # Hardcode user and uid
 ENV user=laravel
@@ -17,7 +20,9 @@ RUN apk add --no-cache \
         oniguruma-dev \
         libzip-dev \
         $PHPIZE_DEPS \
-    && pecl install redis \
+    && curl -fsSL --retry 3 -o /tmp/redis.tgz "https://pecl.php.net/get/redis-${REDIS_VERSION}.tgz" \
+    && pecl install /tmp/redis.tgz \
+    && rm -f /tmp/redis.tgz \
     && docker-php-ext-install pdo pdo_mysql mbstring bcmath xml zip \
     && docker-php-ext-enable pdo pdo_mysql mbstring bcmath xml redis \
     && apk del --no-cache libxml2-dev oniguruma-dev $PHPIZE_DEPS \
