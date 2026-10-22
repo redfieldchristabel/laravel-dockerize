@@ -17,7 +17,9 @@ jobs:
     permissions:
       contents: read
       packages: write
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # Manual dispatch has no workflow_run payload, so allow it explicitly;
+    # automatic runs still wait for a fully successful base-image build.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
         php_version: ["8.4", "8.3", "8.2"]
