@@ -6,6 +6,11 @@ on:
     types:
       - completed
   workflow_dispatch:
+    inputs:
+      alpine_only:
+        description: Build only Alpine variants (Octane and Filament)
+        type: boolean
+        default: false
 
 env:
   LATEST_PHP_VERSION: "8.4"
@@ -23,7 +28,7 @@ jobs:
     strategy:
       matrix:
         php_version: ["8.4", "8.3", "8.2"]
-        variant: ["cli", "cli-alpine"]
+        variant: ${{ fromJSON(inputs.alpine_only && '["cli-alpine"]' || '["cli", "cli-alpine"]') }}
       fail-fast: false
     steps:
       - name: Checkout repository
@@ -104,7 +109,7 @@ jobs:
     strategy:
       matrix:
         php_version: ["8.4", "8.3", "8.2"]
-        variant: ["cli", "cli-alpine"]
+        variant: ${{ fromJSON(inputs.alpine_only && '["cli-alpine"]' || '["cli", "cli-alpine"]') }}
       fail-fast: false
     steps:
       - name: Checkout repository

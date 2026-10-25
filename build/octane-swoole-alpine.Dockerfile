@@ -8,7 +8,8 @@ ARG VARIANT
 
 USER root
 
-# Install system dependencies for Swoole
+# Install system dependencies for Swoole.
+# Pin 6.2.2: Swoole 6.2.3 fails on Alpine with sw_usleep undeclared in misc.cc.
 RUN apk add --no-cache \
     pcre2-dev \
     brotli-dev \
@@ -16,7 +17,7 @@ RUN apk add --no-cache \
     && apk add --no-cache --virtual .build-deps \
     build-base \
     autoconf \
-    && pecl install swoole \
+    && pecl install swoole-6.2.2 \
     && docker-php-ext-enable swoole \
     && docker-php-ext-install pcntl \
     && apk del --no-cache .build-deps \
